@@ -1,0 +1,252 @@
+package org.succlz123.deepco.app.ui.chat
+
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.succlz123.deepco.app.json.appJson
+import org.succlz123.deepco.app.base.BaseBizViewModel.Companion.HISTORY_JSON
+import org.succlz123.deepco.app.base.BaseBizViewModel.Companion.get
+import org.succlz123.deepco.app.base.BaseBizViewModel.Companion.put
+import org.succlz123.deepco.app.llm.ChatMessage
+import org.succlz123.deepco.app.llm.ChatMessage.Companion.TYPE_LOADING
+import org.succlz123.deepco.app.llm.ChatMessageData
+import org.succlz123.deepco.app.llm.ChatMessageData.Companion.NON_ID
+import org.succlz123.deepco.app.llm.deepseek.DeepSeekApiService
+import org.succlz123.deepco.app.llm.deepseek.DeepSeekResponse
+import org.succlz123.deepco.app.llm.deepseek.ToolCall
+import org.succlz123.deepco.app.llm.mcp.McpConfig
+import org.succlz123.deepco.app.llm.mcp.Tool
+import org.succlz123.deepco.app.llm.mcp.ToolUse
+import org.succlz123.deepco.app.llm.role.RoleDefine
+import org.succlz123.deepco.app.llm.role.RoleInfo
+import org.succlz123.deepco.app.ui.llm.LLM
+import org.succlz123.deepco.app.ui.llm.MainLLMViewModel
+import org.succlz123.lib.screen.result.ScreenResult
+import kotlin.random.Random
+
+class ChatViewModel {
+
+    companion object {
+
+        fun localHistory(): HashMap<Long, ChatMessageData>? {
+            return try {
+                val map = hashMapOf<Long, ChatMessageData>()
+                for (data in appJson.decodeFromString<List<ChatMessageData>>(get(HISTORY_JSON))) {
+                    map[data.id] = data
+                }
+                map
+            } catch (e: Exception) {
+                null
+            }
+        }
+
+        fun saveHistory(msgList: List<ChatMessageData>) {
+            put(HISTORY_JSON, appJson.encodeToString(msgList))
+        }
+
+        val STREAM_LIST = listOf("stream", "complete")
+
+        val DEFAULT_STREAM_MODEL = "stream"
+    }
+
+    val history = MutableStateFlow<Map<Long, ChatMessageData>>(localHistory().orEmpty())
+
+    val selectedHistory = MutableStateFlow<ChatMessageData?>(null)
+
+    val selectedStreamModel = MutableStateFlow<String>(DEFAULT_STREAM_MODEL)
+
+    val selectedRole = MutableStateFlow<RoleInfo>(RoleDefine.roles.first())
+
+    val selectedMCPList = MutableStateFlow<List<McpConfig>>(emptyList())
+
+    val preChatMessage = MutableStateFlow<ChatMessageData>(ChatMessageData())
+
+    val lastChatResponse = MutableStateFlow<ScreenResult<Int>>(ScreenResult.Uninitialized)
+
+    fun clear() {
+        updateHistory()
+        selectedHistory.value = null
+        preChatMessage.value = ChatMessageData()
+        lastChatResponse.value = ScreenResult.Uninitialized
+    }
+
+    fun updateHistory() {
+        if (preChatMessage.value.list.isNotEmpty()) {
+            history.value = history.value.toMutableMap().apply {
+                val nonLoading = preChatMessage.value.list.filter { !it.isLoading() }
+                put(preChatMessage.value.id, preChatMessage.value.copy(list = nonLoading))
+            }
+        }
+        saveHistory(history.value.values.toList())
+    }
+
+    fun removeHistory(messagesId: Long) {
+        selectedHistory.value = null
+        history.value = history.value.toMutableMap().apply {
+            remove(messagesId)
+        }
+        if (preChatMessage.value.id == messagesId) {
+            preChatMessage.value = ChatMessageData()
+        }
+        saveHistory(history.value.values.toList())
+    }
+
+    fun chat(content: String, llm: LLM, model: String, mcpList: Map<String, List<Tool>>, manuallyClear: Boolean, toolsCallCb: suspend (List<ToolCall>) -> List<ToolUse>?) {
+        if (lastChatResponse.value is ScreenResult.Loading) {
+            return
+        }
+        val loadingMessage = ChatMessage(
+            id = TYPE_LOADING,
+            isFromMe = false
+        ).apply {
+            changeContent("Thinking...")
+        }
+
+        preChatMessage.value = preChatMessage.value.copy(
+            list = preChatMessage.value.list.toMutableList().apply {
+                add(ChatMessage(modelKey = model, isFromMe = true).apply {
+                    changeContent(content)
+                })
+                add(loadingMessage)
+            }, id = if (preChatMessage.value.id == NON_ID) {
+                System.currentTimeMillis()
+            } else {
+                preChatMessage.value.id
+            }
+        )
+        lastChatResponse.value = ScreenResult.Loading()
+        val prompt = selectedRole.value.prompt
+        val mcp = selectedMCPList.value
+        val tools = mcpList.filter { server -> mcp.find { inner -> inner.name == server.key } != null }.values.toList()
+        GlobalScope.launch {
+            withContext(Dispatchers.IO) {
+                val stream = selectedStreamModel.value == "stream"
+                if (llm.provider == MainLLMViewModel.PROVIDER_DEEPSEEK) {
+                    val startTime = System.currentTimeMillis()
+                    var reCall = true
+                    var toolUseResult: List<ToolUse>? = null
+                    while (reCall) {
+                        reCall = false
+                        DeepSeekApiService.chat(
+                            prompt, if (manuallyClear) {
+                                emptyList()
+                            } else {
+                                preChatMessage.value.list
+                            }, llm.apiKey, model, stream, tools, toolUseResult,
+                            { response, isStop ->
+                                val contentSb = StringBuilder()
+                                val reasoningContentSb = StringBuilder()
+                                if (loadingMessage.id == TYPE_LOADING) {
+                                    loadingMessage.id = System.currentTimeMillis()
+                                }
+                                if (!isStop) {
+                                    if (response.errorMsg.isEmpty()) {
+                                        reasoningContentSb.append(response.choices?.firstOrNull()?.delta?.reasoning_content.orEmpty())
+                                        contentSb.append(response.choices?.firstOrNull()?.delta?.content.orEmpty())
+                                    } else {
+                                        contentSb.append(response.errorMsg)
+                                    }
+                                    loadingMessage.changeReasoningContent(reasoningContentSb.toString())
+                                    loadingMessage.changeContent(contentSb.toString())
+                                } else {
+                                    if (response.errorMsg.isEmpty()) {
+                                        reasoningContentSb.append(response.choices?.firstOrNull()?.message?.reasoning_content.orEmpty())
+                                        if (!stream) {
+                                            contentSb.append(response.choices?.firstOrNull()?.message?.content.orEmpty())
+                                        }
+                                    } else {
+                                        contentSb.append(response.errorMsg)
+                                    }
+
+                                    loadingMessage.promptTokens = response.usage?.prompt_tokens ?: 0
+                                    loadingMessage.completionTokens = response.usage?.completion_tokens ?: 0
+                                    loadingMessage.elapsedTime = System.currentTimeMillis() - startTime
+
+                                    loadingMessage.changeReasoningContent(reasoningContentSb.toString())
+                                    loadingMessage.changeContent(contentSb.toString())
+
+                                    val apiToolCalls = response.choices?.firstOrNull()?.message?.tool_calls
+                                    if (!apiToolCalls.isNullOrEmpty()) {
+                                        loadingMessage.changeToolCall(apiToolCalls.joinToString() { it.function?.name.orEmpty() })
+                                        toolUseResult = toolsCallCb.invoke(apiToolCalls)
+                                        org.succlz123.lib.logger.Logger.log("Tool Use Result: ${toolUseResult?.joinToString()}")
+                                        reCall = true
+//                                    preChatMessage.value = preChatMessage.value.copy(
+//                                        list = preChatMessage.value.list.toMutableList().apply {
+//                                            add(ChatMessage(modelKey = model, isFromMe = true).apply {
+//                                                changeContent(toolUse.orEmpty().joinToString() {
+//                                                    "Tool Name: ${it.toolName}\nTool Result: ${it.toolResult}"
+//                                                })
+//                                            })
+//                                        }
+//                                    )
+                                    }
+                                    lastChatResponse.value = ScreenResult.Success(Random.nextInt())
+                                }
+                            }
+                        )
+                    }
+                } else {
+                    lastChatResponse.value = ScreenResult.Fail(Exception("Not support provider"))
+                }
+            }
+        }
+    }
+
+    suspend fun handle(
+        loadingMessage: ChatMessage, isStop: Boolean, response: DeepSeekResponse,
+        startTime: Long, stream: Boolean,
+        toolsCallCb: suspend (List<ToolCall>) -> Unit
+    ) {
+        val contentSb = StringBuilder()
+        val reasoningContentSb = StringBuilder()
+        if (loadingMessage.id == TYPE_LOADING) {
+            loadingMessage.id = System.currentTimeMillis()
+        }
+        if (!isStop) {
+            if (response.errorMsg.isEmpty()) {
+                reasoningContentSb.append(response.choices?.firstOrNull()?.delta?.reasoning_content.orEmpty())
+                contentSb.append(response.choices?.firstOrNull()?.delta?.content.orEmpty())
+            } else {
+                contentSb.append(response.errorMsg)
+            }
+            loadingMessage.changeReasoningContent(reasoningContentSb.toString())
+            loadingMessage.changeContent(contentSb.toString())
+        } else {
+            if (response.errorMsg.isEmpty()) {
+                reasoningContentSb.append(response.choices?.firstOrNull()?.message?.reasoning_content.orEmpty())
+                if (!stream) {
+                    contentSb.append(response.choices?.firstOrNull()?.message?.content.orEmpty())
+                }
+            } else {
+                contentSb.append(response.errorMsg)
+            }
+
+            loadingMessage.promptTokens = response.usage?.prompt_tokens ?: 0
+            loadingMessage.completionTokens = response.usage?.completion_tokens ?: 0
+            loadingMessage.elapsedTime = System.currentTimeMillis() - startTime
+
+            loadingMessage.changeReasoningContent(reasoningContentSb.toString())
+            loadingMessage.changeContent(contentSb.toString())
+
+            val apiToolCalls = response.choices?.firstOrNull()?.message?.tool_calls
+            if (!apiToolCalls.isNullOrEmpty()) {
+                loadingMessage.changeToolCall(apiToolCalls.joinToString() { it.function?.name.orEmpty() })
+                toolsCallCb.invoke(apiToolCalls)
+//                reCall(toolUse)
+//                                    preChatMessage.value = preChatMessage.value.copy(
+//                                        list = preChatMessage.value.list.toMutableList().apply {
+//                                            add(ChatMessage(modelKey = model, isFromMe = true).apply {
+//                                                changeContent(toolUse.orEmpty().joinToString() {
+//                                                    "Tool Name: ${it.toolName}\nTool Result: ${it.toolResult}"
+//                                                })
+//                                            })
+//                                        }
+//                                    )
+            }
+            lastChatResponse.value = ScreenResult.Success(Random.nextInt())
+        }
+    }
+}

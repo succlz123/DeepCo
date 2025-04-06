@@ -1,0 +1,3 @@
+[submodule "compose-screen"]
+	path = compose-screen
+	url = git@github.com:succlz123/compose-screen.git

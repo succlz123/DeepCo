@@ -6,10 +6,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonElement
+import org.succlz123.deepco.app.base.LocalStorage
+import org.succlz123.deepco.app.base.JSON_MCP
 import org.succlz123.deepco.app.json.appJson
-import org.succlz123.deepco.app.base.BaseBizViewModel
-import org.succlz123.deepco.app.base.BaseBizViewModel.Companion.MCP_JSON
-import org.succlz123.deepco.app.base.BaseBizViewModel.Companion.put
 import org.succlz123.deepco.app.llm.deepseek.ToolCall
 import org.succlz123.deepco.app.llm.mcp.McpConfig
 import org.succlz123.deepco.app.llm.mcp.Tool
@@ -25,19 +24,9 @@ class MainMcpViewModel : ScreenPageViewModel() {
     companion object {
 
         val MCP_SERVERS = listOf<String>("https://github.com/modelcontextprotocol/servers", "mcp.so", "glama.ai", "pulsemcp.com")
-
-        fun saveMcpList(mcpList: List<McpConfig>) {
-            put(MCP_JSON, appJson.encodeToString(mcpList))
-        }
-
-        fun getMcpList(): List<McpConfig>? {
-            return try {
-                appJson.decodeFromString<List<McpConfig>>(BaseBizViewModel.Companion.get(MCP_JSON))
-            } catch (e: Exception) {
-                null
-            }
-        }
     }
+
+    val mcpLocalStorage = LocalStorage(JSON_MCP)
 
     val nodeJsVersion: MutableStateFlow<String?> = MutableStateFlow(null)
 
@@ -45,7 +34,7 @@ class MainMcpViewModel : ScreenPageViewModel() {
 
     val UVVersion: MutableStateFlow<String?> = MutableStateFlow(null)
 
-    val mcpList = MutableStateFlow(getMcpList().orEmpty())
+    val mcpList = MutableStateFlow(mcpLocalStorage.get<List<McpConfig>>().orEmpty())
 
     val mcpServer = MutableStateFlow(emptyMap<String, ScreenResult<List<Tool>>>())
 
@@ -94,7 +83,7 @@ class MainMcpViewModel : ScreenPageViewModel() {
             return
         }
         mcpList.value = mcpList.value + McpConfig(name, command, args, false)
-        saveMcpList(mcpList.value)
+        mcpLocalStorage.put(mcpList.value)
     }
 
     fun getServer(): Map<String, List<Tool>> {

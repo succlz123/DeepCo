@@ -5,24 +5,22 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.succlz123.deepco.app.json.appJson
-import org.succlz123.deepco.app.base.BaseBizViewModel.Companion.HISTORY_JSON
-import org.succlz123.deepco.app.base.BaseBizViewModel.Companion.get
-import org.succlz123.deepco.app.base.BaseBizViewModel.Companion.put
+import org.succlz123.deepco.app.base.JSON_HISTORY
+import org.succlz123.deepco.app.base.LocalStorage
 import org.succlz123.deepco.app.llm.ChatMessage
 import org.succlz123.deepco.app.llm.ChatMessage.Companion.TYPE_LOADING
 import org.succlz123.deepco.app.llm.ChatMessageData
 import org.succlz123.deepco.app.llm.ChatMessageData.Companion.NON_ID
 import org.succlz123.deepco.app.llm.deepseek.DeepSeekApiService
-import org.succlz123.deepco.app.llm.deepseek.DeepSeekResponse
 import org.succlz123.deepco.app.llm.deepseek.ToolCall
 import org.succlz123.deepco.app.llm.mcp.McpConfig
 import org.succlz123.deepco.app.llm.mcp.Tool
 import org.succlz123.deepco.app.llm.mcp.ToolUse
+import org.succlz123.deepco.app.llm.role.PromptInfo
 import org.succlz123.deepco.app.llm.role.RoleDefine
-import org.succlz123.deepco.app.llm.role.RoleInfo
 import org.succlz123.deepco.app.ui.llm.LLM
 import org.succlz123.deepco.app.ui.llm.MainLLMViewModel
+import org.succlz123.lib.logger.Logger
 import org.succlz123.lib.screen.result.ScreenResult
 import kotlin.random.Random
 
@@ -30,26 +28,12 @@ class ChatViewModel {
 
     companion object {
 
-        fun localHistory(): HashMap<Long, ChatMessageData>? {
-            return try {
-                val map = hashMapOf<Long, ChatMessageData>()
-                for (data in appJson.decodeFromString<List<ChatMessageData>>(get(HISTORY_JSON))) {
-                    map[data.id] = data
-                }
-                map
-            } catch (e: Exception) {
-                null
-            }
-        }
-
-        fun saveHistory(msgList: List<ChatMessageData>) {
-            put(HISTORY_JSON, appJson.encodeToString(msgList))
-        }
-
         val STREAM_LIST = listOf("stream", "complete")
 
         val DEFAULT_STREAM_MODEL = "stream"
     }
+
+    val chatLocalStorage = LocalStorage(JSON_HISTORY)
 
     val history = MutableStateFlow<Map<Long, ChatMessageData>>(localHistory().orEmpty())
 
@@ -57,7 +41,7 @@ class ChatViewModel {
 
     val selectedStreamModel = MutableStateFlow<String>(DEFAULT_STREAM_MODEL)
 
-    val selectedRole = MutableStateFlow<RoleInfo>(RoleDefine.roles.first())
+    val selectedRole = MutableStateFlow<PromptInfo>(RoleDefine.roles.first())
 
     val selectedMCPList = MutableStateFlow<List<McpConfig>>(emptyList())
 
@@ -72,6 +56,15 @@ class ChatViewModel {
         lastChatResponse.value = ScreenResult.Uninitialized
     }
 
+    fun localHistory(): HashMap<Long, ChatMessageData>? {
+        val map = hashMapOf<Long, ChatMessageData>()
+        val chats = chatLocalStorage.get<List<ChatMessageData>>().orEmpty()
+        for (data in chats) {
+            map[data.id] = data
+        }
+        return map
+    }
+
     fun updateHistory() {
         if (preChatMessage.value.list.isNotEmpty()) {
             history.value = history.value.toMutableMap().apply {
@@ -79,7 +72,7 @@ class ChatViewModel {
                 put(preChatMessage.value.id, preChatMessage.value.copy(list = nonLoading))
             }
         }
-        saveHistory(history.value.values.toList())
+        chatLocalStorage.put(history.value.values.toList())
     }
 
     fun removeHistory(messagesId: Long) {
@@ -90,7 +83,7 @@ class ChatViewModel {
         if (preChatMessage.value.id == messagesId) {
             preChatMessage.value = ChatMessageData()
         }
-        saveHistory(history.value.values.toList())
+        chatLocalStorage.put(history.value.values.toList())
     }
 
     fun chat(content: String, llm: LLM, model: String, mcpList: Map<String, List<Tool>>, manuallyClear: Boolean, toolsCallCb: suspend (List<ToolCall>) -> List<ToolUse>?) {
@@ -117,7 +110,7 @@ class ChatViewModel {
             }
         )
         lastChatResponse.value = ScreenResult.Loading()
-        val prompt = selectedRole.value.prompt
+        val prompt = selectedRole.value.description
         val mcp = selectedMCPList.value
         val tools = mcpList.filter { server -> mcp.find { inner -> inner.name == server.key } != null }.values.toList()
         GlobalScope.launch {
@@ -129,6 +122,8 @@ class ChatViewModel {
                     var toolUseResult: List<ToolUse>? = null
                     while (reCall) {
                         reCall = false
+                        val contentSb = StringBuilder()
+                        val reasoningContentSb = StringBuilder()
                         DeepSeekApiService.chat(
                             prompt, if (manuallyClear) {
                                 emptyList()
@@ -136,8 +131,6 @@ class ChatViewModel {
                                 preChatMessage.value.list
                             }, llm.apiKey, model, stream, tools, toolUseResult,
                             { response, isStop ->
-                                val contentSb = StringBuilder()
-                                val reasoningContentSb = StringBuilder()
                                 if (loadingMessage.id == TYPE_LOADING) {
                                     loadingMessage.id = System.currentTimeMillis()
                                 }
@@ -171,7 +164,7 @@ class ChatViewModel {
                                     if (!apiToolCalls.isNullOrEmpty()) {
                                         loadingMessage.changeToolCall(apiToolCalls.joinToString() { it.function?.name.orEmpty() })
                                         toolUseResult = toolsCallCb.invoke(apiToolCalls)
-                                        org.succlz123.lib.logger.Logger.log("Tool Use Result: ${toolUseResult?.joinToString()}")
+                                        Logger.log("Tool Use Result: ${toolUseResult?.joinToString()}")
                                         reCall = true
 //                                    preChatMessage.value = preChatMessage.value.copy(
 //                                        list = preChatMessage.value.list.toMutableList().apply {
@@ -187,66 +180,14 @@ class ChatViewModel {
                                 }
                             }
                         )
+                        if (reCall) {
+                            Logger.log("Call Next")
+                        }
                     }
                 } else {
                     lastChatResponse.value = ScreenResult.Fail(Exception("Not support provider"))
                 }
             }
-        }
-    }
-
-    suspend fun handle(
-        loadingMessage: ChatMessage, isStop: Boolean, response: DeepSeekResponse,
-        startTime: Long, stream: Boolean,
-        toolsCallCb: suspend (List<ToolCall>) -> Unit
-    ) {
-        val contentSb = StringBuilder()
-        val reasoningContentSb = StringBuilder()
-        if (loadingMessage.id == TYPE_LOADING) {
-            loadingMessage.id = System.currentTimeMillis()
-        }
-        if (!isStop) {
-            if (response.errorMsg.isEmpty()) {
-                reasoningContentSb.append(response.choices?.firstOrNull()?.delta?.reasoning_content.orEmpty())
-                contentSb.append(response.choices?.firstOrNull()?.delta?.content.orEmpty())
-            } else {
-                contentSb.append(response.errorMsg)
-            }
-            loadingMessage.changeReasoningContent(reasoningContentSb.toString())
-            loadingMessage.changeContent(contentSb.toString())
-        } else {
-            if (response.errorMsg.isEmpty()) {
-                reasoningContentSb.append(response.choices?.firstOrNull()?.message?.reasoning_content.orEmpty())
-                if (!stream) {
-                    contentSb.append(response.choices?.firstOrNull()?.message?.content.orEmpty())
-                }
-            } else {
-                contentSb.append(response.errorMsg)
-            }
-
-            loadingMessage.promptTokens = response.usage?.prompt_tokens ?: 0
-            loadingMessage.completionTokens = response.usage?.completion_tokens ?: 0
-            loadingMessage.elapsedTime = System.currentTimeMillis() - startTime
-
-            loadingMessage.changeReasoningContent(reasoningContentSb.toString())
-            loadingMessage.changeContent(contentSb.toString())
-
-            val apiToolCalls = response.choices?.firstOrNull()?.message?.tool_calls
-            if (!apiToolCalls.isNullOrEmpty()) {
-                loadingMessage.changeToolCall(apiToolCalls.joinToString() { it.function?.name.orEmpty() })
-                toolsCallCb.invoke(apiToolCalls)
-//                reCall(toolUse)
-//                                    preChatMessage.value = preChatMessage.value.copy(
-//                                        list = preChatMessage.value.list.toMutableList().apply {
-//                                            add(ChatMessage(modelKey = model, isFromMe = true).apply {
-//                                                changeContent(toolUse.orEmpty().joinToString() {
-//                                                    "Tool Name: ${it.toolName}\nTool Result: ${it.toolResult}"
-//                                                })
-//                                            })
-//                                        }
-//                                    )
-            }
-            lastChatResponse.value = ScreenResult.Success(Random.nextInt())
         }
     }
 }

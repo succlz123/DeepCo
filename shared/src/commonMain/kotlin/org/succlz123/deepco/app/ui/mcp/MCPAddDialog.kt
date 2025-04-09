@@ -118,13 +118,11 @@ fun MCPAddDialog() {
                 Spacer(modifier = Modifier.height(12.dp))
                 Box(modifier = Modifier.fillMaxWidth()) {
                     AppButton(
-                        modifier = Modifier.align(Alignment.BottomEnd), contentPaddingValues = PaddingValues(
+                        modifier = Modifier.align(Alignment.BottomEnd), text = "Save", contentPaddingValues = PaddingValues(
                             start = 16.dp, top = 10.dp, end = 16.dp, bottom = 10.dp
-                        ), {
+                        ), onClick = {
                             vm.add(name.value, command.value, args.value.split(" "))
                             screenNavigator.pop()
-                        }, {
-                            Text("Save", color = ColorResource.white, style = MaterialTheme.typography.body1)
                         })
                 }
                 Spacer(modifier = Modifier.height(32.dp))

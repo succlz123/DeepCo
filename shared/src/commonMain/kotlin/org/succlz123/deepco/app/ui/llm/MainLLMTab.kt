@@ -36,12 +36,10 @@ fun MainLLMTab(modifier: Modifier = Modifier) {
     val screenNavigator = LocalScreenNavigator.current
     MainRightTitleLayout(modifier, text = "My LLM", topRightContent = {
         AppButton(
-            modifier = Modifier, contentPaddingValues = PaddingValues(
+            modifier = Modifier, text = "Add New LLM", contentPaddingValues = PaddingValues(
                 start = 16.dp, top = 10.dp, end = 16.dp, bottom = 10.dp
-            ), {
+            ), onClick = {
                 screenNavigator.push(Manifest.LLMAddPopupScreen)
-            }, {
-                Text("Add New LLM", color = ColorResource.white, style = MaterialTheme.typography.body1)
             })
     }) {
         Column(
@@ -115,12 +113,10 @@ fun MainLLMTab(modifier: Modifier = Modifier) {
                         Spacer(modifier = Modifier.width(12.dp))
                         Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)) {
                             AppButton(
-                                modifier = Modifier, contentPaddingValues = PaddingValues(
+                                modifier = Modifier, text = "Delete", contentPaddingValues = PaddingValues(
                                     horizontal = 12.dp, vertical = 6.dp
-                                ), {
+                                ), onClick = {
                                     viewModel.remove(item.name.orEmpty())
-                                }, {
-                                    Text("Delete", color = ColorResource.white, style = MaterialTheme.typography.body1)
                                 })
                         }
                         Spacer(modifier = Modifier.width(12.dp))

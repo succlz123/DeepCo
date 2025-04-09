@@ -3,6 +3,7 @@ package org.succlz123.deepco.app.base
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.ButtonDefaults.outlinedButtonColors
 import androidx.compose.material.icons.Icons
@@ -184,28 +185,30 @@ fun AppVerticalDivider(modifier: Modifier = Modifier.fillMaxHeight()) {
 
 @Composable
 fun AppButton(
-    modifier: Modifier = Modifier, contentPaddingValues: PaddingValues = PaddingValues(
-        start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp
-    ), onClick: () -> Unit, content: @Composable () -> Unit
+    modifier: Modifier = Modifier, text: String,
+    contentPaddingValues: PaddingValues = PaddingValues(
+        start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp
+    ),
+    onClick: () -> Unit,
 ) {
-    Button(
-        modifier = modifier.padding(0.dp).defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
-        colors = outlinedButtonColors(
-            backgroundColor = ColorResource.theme, contentColor = Color.White, disabledContentColor = Color.Transparent
-        ),
-        contentPadding = contentPaddingValues, onClick = onClick
+    AppButton(modifier, contentPaddingValues = contentPaddingValues, onClick = onClick, content = {
+        Text(text, color = ColorResource.white, style = MaterialTheme.typography.body1)
+    })
+}
+
+@Composable
+fun AppButton(
+    modifier: Modifier = Modifier, contentPaddingValues: PaddingValues, onClick: () -> Unit, content: @Composable () -> Unit
+) {
+    Box(
+        modifier = modifier.background(ColorResource.theme, shape = RoundedCornerShape(4.dp))
+            .padding(contentPaddingValues).noRippleClickable {
+                onClick.invoke()
+            }
     ) {
         content.invoke()
     }
 }
-
-//Box(
-//modifier = Modifier.background(ColorResource.theme, shape = RoundedCornerShape(4.dp))
-//.padding(horizontal = 16.dp, vertical = 10.dp).noRippleClickable {
-//}
-//) {
-//    Text("New Chat", color = ColorResource.white, style = MaterialTheme.typography.body1)
-//}
 
 @Composable
 fun AppOutlineButton(

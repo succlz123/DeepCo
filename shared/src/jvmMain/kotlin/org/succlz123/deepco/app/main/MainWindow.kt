@@ -7,6 +7,8 @@ import org.succlz123.deepco.app.ui.mcp.MCPAddDialog
 import org.succlz123.lib.screen.ScreenHost
 import org.succlz123.lib.screen.rememberScreenNavigator
 import org.succlz123.deepco.app.base.BaseWindow
+import org.succlz123.deepco.app.ui.prompt.PromptAddDialog
+import org.succlz123.deepco.app.ui.prompt.PromptDetailDialog
 import org.succlz123.deepco.app.window.AppWindow
 
 @Composable
@@ -22,6 +24,12 @@ fun MainWindow(appWindow: AppWindow) {
             }
             itemScreen(screenName = (Manifest.MCPAddPopupScreen)) {
                 MCPAddDialog()
+            }
+            itemScreen(screenName = (Manifest.PromptAddPopupScreen)) {
+                PromptAddDialog()
+            }
+            itemScreen(screenName = (Manifest.PromptDetailPopupScreen)) {
+                PromptDetailDialog()
             }
         }
     }

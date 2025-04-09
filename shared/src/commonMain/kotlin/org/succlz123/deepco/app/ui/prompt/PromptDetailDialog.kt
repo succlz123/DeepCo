@@ -1,4 +1,4 @@
-package org.succlz123.deepco.app.ui.llm
+package org.succlz123.deepco.app.ui.prompt
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -31,21 +31,28 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import deep_co.shared.generated.resources.Res
 import deep_co.shared.generated.resources.ic_close
+import org.jetbrains.compose.resources.painterResource
 import org.succlz123.deepco.app.base.AppButton
 import org.succlz123.deepco.app.base.CustomEdit
-import org.succlz123.deepco.app.base.CustomExposedDropdownMenu
-import org.succlz123.deepco.app.base.DropdownMenuDes
-import org.succlz123.deepco.app.ui.llm.MainLLMViewModel.Companion.DEFAULT_LLM
+import org.succlz123.deepco.app.llm.role.PromptInfo
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.lib.click.noRippleClickable
 import org.succlz123.lib.screen.LocalScreenNavigator
+import org.succlz123.lib.screen.LocalScreenRecord
+import org.succlz123.lib.screen.value
 import org.succlz123.lib.screen.viewmodel.globalViewModel
 
 @Composable
-fun LLMAddDialog() {
+fun PromptDetailDialog() {
     val screenNavigator = LocalScreenNavigator.current
+    val promptInfo = LocalScreenRecord.current.arguments.value<PromptInfo>("item")
+    if (promptInfo == null) {
+        screenNavigator.toast("Prompt Info is Null!")
+        screenNavigator.pop()
+        return
+    }
     val vm = globalViewModel {
-        MainLLMViewModel()
+        MainPromptViewModel()
     }
     Box(modifier = Modifier.fillMaxSize().noRippleClickable {}, contentAlignment = Alignment.Center) {
         Card(
@@ -53,15 +60,13 @@ fun LLMAddDialog() {
                 .align(Alignment.Center), elevation = 3.dp, backgroundColor = Color.White
         ) {
             Column(modifier = Modifier.padding(horizontal = 32.dp).verticalScroll(state = rememberScrollState())) {
-                val selectedProvider = remember { mutableStateOf<LLM?>(null) }
-                val name = remember { mutableStateOf("") }
-                val baseUrl = remember { mutableStateOf("") }
-                val apiKey = remember { mutableStateOf("") }
+                val name = remember { mutableStateOf(promptInfo.name) }
+                val description = remember { mutableStateOf(promptInfo.description) }
                 Spacer(modifier = Modifier.height(32.dp))
                 Row {
                     Text(
                         modifier = Modifier,
-                        text = "Configure LLM",
+                        text = "Prompt Detail",
                         style = MaterialTheme.typography.h3,
                         color = Color.Black,
                         fontWeight = FontWeight.Normal,
@@ -73,21 +78,10 @@ fun LLMAddDialog() {
                             screenNavigator.pop()
                         },
                         contentDescription = null,
-                        painter = org.jetbrains.compose.resources.painterResource(resource = Res.drawable.ic_close),
+                        painter = painterResource(resource = Res.drawable.ic_close),
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    text = "Provider", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                CustomExposedDropdownMenu(DEFAULT_LLM.map {
-                    DropdownMenuDes(it.provider.orEmpty(), it)
-                }, "Select Provider") { item ->
-                    selectedProvider.value = item.tag as LLM
-                    baseUrl.value = selectedProvider.value?.baseUrl.orEmpty()
-                }
-                Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = "Name", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
                 )
@@ -102,29 +96,17 @@ fun LLMAddDialog() {
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "Base API Url", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
+                    text = "Description", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 CustomEdit(
-                    baseUrl.value,
+                    description.value,
                     textStyle = TextStyle.Default.copy(fontSize = 14.sp),
-                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    singleLine = false,
+                    maxLines = 10,
                     onValueChange = {
-                        baseUrl.value = it
-                    }, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = "API Key", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                CustomEdit(
-                    apiKey.value,
-                    textStyle = TextStyle.Default.copy(fontSize = 14.sp),
-                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                    onValueChange = {
-                        apiKey.value = it
-                    }, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
+                        description.value = it
+                    }, scrollHeight = 250.dp, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Box(modifier = Modifier.fillMaxWidth()) {
@@ -132,7 +114,9 @@ fun LLMAddDialog() {
                         modifier = Modifier.align(Alignment.BottomEnd), text = "Save", contentPaddingValues = PaddingValues(
                             start = 16.dp, top = 10.dp, end = 16.dp, bottom = 10.dp
                         ), onClick = {
-                            vm.add(selectedProvider.value?.provider.orEmpty(), name.value, apiKey.value, baseUrl.value)
+                            if (name.value != promptInfo.name || description.value != promptInfo.description) {
+                                vm.changePrompt(promptInfo, name.value, description.value)
+                            }
                             screenNavigator.pop()
                         })
                 }

@@ -32,6 +32,7 @@ import org.succlz123.deepco.app.ui.llm.MainLLMTab
 import org.succlz123.deepco.app.ui.mcp.MainMcpTab
 import org.succlz123.deepco.app.ui.setting.MainSettingTab
 import org.succlz123.deepco.app.theme.ColorResource
+import org.succlz123.deepco.app.ui.prompt.MainPromptTab
 import org.succlz123.lib.click.noRippleClickable
 import org.succlz123.lib.screen.viewmodel.viewModel
 
@@ -123,10 +124,14 @@ fun MainRight(modifier: Modifier, leftSelectItem: () -> Int) {
         }
 
         2 -> {
-            MainMcpTab(modifier = modifier)
+            MainPromptTab(modifier = modifier)
         }
 
         3 -> {
+            MainMcpTab(modifier = modifier)
+        }
+
+        4 -> {
             MainSettingTab(modifier = modifier)
         }
 

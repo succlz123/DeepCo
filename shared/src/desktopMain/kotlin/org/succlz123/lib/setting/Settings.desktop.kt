@@ -40,3 +40,18 @@ actual fun getConfigFromAppDir(dirName: String, fileName: String): String? {
     }
     return null
 }
+
+actual fun openConfigDir(dirName: String) {
+    try {
+        val desktop = java.awt.Desktop.getDesktop()
+        val appDir = File(getAppDirPath(arrayOf(dirName)))
+        if (appDir.exists()) {
+            desktop.open(appDir)
+        } else {
+            appDir.mkdirs()
+            desktop.open(appDir)
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}

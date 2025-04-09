@@ -22,10 +22,6 @@ object DeepSeekApiService {
 
     private const val BASE_URL = "https://api.deepseek.com"
 
-    const val KEY_DEEP_SEEK_MODEL_TYPE = "KEY_DEEP_SEEK_MODEL_TYPE"
-    const val KEY_DEEP_SEEK_MODEL_VALUE_V3 = "deepseek-chat" // deepseek-chat
-    const val KEY_DEEP_SEEK_MODEL_VALUE_R1 = "deepseek-reasoner" // deepseek-reasoner
-
     suspend fun chat(
         prompt: String, previousContent: List<ChatMessage>,
         apiKey: String, model: String, stream: Boolean, tools: List<List<Tool>>?, toolUses: List<ToolUse>?,
@@ -40,7 +36,7 @@ object DeepSeekApiService {
                 null
             },
             frequency_penalty = 0,
-            max_tokens = 2048,
+            max_tokens = 8192,
             response_format = ResponseFormat("text"),
             messages = buildList {
                 add(RequestMessage(prompt, "system"))
@@ -156,7 +152,6 @@ object DeepSeekApiService {
                         }
                     }
                 }
-
             }
             Logger.log("ReplayTask Event from server: OVER")
         } catch (e: Exception) {

@@ -4,9 +4,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -26,6 +28,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import javax.swing.Spring.height
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -38,6 +41,11 @@ fun CustomEdit(
     tintIconColor: Color = Color.Black,
     iconSpacing: Dp = 6.dp,
 
+    singleLine: Boolean = true,
+    maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
+    minLines: Int = 1,
+    scrollHeight: Dp = 0.dp,
+
     enabled: Boolean = true,
     readOnly: Boolean = false,
     textStyle: TextStyle = TextStyle.Default,
@@ -48,52 +56,69 @@ fun CustomEdit(
 ) {
     // 焦点, 用于控制是否显示 右侧叉号
     val hasFocus = remember { mutableStateOf(false) }
-    BasicTextField(
-        value = text,
-        onValueChange = onValueChange,
-        modifier = modifier.onFocusChanged { hasFocus.value = it.isFocused },
-        singleLine = true,
-        enabled = enabled,
-        readOnly = readOnly,
-        textStyle = textStyle,
-        keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions,
-        visualTransformation = visualTransformation,
-        cursorBrush = cursorBrush,
-        decorationBox = @Composable { innerTextField ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                if (startIcon != null) {
-                    Image(
-                        imageVector = startIcon,
-                        contentDescription = null,
-                        modifier = Modifier.size(18.dp),
-                        colorFilter = ColorFilter.tint(color = tintIconColor)
-                    )
-                    Spacer(modifier = Modifier.width(iconSpacing))
+    Box(
+        modifier = Modifier.then(
+            if (scrollHeight > 0.dp) {
+                Modifier.height(scrollHeight)
+            } else {
+                Modifier
+            }
+        )
+    ) {
+        BasicTextField(
+            value = text,
+            onValueChange = onValueChange,
+            modifier = modifier.onFocusChanged { hasFocus.value = it.isFocused }.then(
+                if (scrollHeight > 0.dp) {
+                    Modifier.verticalScroll(rememberScrollState())
+                } else {
+                    Modifier
                 }
-
-                Box(modifier = Modifier.weight(1f)) {
-                    // 当空字符时, 显示hint
-                    if (text.isEmpty()) {
-                        Text(text = hint, color = Color.LightGray, style = textStyle)
+            ),
+            singleLine = singleLine,
+            enabled = enabled,
+            readOnly = readOnly,
+            textStyle = textStyle,
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
+            visualTransformation = visualTransformation,
+            cursorBrush = cursorBrush,
+            decorationBox = @Composable { innerTextField ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (startIcon != null) {
+                        Image(
+                            imageVector = startIcon,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                            colorFilter = ColorFilter.tint(color = tintIconColor)
+                        )
+                        Spacer(modifier = Modifier.width(iconSpacing))
                     }
-                    // 原本输入框的内容
-                    innerTextField()
-                }
 
-                // 存在焦点 且 有输入内容时. 显示叉号
-                if (hasFocus.value && text.isNotEmpty()) {
-                    Image(imageVector = Icons.Sharp.Clear,
-                        contentDescription = null,
-                        colorFilter = ColorFilter.tint(color = tintIconColor),
-                        modifier = Modifier.size(18.dp).clickable {
-                            onValueChange.invoke("")
-                        })
+                    Box(modifier = Modifier.weight(1f)) {
+                        // 当空字符时, 显示hint
+                        if (text.isEmpty()) {
+                            Text(text = hint, color = Color.LightGray, style = textStyle)
+                        }
+                        // 原本输入框的内容
+                        innerTextField()
+                    }
+
+                    // 存在焦点 且 有输入内容时. 显示叉号
+                    if (hasFocus.value && text.isNotEmpty()) {
+                        Image(
+                            imageVector = Icons.Sharp.Clear,
+                            contentDescription = null,
+                            colorFilter = ColorFilter.tint(color = tintIconColor),
+                            modifier = Modifier.size(18.dp).clickable {
+                                onValueChange.invoke("")
+                            })
+                    }
                 }
             }
-        }
-    )
+        )
+    }
 }

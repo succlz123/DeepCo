@@ -11,6 +11,7 @@ import kotlinx.io.asSink
 import kotlinx.io.asSource
 import kotlinx.io.buffered
 import kotlinx.serialization.json.JsonObject
+import org.succlz123.deepco.app.AppBuildConfig
 import org.succlz123.deepco.app.llm.mcp.InputSchema
 import org.succlz123.deepco.app.llm.mcp.Tool
 import org.succlz123.deepco.app.llm.mcp.ToolUse
@@ -19,7 +20,7 @@ import org.succlz123.lib.logger.Logger
 class MCPClient : AutoCloseable {
 
     // Initialize MCP client
-    private val mcp: Client = Client(clientInfo = Implementation(name = "mcp-client-cli", version = "1.0.0"))
+    private val mcp: Client = Client(clientInfo = Implementation(name = "mcp-client-cli", version = AppBuildConfig.versionName))
 
     private fun JsonObject.toJsonValue(): JsonValue {
         val mapper = ObjectMapper()

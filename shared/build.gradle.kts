@@ -37,10 +37,8 @@ kotlin {
             api("io.ktor:ktor-client-content-negotiation:3.1.0")
             api("io.ktor:ktor-serialization-kotlinx-json:3.1.0")
             api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.6.3")
-
             api("io.ktor:ktor-client-okhttp:3.1.0")
 
-            api("com.russhwolf:multiplatform-settings:1.2.0")
             api(project(":compose-screen:compose-screen"))
         }
         val androidMain by getting {

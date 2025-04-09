@@ -1,6 +1,7 @@
 package org.succlz123.deepco.app.ui.setting
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,11 +19,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.russhwolf.settings.set
+import org.succlz123.deepco.app.AppBuildConfig
+import org.succlz123.deepco.app.Manifest
+import org.succlz123.deepco.app.base.AppButton
 import org.succlz123.deepco.app.base.AppHorizontalDivider
+import org.succlz123.deepco.app.base.LocalStorage
 import org.succlz123.deepco.app.base.MainRightTitleLayout
 import org.succlz123.deepco.app.theme.ColorResource
-import org.succlz123.deepco.app.ui.setting.MainSettingViewModel.Companion.KEY_LLM_TOOL_MODE
 import org.succlz123.lib.click.noRippleClickable
 import org.succlz123.lib.common.getPlatformName
 import org.succlz123.lib.screen.viewmodel.viewModel
@@ -41,16 +44,15 @@ fun MainSettingTab(modifier: Modifier = Modifier) {
             Text(text = "LLM", style = MaterialTheme.typography.h3)
             Spacer(modifier = Modifier.height(12.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                val mode = viewModel.llmToolMode.collectAsState()
+                val mode = viewModel.settingLocal.collectAsState().value
                 Text(text = "Tool execution mode:", style = MaterialTheme.typography.h5, fontWeight = FontWeight.Normal)
                 Spacer(modifier = Modifier.width(12.dp))
                 MainSettingViewModel.llmToolModeList.forEachIndexed { index, s ->
                     Text(
                         modifier = Modifier.padding(16.dp, 6.dp).noRippleClickable {
-                            viewModel.llmToolMode.value = s
-                            viewModel.setting[KEY_LLM_TOOL_MODE] = s
+                            viewModel.settingLocalStorage.put((mode ?: SettingLocal()).copy(llmToolMode = s))
                         }, text = s, style = MaterialTheme.typography.body1,
-                        color = if ((index == MainSettingViewModel.llmToolModeList.indexOf(mode.value))) {
+                        color = if ((index == MainSettingViewModel.llmToolModeList.indexOf(mode?.llmToolMode.orEmpty()))) {
                             ColorResource.theme
                         } else {
                             ColorResource.subText
@@ -58,6 +60,14 @@ fun MainSettingTab(modifier: Modifier = Modifier) {
                     )
                 }
             }
+            Spacer(modifier = Modifier.height(12.dp))
+            AppHorizontalDivider()
+            Spacer(modifier = Modifier.height(24.dp))
+            Text(text = "Local File", style = MaterialTheme.typography.h3)
+            Spacer(modifier = Modifier.height(12.dp))
+            AppButton(modifier = Modifier, text = "Local File Dir", onClick = {
+                org.succlz123.lib.setting.openConfigDir(LocalStorage.APP)
+            })
             Spacer(modifier = Modifier.height(12.dp))
             AppHorizontalDivider()
             Spacer(modifier = Modifier.height(24.dp))
@@ -91,7 +101,7 @@ OS: ${props.getProperty("os.name")} - ${props.getProperty("os.arch")} - ${props.
             Spacer(modifier = Modifier.height(24.dp))
             Text(text = "Version", style = MaterialTheme.typography.h3)
             Spacer(modifier = Modifier.height(12.dp))
-            Text(text = "v0.0.1", style = MaterialTheme.typography.body2)
+            Text(text = "v${AppBuildConfig.versionName}", style = MaterialTheme.typography.body2)
         }
     }
 }

@@ -81,6 +81,7 @@ import org.succlz123.deepco.app.base.AppHorizontalDivider
 import org.succlz123.deepco.app.base.CustomEdit
 import org.succlz123.deepco.app.base.shadow
 import org.succlz123.deepco.app.llm.ChatMessage
+import org.succlz123.deepco.app.llm.role.PromptType
 import org.succlz123.deepco.app.llm.role.RoleDefine
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.deepco.app.theme.LocalTheme
@@ -89,6 +90,7 @@ import org.succlz123.deepco.app.ui.chat.ChatViewModel.Companion.DEFAULT_STREAM_M
 import org.succlz123.deepco.app.ui.chat.ChatViewModel.Companion.STREAM_LIST
 import org.succlz123.deepco.app.ui.llm.MainLLMViewModel
 import org.succlz123.deepco.app.ui.mcp.MainMcpViewModel
+import org.succlz123.deepco.app.ui.prompt.MainPromptViewModel
 import org.succlz123.deepco.app.ui.resize.PanelState
 import org.succlz123.deepco.app.ui.resize.ResizablePanel
 import org.succlz123.deepco.app.ui.resize.ResizablePanelTabView
@@ -129,15 +131,11 @@ fun ChatView() {
         ).value
     }
 
-    val llmViewModel = globalViewModel {
-        MainLLMViewModel()
-    }
-    val mcpViewModel = globalViewModel {
-        MainMcpViewModel()
-    }
-    val chatViewModel = remember {
-        ChatViewModel()
-    }
+    val llmViewModel = globalViewModel { MainLLMViewModel() }
+    val mcpViewModel = globalViewModel { MainMcpViewModel() }
+    val promptViewModel = globalViewModel { MainPromptViewModel() }
+    val chatViewModel = remember { ChatViewModel() }
+
     DisposableEffect(Unit) {
         onDispose {
             chatViewModel.clear()
@@ -186,6 +184,7 @@ fun ChatView() {
                                         chatViewModel.removeHistory(it.key)
                                     },
                                     contentDescription = null,
+                                    colorFilter = ColorFilter.tint(ColorResource.error),
                                     painter = painterResource(resource = Res.drawable.ic_remove),
                                 )
                                 Spacer(Modifier.width(6.dp))
@@ -276,32 +275,35 @@ fun ChatView() {
                             }
                             Spacer(modifier = Modifier.weight(1f))
                             AppButton(
-                                modifier = Modifier, contentPaddingValues = PaddingValues(
+                                modifier = Modifier, text = "New Chat", contentPaddingValues = PaddingValues(
                                     start = 16.dp, top = 10.dp, end = 16.dp, bottom = 10.dp
-                                ), {
+                                ), onClick = {
                                     chatViewModel.clear()
-                                }, {
-                                    Text("New Chat", color = ColorResource.white, style = MaterialTheme.typography.body1)
                                 })
                         }
                         AppHorizontalDivider()
                         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                             Text("ROLE", color = ColorResource.primaryText, style = MaterialTheme.typography.h5)
                             Spacer(modifier = Modifier.width(12.dp))
+                            val roles = promptViewModel.prompt.collectAsState().value.filter { it.type == PromptType.ROLE }.sortedByDescending { it.updateTime }
+//                            LaunchedEffect(Unit) {
+//                                if (chatViewModel.selectedRole.value.name.isNullOrEmpty()) {
+//                                }
+//                            }
                             val selectedRole = chatViewModel.selectedRole.collectAsState().value
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 LazyRow(modifier = Modifier.weight(1f)) {
-                                    itemsIndexed(RoleDefine.roles) { index, role ->
+                                    itemsIndexed(roles) { index, role ->
                                         Box(
                                             modifier = Modifier.background(
-                                                if (selectedRole.roleName == role.roleName) {
+                                                if (selectedRole.name == role.name) {
                                                     ColorResource.theme
                                                 } else {
                                                     ColorResource.white
                                                 }, shape = RoundedCornerShape(4.dp)
                                             ).border(
                                                 BorderStroke(
-                                                    1.dp, if (selectedRole.roleName == role.roleName) {
+                                                    1.dp, if (selectedRole.name == role.name) {
                                                         ColorResource.white
                                                     } else {
                                                         ColorResource.theme
@@ -311,7 +313,7 @@ fun ChatView() {
                                                 chatViewModel.selectedRole.value = role
                                             }) {
                                             Text(
-                                                role.roleName, color = if (selectedRole.roleName == role.roleName) {
+                                                role.name, color = if (selectedRole.name == role.name) {
                                                     ColorResource.white
                                                 } else {
                                                     ColorResource.theme
@@ -427,10 +429,6 @@ fun ChatView() {
                                             }
                                         }
                                     }
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    Box(modifier = Modifier.fillMaxWidth().weight(1f)) {
-                                        Text("There is nothing here.", modifier = Modifier.align(Alignment.Center), color = ColorResource.black20, style = MaterialTheme.typography.h3)
-                                    }
                                 }
                             }
                             Box(
@@ -487,14 +485,10 @@ fun ChatView() {
                                 }
                                 Spacer(modifier = Modifier.width(12.dp))
                                 AppButton(
-                                    modifier = Modifier, contentPaddingValues = PaddingValues(
+                                    modifier = Modifier, text = "Send", contentPaddingValues = PaddingValues(
                                         start = 16.dp, top = 12.dp, end = 16.dp, bottom = 12.dp
                                     ), {
                                         click()
-                                    }, {
-                                        Text(
-                                            modifier = Modifier, text = "Send", color = ColorResource.white, fontSize = 10.sp
-                                        )
                                     })
                             }
                         }

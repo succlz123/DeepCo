@@ -1,8 +1,9 @@
 package org.succlz123.deepco.app.ui.llm
 
 import kotlinx.coroutines.flow.MutableStateFlow
-import org.succlz123.deepco.app.json.appJson
 import org.succlz123.deepco.app.base.BaseBizViewModel
+import org.succlz123.deepco.app.base.JSON_LLM
+import org.succlz123.deepco.app.base.LocalStorage
 
 class MainLLMViewModel : BaseBizViewModel() {
 
@@ -12,18 +13,6 @@ class MainLLMViewModel : BaseBizViewModel() {
 
         val MODEL_V3 = "deepseek-chat"
         val MODEL_R1 = "deepseek-reasoner"
-
-        fun saveLLM(llmList: List<LLM>, selectedLLM: String?, selectedLLMModel: String?) {
-            put(LLM_JSON, appJson.encodeToString(LLMLocalConfig(llmList, selectedLLM, selectedLLMModel)))
-        }
-
-        fun getLLM(): LLMLocalConfig? {
-            return try {
-                appJson.decodeFromString<LLMLocalConfig>(get(LLM_JSON))
-            } catch (e: Exception) {
-                null
-            }
-        }
 
         val DEFAULT_LLM = listOf<LLM>(
             LLM(
@@ -36,14 +25,16 @@ class MainLLMViewModel : BaseBizViewModel() {
         )
     }
 
-    val llmConfigs = MutableStateFlow(getLLM()?.llmList.orEmpty())
+    val llmLocalStorage = LocalStorage(JSON_LLM)
+
+    val llmConfigs = MutableStateFlow(llmLocalStorage.get<LLMLocalConfig>()?.llmList.orEmpty())
 
     val selectedLLMName = MutableStateFlow(getDefaultLLM())
 
     val selectedLLMModel = MutableStateFlow(getDefaultModel())
 
     fun getDefaultLLM(): LLM? {
-        val llm = getLLM()
+        val llm = llmLocalStorage.get<LLMLocalConfig>()
         if (llm == null) {
             return null
         }
@@ -52,7 +43,7 @@ class MainLLMViewModel : BaseBizViewModel() {
     }
 
     fun getDefaultModel(): String? {
-        val llm = getLLM()
+        val llm = llmLocalStorage.get<LLMLocalConfig>()
         val modes = getDefaultLLM()?.modes
         if (modes == null) {
             return null
@@ -63,12 +54,12 @@ class MainLLMViewModel : BaseBizViewModel() {
 
     fun saveDefaultLLM(llm: LLM) {
         selectedLLMName.value = llm
-        saveLLM(llmConfigs.value, llm.name, selectedLLMModel.value)
+        llmLocalStorage.put(LLMLocalConfig(llmConfigs.value, llm.name, selectedLLMModel.value))
     }
 
     fun saveDefaultLLMModel(model: String) {
         selectedLLMModel.value = model
-        saveLLM(llmConfigs.value, selectedLLMName.value?.name, model)
+        llmLocalStorage.put(LLMLocalConfig(llmConfigs.value, selectedLLMName.value?.name, selectedLLMModel.value))
     }
 
     fun add(provider: String, name: String, apiKey: String, baseUrl: String) {
@@ -85,7 +76,7 @@ class MainLLMViewModel : BaseBizViewModel() {
             selectedLLMName.value = llm
             selectedLLMModel.value = llm.modes.firstOrNull()
         }
-        saveLLM(llmConfigs.value, selectedLLMName.value?.name, selectedLLMModel.value)
+        llmLocalStorage.put(LLMLocalConfig(llmConfigs.value, selectedLLMName.value?.name, selectedLLMModel.value))
     }
 
     fun remove(name: String) {
@@ -98,6 +89,6 @@ class MainLLMViewModel : BaseBizViewModel() {
             selectedLLMName.value = llmConfigs.value.firstOrNull()
             selectedLLMModel.value = llmConfigs.value.firstOrNull()?.modes?.firstOrNull()
         }
-        saveLLM(llmConfigs.value, selectedLLMName.value?.name, selectedLLMModel.value)
+        llmLocalStorage.put(LLMLocalConfig(llmConfigs.value, selectedLLMName.value?.name, selectedLLMModel.value))
     }
 }

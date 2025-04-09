@@ -30,6 +30,7 @@ Coze, Dify, Google Gemini, etc. You can also configure any OpenAI-compatible API
 - [x] Chat with MCP Server (Stream&Complete)
 - [x] Chat History
 - [x] MCP Support
+- [x] Prompt Management
 - [x] DeepSeek LLM
 - [ ] OpenAI LLM
 - [ ] Claude LLM
@@ -46,6 +47,10 @@ Coze, Dify, Google Gemini, etc. You can also configure any OpenAI-compatible API
 ### Config Your LLMs API Key
 
 ![2.jpg](screenshots/2.jpg)
+
+### Prompt Management
+
+![4.jpg](screenshots/4.jpg)
 
 ### Config MCP Servers
 

@@ -1,6 +1,11 @@
 # Deep-Co
 
 <p align="center">
+<kbd>
+  <img alt="icon" src="desktopApp/icon.png" width="128" height="128">
+</kbd>
+  <br>
+  <br>
   <img alt="windows" src="http://img.shields.io/badge/-windows-4D76CD.svg?style=flat">
   <img alt="macos" src="http://img.shields.io/badge/-macos-111111.svg?style=flat">
   <img alt="linux" src="http://img.shields.io/badge/-linux-2D3F6C.svg?style=flat">
@@ -74,7 +79,7 @@ winget install OpenJS.NodeJS.LTS
 
 ```
 ./gradlew :desktop:packageDistributionForCurrentOS
-# outputs are written to desktop/build/compose/binaries
+# outputs are written to desktopApp/build/compose/binaries
 ```
 
 ## Thanks

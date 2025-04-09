@@ -13,17 +13,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.loadImageBitmap
-import androidx.compose.ui.res.useResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowScope
 import androidx.compose.ui.window.WindowState
+import deep_co.shared.generated.resources.Res
+import deep_co.shared.generated.resources.ic_launcher
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.painterResource
 import org.succlz123.deepco.app.AppBuildConfig
 import org.succlz123.deepco.app.theme.AppTheme
 import org.succlz123.lib.fps.FpsMonitor
@@ -46,7 +46,7 @@ fun BaseWindow(appWindow: AppWindow, hostLayout: @Composable (FrameWindowScope) 
         state = appWindow.windowState,
         minimumSize = Dimension((minSize.width.value * density.density).toInt(), (minSize.height.value * density.density).toInt()),
         visible = true,
-        icon = BitmapPainter(useResource("ic_launcher.png", ::loadImageBitmap)),
+        icon = painterResource(Res.drawable.ic_launcher),
         undecorated = false,
         transparent = false,
         resizable = true,

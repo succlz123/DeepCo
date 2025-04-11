@@ -71,6 +71,7 @@ import deep_co.shared.generated.resources.ic_elapsed
 import deep_co.shared.generated.resources.ic_model
 import deep_co.shared.generated.resources.ic_remove
 import deep_co.shared.generated.resources.ic_show_more
+import deep_co.shared.generated.resources.ic_speaker
 import deep_co.shared.generated.resources.ic_token_down
 import deep_co.shared.generated.resources.ic_token_total
 import deep_co.shared.generated.resources.ic_token_up
@@ -97,8 +98,9 @@ import org.succlz123.deepco.app.ui.resize.ResizablePanel
 import org.succlz123.deepco.app.ui.resize.ResizablePanelTabView
 import org.succlz123.deepco.app.util.VerticalSplittable
 import org.succlz123.lib.click.clickUrl
-import org.succlz123.lib.click.noClickableAndCopyStr
+import org.succlz123.lib.click.onClickableAndCopyStr
 import org.succlz123.lib.click.noRippleClickable
+import org.succlz123.lib.click.onClickableAndSpeakStr
 import org.succlz123.lib.common.openURLByBrowser
 import org.succlz123.lib.screen.LocalScreenNavigator
 import org.succlz123.lib.screen.result.ScreenResult
@@ -630,26 +632,46 @@ private fun MessageItem(
                         Spacer(modifier = Modifier.width(6.dp))
                     }
                     Image(
-                        modifier = Modifier.size(12.dp).noClickableAndCopyStr(message.content.value, true),
+                        modifier = Modifier.size(12.dp).onClickableAndSpeakStr(message.content.value),
+                        contentDescription = null,
+                        painter = painterResource(resource = Res.drawable.ic_speaker),
+                    )
+                    Spacer(modifier = Modifier.width(3.dp))
+                    Text(
+                        text = "speak", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier.onClickableAndSpeakStr(message.content.value)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Image(
+                        modifier = Modifier.size(12.dp).onClickableAndCopyStr(message.content.value, true),
                         contentDescription = null,
                         painter = painterResource(resource = Res.drawable.ic_copy),
                     )
                     Spacer(modifier = Modifier.width(3.dp))
                     Text(
-                        text = "copy", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier.noClickableAndCopyStr(message.content.value, true)
+                        text = "copy", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier.onClickableAndCopyStr(message.content.value, true)
                     )
                 }
             }
             if (message.isFromMe && !message.isLoading()) {
                 Row {
                     Image(
-                        modifier = Modifier.size(12.dp).noClickableAndCopyStr(message.content.value, true),
+                        modifier = Modifier.size(12.dp).onClickableAndSpeakStr(message.content.value),
+                        contentDescription = null,
+                        painter = painterResource(resource = Res.drawable.ic_speaker),
+                    )
+                    Spacer(modifier = Modifier.width(3.dp))
+                    Text(
+                        text = "speak", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier.onClickableAndSpeakStr(message.content.value)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Image(
+                        modifier = Modifier.size(12.dp).onClickableAndCopyStr(message.content.value, true),
                         contentDescription = null,
                         painter = painterResource(resource = Res.drawable.ic_copy),
                     )
                     Spacer(modifier = Modifier.width(3.dp))
                     Text(
-                        text = "copy", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier.noClickableAndCopyStr(message.content.value, true)
+                        text = "copy", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier.onClickableAndCopyStr(message.content.value, true)
                     )
                 }
             }

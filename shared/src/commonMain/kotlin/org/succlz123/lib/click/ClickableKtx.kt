@@ -43,7 +43,7 @@ fun Modifier.noDoubleClickableAndCopyStr(str: String, showToast: Boolean = false
     }
 }
 
-fun Modifier.noClickableAndCopyStr(str: String, showToast: Boolean = false): Modifier = composed {
+fun Modifier.onClickableAndCopyStr(str: String, showToast: Boolean = false): Modifier = composed {
     val clipboardManager = LocalClipboardManager.current
     val screenNavigator = LocalScreenNavigator.current
     pointerInput(Unit) {
@@ -52,6 +52,16 @@ fun Modifier.noClickableAndCopyStr(str: String, showToast: Boolean = false): Mod
             if (showToast) {
                 screenNavigator.toast("Copied")
             }
+        })
+    }
+}
+
+fun Modifier.onClickableAndSpeakStr(str: String): Modifier = composed {
+    val screenNavigator = LocalScreenNavigator.current
+    pointerInput(Unit) {
+        detectTapGestures(onTap = {
+            screenNavigator.toast("Speaking...")
+            org.succlz123.deepco.app.tts.speak(str)
         })
     }
 }

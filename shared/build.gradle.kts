@@ -62,6 +62,8 @@ kotlin {
             implementation("io.modelcontextprotocol:kotlin-sdk:0.4.0")
             implementation("com.anthropic:anthropic-java:0.8.0")
             implementation("com.google.genai:google-genai:0.3.0")
+//            implementation("de.dfki.mary:voice-cmu-slt-hsmm:5.2.1")
+            implementation("io.github.ikfly:java-tts:1.0.2")
         }
     }
 }

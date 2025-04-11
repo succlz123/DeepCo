@@ -32,9 +32,12 @@ import org.succlz123.deepco.app.window.AppWindow
 import java.awt.Dimension
 
 @Composable
-fun BaseWindow(appWindow: AppWindow, hostLayout: @Composable (FrameWindowScope) -> Unit) {
+fun BaseWindow(appWindow: AppWindow, onCloseRequest: () -> Unit, hostLayout: @Composable (FrameWindowScope) -> Unit) {
     val scope = rememberCoroutineScope()
-    fun exit() = scope.launch { appWindow.exit(appWindow) }
+    fun exit() = scope.launch {
+        appWindow.exit(appWindow)
+        onCloseRequest.invoke()
+    }
 
     val density = LocalDensity.current
     val minSize = DpSize(80.dp, 52.dp)
@@ -74,7 +77,8 @@ fun BaseWindow(appWindow: AppWindow, hostLayout: @Composable (FrameWindowScope) 
 fun WindowScope.AppWindowTitleBar(
     windowState: WindowState
 ) = WindowDraggableArea(
-    modifier = Modifier.combinedClickable(interactionSource = remember { MutableInteractionSource() },
+    modifier = Modifier.combinedClickable(
+        interactionSource = remember { MutableInteractionSource() },
         indication = null,
         onDoubleClick = {
             windowState.placement = when (windowState.placement) {

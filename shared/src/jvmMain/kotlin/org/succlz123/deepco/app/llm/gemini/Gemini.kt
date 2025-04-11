@@ -1,6 +1,5 @@
 package org.succlz123.deepco.app.llm.gemini
 
-import autovalue.shaded.com.google.common.collect.ImmutableList
 import com.google.genai.Client
 import com.google.genai.types.Content
 import com.google.genai.types.GenerateContentConfig
@@ -9,7 +8,6 @@ import com.google.genai.types.Part
 import com.google.genai.types.Tool
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.succlz123.deepco.app.llm.deepseek.RequestMessage
 import org.succlz123.deepco.app.msg.ChatMessage
 import org.succlz123.lib.logger.Logger
 import kotlin.jvm.optionals.getOrNull

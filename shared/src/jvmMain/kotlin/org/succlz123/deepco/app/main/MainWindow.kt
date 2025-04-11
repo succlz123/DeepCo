@@ -8,13 +8,16 @@ import org.succlz123.deepco.app.ui.mcp.MCPAddDialog
 import org.succlz123.deepco.app.ui.prompt.PromptAddDialog
 import org.succlz123.deepco.app.ui.prompt.PromptDetailDialog
 import org.succlz123.deepco.app.window.AppWindow
+import org.succlz123.lib.init.destructionComposeMultiplatform
 import org.succlz123.lib.screen.ScreenHost
 import org.succlz123.lib.screen.rememberScreenNavigator
 
 @Composable
 fun MainWindow(appWindow: AppWindow) {
     val screenNavigator = rememberScreenNavigator()
-    BaseWindow(appWindow) {
+    BaseWindow(appWindow, onCloseRequest = {
+        destructionComposeMultiplatform()
+    }) {
         ScreenHost(screenNavigator = screenNavigator, rootScreenName = Manifest.MainScreen) {
             groupScreen(screenName = (Manifest.MainScreen)) {
                 MainScreen()

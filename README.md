@@ -38,6 +38,7 @@ Coze, Dify, Google Gemini, etc. You can also configure any OpenAI-compatible API
 - [ ] OLLama LLM
 - [ ] MCP Server Market
 - [ ] RAG
+- [x] TTS (Edge API)
 - [ ] Dark/Light Theme
 
 ### Chat With LLMs

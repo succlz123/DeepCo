@@ -1,4 +1,4 @@
-package org.succlz123.deepco.app.llm.role
+package org.succlz123.deepco.app.role
 
 import kotlinx.serialization.Serializable
 

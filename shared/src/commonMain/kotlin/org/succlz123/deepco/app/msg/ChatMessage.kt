@@ -1,4 +1,4 @@
-package org.succlz123.deepco.app.llm
+package org.succlz123.deepco.app.msg
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf

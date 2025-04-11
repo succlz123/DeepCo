@@ -7,19 +7,20 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.succlz123.deepco.app.base.JSON_HISTORY
 import org.succlz123.deepco.app.base.LocalStorage
-import org.succlz123.deepco.app.llm.ChatMessage
-import org.succlz123.deepco.app.llm.ChatMessage.Companion.TYPE_LOADING
-import org.succlz123.deepco.app.llm.ChatMessageData
-import org.succlz123.deepco.app.llm.ChatMessageData.Companion.NON_ID
+import org.succlz123.deepco.app.msg.ChatMessage
+import org.succlz123.deepco.app.msg.ChatMessage.Companion.TYPE_LOADING
+import org.succlz123.deepco.app.msg.ChatMessageData
+import org.succlz123.deepco.app.msg.ChatMessageData.Companion.NON_ID
 import org.succlz123.deepco.app.llm.deepseek.DeepSeekApiService
 import org.succlz123.deepco.app.llm.deepseek.ToolCall
-import org.succlz123.deepco.app.llm.mcp.McpConfig
-import org.succlz123.deepco.app.llm.mcp.Tool
-import org.succlz123.deepco.app.llm.mcp.ToolUse
-import org.succlz123.deepco.app.llm.role.PromptInfo
-import org.succlz123.deepco.app.llm.role.RoleDefine
+import org.succlz123.deepco.app.mcp.biz.McpConfig
+import org.succlz123.deepco.app.mcp.biz.Tool
+import org.succlz123.deepco.app.mcp.biz.ToolUse
+import org.succlz123.deepco.app.role.PromptInfo
+import org.succlz123.deepco.app.role.RoleDefine
 import org.succlz123.deepco.app.ui.llm.LLM
 import org.succlz123.deepco.app.ui.llm.MainLLMViewModel
+import org.succlz123.deepco.app.ui.llm.MainLLMViewModel.Companion.PROVIDER_GEMINI
 import org.succlz123.lib.logger.Logger
 import org.succlz123.lib.screen.result.ScreenResult
 import kotlin.random.Random
@@ -86,7 +87,7 @@ class ChatViewModel {
         chatLocalStorage.put(history.value.values.toList())
     }
 
-    fun chat(content: String, llm: LLM, model: String, mcpList: Map<String, List<Tool>>, manuallyClear: Boolean, toolsCallCb: suspend (List<ToolCall>) -> List<ToolUse>?) {
+    fun chat(chatText: String, llm: LLM, mcpList: Map<String, List<Tool>>, manuallyClear: Boolean, toolsCallCb: suspend (List<ToolCall>) -> List<ToolUse>?) {
         if (lastChatResponse.value is ScreenResult.Loading) {
             return
         }
@@ -99,8 +100,8 @@ class ChatViewModel {
 
         preChatMessage.value = preChatMessage.value.copy(
             list = preChatMessage.value.list.toMutableList().apply {
-                add(ChatMessage(modelKey = model, isFromMe = true).apply {
-                    changeContent(content)
+                add(ChatMessage(modelKey = llm.getSelectedModeMode(), isFromMe = true).apply {
+                    changeContent(chatText)
                 })
                 add(loadingMessage)
             }, id = if (preChatMessage.value.id == NON_ID) {
@@ -113,26 +114,26 @@ class ChatViewModel {
         val prompt = selectedRole.value.description
         val mcp = selectedMCPList.value
         val tools = mcpList.filter { server -> mcp.find { inner -> inner.name == server.key } != null }.values.toList()
+        val content = if (manuallyClear) {
+            emptyList()
+        } else {
+            preChatMessage.value.list
+        }
         GlobalScope.launch {
             withContext(Dispatchers.IO) {
                 val stream = selectedStreamModel.value == "stream"
+                val startTime = System.currentTimeMillis()
+                val contentSb = StringBuilder()
+                val reasoningContentSb = StringBuilder()
                 if (llm.provider == MainLLMViewModel.PROVIDER_DEEPSEEK) {
-                    val startTime = System.currentTimeMillis()
                     var reCall = true
                     var toolUseResult: List<ToolUse>? = null
                     while (reCall) {
                         reCall = false
-                        val contentSb = StringBuilder()
-                        val reasoningContentSb = StringBuilder()
                         DeepSeekApiService.chat(
-                            prompt, if (manuallyClear) {
-                                emptyList()
-                            } else {
-                                preChatMessage.value.list
-                            }, llm.apiKey, model, stream, tools, toolUseResult,
-                            { response, isStop ->
+                            llm.apiKey, llm.getSelectedModeMode(), stream, tools, toolUseResult, prompt, content, { response, isStop ->
                                 if (loadingMessage.id == TYPE_LOADING) {
-                                    loadingMessage.id = System.currentTimeMillis()
+                                    loadingMessage.id = System.nanoTime()
                                 }
                                 if (!isStop) {
                                     if (response.errorMsg.isEmpty()) {
@@ -184,8 +185,46 @@ class ChatViewModel {
                             Logger.log("Call Next")
                         }
                     }
+                } else if (llm.provider == PROVIDER_GEMINI) {
+                    if (loadingMessage.id == TYPE_LOADING) {
+                        loadingMessage.id = System.nanoTime()
+                    }
+                    if (stream) {
+                        org.succlz123.deepco.app.llm.gemini.geminiChatStream(llm.apiKey, llm.getSelectedModeMode(), prompt, content) { response, isStop ->
+                            if (!isStop) {
+                                if (response.errorMsg.isNullOrEmpty()) {
+                                    contentSb.append(response.text.orEmpty())
+                                } else {
+                                    contentSb.append(response.errorMsg.orEmpty())
+                                }
+                            } else {
+                                loadingMessage.elapsedTime = System.currentTimeMillis() - startTime
+                                if (!response.errorMsg.isNullOrEmpty()) {
+                                    contentSb.append(response.errorMsg.orEmpty())
+                                    lastChatResponse.value = ScreenResult.Fail(Exception(response.errorMsg))
+                                } else {
+                                    lastChatResponse.value = ScreenResult.Success(Random.nextInt())
+                                }
+                            }
+                            loadingMessage.changeContent(contentSb.toString().trim())
+                        }
+                    } else {
+                        val response = org.succlz123.deepco.app.llm.gemini.geminiChat(llm.apiKey, llm.getSelectedModeMode(), prompt, content)
+                        loadingMessage.elapsedTime = System.currentTimeMillis() - startTime
+                        if (response.errorMsg.isNullOrEmpty()) {
+                            loadingMessage.changeContent(response.text?.trim().orEmpty())
+                            lastChatResponse.value = ScreenResult.Success(Random.nextInt())
+                        } else {
+                            loadingMessage.changeContent(response.errorMsg.orEmpty())
+                            lastChatResponse.value = ScreenResult.Fail(Exception(response.errorMsg))
+                        }
+                    }
                 } else {
                     lastChatResponse.value = ScreenResult.Fail(Exception("Not support provider"))
+                    if (loadingMessage.id == TYPE_LOADING) {
+                        loadingMessage.id = System.nanoTime()
+                    }
+                    loadingMessage.changeContent("Not support provider")
                 }
             }
         }

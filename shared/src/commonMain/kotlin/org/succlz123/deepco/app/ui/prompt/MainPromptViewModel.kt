@@ -4,9 +4,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import org.succlz123.deepco.app.base.BaseBizViewModel
 import org.succlz123.deepco.app.base.JSON_PROMPT
 import org.succlz123.deepco.app.base.LocalStorage
-import org.succlz123.deepco.app.llm.role.PromptInfo
-import org.succlz123.deepco.app.llm.role.PromptType
-import org.succlz123.deepco.app.llm.role.RoleDefine
+import org.succlz123.deepco.app.role.PromptInfo
+import org.succlz123.deepco.app.role.PromptType
+import org.succlz123.deepco.app.role.RoleDefine
 
 class MainPromptViewModel : BaseBizViewModel() {
 

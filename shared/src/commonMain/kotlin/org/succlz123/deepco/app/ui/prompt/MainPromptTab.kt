@@ -39,7 +39,7 @@ import org.succlz123.deepco.app.Manifest
 import org.succlz123.deepco.app.base.AppButton
 import org.succlz123.deepco.app.base.AppHorizontalDivider
 import org.succlz123.deepco.app.base.MainRightTitleLayout
-import org.succlz123.deepco.app.llm.role.PromptType
+import org.succlz123.deepco.app.role.PromptType
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.lib.click.noRippleClickable
 import org.succlz123.lib.screen.LocalScreenNavigator

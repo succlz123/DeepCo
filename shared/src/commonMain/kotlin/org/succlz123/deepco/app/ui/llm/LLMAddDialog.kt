@@ -100,19 +100,19 @@ fun LLMAddDialog() {
                         name.value = it
                     }, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
                 )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = "Base API Url", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                CustomEdit(
-                    baseUrl.value,
-                    textStyle = TextStyle.Default.copy(fontSize = 14.sp),
-                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                    onValueChange = {
-                        baseUrl.value = it
-                    }, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
-                )
+//                Spacer(modifier = Modifier.height(12.dp))
+//                Text(
+//                    text = "Base API Url", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
+//                )
+//                Spacer(modifier = Modifier.height(12.dp))
+//                CustomEdit(
+//                    baseUrl.value,
+//                    textStyle = TextStyle.Default.copy(fontSize = 14.sp),
+//                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+//                    onValueChange = {
+//                        baseUrl.value = it
+//                    }, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
+//                )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = "API Key", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5

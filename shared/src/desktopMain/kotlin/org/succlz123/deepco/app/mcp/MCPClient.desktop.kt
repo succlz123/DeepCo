@@ -1,7 +1,7 @@
 package org.succlz123.deepco.app.mcp
 
-import org.succlz123.deepco.app.llm.mcp.Tool
-import org.succlz123.deepco.app.llm.mcp.ToolUse
+import org.succlz123.deepco.app.mcp.biz.Tool
+import org.succlz123.deepco.app.mcp.biz.ToolUse
 
 val cache = hashMapOf<String, MCPClient>()
 

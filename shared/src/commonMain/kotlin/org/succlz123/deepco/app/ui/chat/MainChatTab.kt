@@ -75,14 +75,15 @@ import deep_co.shared.generated.resources.ic_token_down
 import deep_co.shared.generated.resources.ic_token_total
 import deep_co.shared.generated.resources.ic_token_up
 import deep_co.shared.generated.resources.logo_deepseek
+import deep_co.shared.generated.resources.logo_google
+import deep_co.shared.generated.resources.logo_llm
 import org.jetbrains.compose.resources.painterResource
 import org.succlz123.deepco.app.base.AppButton
 import org.succlz123.deepco.app.base.AppHorizontalDivider
 import org.succlz123.deepco.app.base.CustomEdit
 import org.succlz123.deepco.app.base.shadow
-import org.succlz123.deepco.app.llm.ChatMessage
-import org.succlz123.deepco.app.llm.role.PromptType
-import org.succlz123.deepco.app.llm.role.RoleDefine
+import org.succlz123.deepco.app.msg.ChatMessage
+import org.succlz123.deepco.app.role.PromptType
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.deepco.app.theme.LocalTheme
 import org.succlz123.deepco.app.theme.Theme
@@ -194,10 +195,10 @@ fun ChatView() {
                 }
             }
             Box() {
-                val selectedLLMConfig = llmViewModel.selectedLLMName.collectAsState()
+                val selectedLLMConfig = llmViewModel.selectedLLM.collectAsState()
                 val selectedLLmConfigValue = selectedLLMConfig.value
                 if (selectedLLmConfigValue != null) {
-                    val selectedLLMModel = llmViewModel.selectedLLMModel.collectAsState()
+                    val selectedLLMModel = selectedLLmConfigValue.getSelectedModeMode()
                     Column(Modifier.fillMaxSize()) {
 //                        EditorTabsView(model.editors)
 //                        StatusBars(scalableState, model.editors.active?.file?.absolutePath.orEmpty())
@@ -225,8 +226,17 @@ fun ChatView() {
                                         }
                                     },
                                 )
+                                val logo = remember(selectedLLmConfigValue.provider) {
+                                    if (selectedLLmConfigValue.provider == MainLLMViewModel.PROVIDER_DEEPSEEK) {
+                                        Res.drawable.logo_deepseek to 80.dp
+                                    } else if (selectedLLmConfigValue.provider == MainLLMViewModel.PROVIDER_GEMINI) {
+                                        Res.drawable.logo_google to 50.dp
+                                    } else {
+                                        Res.drawable.logo_llm to 18.dp
+                                    }
+                                }
                                 Image(
-                                    painter = painterResource(resource = Res.drawable.logo_deepseek), contentDescription = "logo", modifier = Modifier.width(60.dp)
+                                    painter = painterResource(resource = logo.first), contentDescription = "logo", modifier = Modifier.width(logo.second)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(selectedLLmConfigValue.name, color = ColorResource.theme, style = MaterialTheme.typography.body2)
@@ -265,7 +275,7 @@ fun ChatView() {
                                     painter = painterResource(resource = Res.drawable.ic_model), contentDescription = "model", colorFilter = ColorFilter.tint(ColorResource.theme), modifier = Modifier.width(16.dp)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text(selectedLLMModel.value.orEmpty(), color = ColorResource.theme, style = MaterialTheme.typography.body2)
+                                Text(selectedLLMModel, color = ColorResource.theme, style = MaterialTheme.typography.body2)
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Image(
                                     painter = painterResource(resource = Res.drawable.ic_down),
@@ -445,19 +455,17 @@ fun ChatView() {
                                 modifier = Modifier.fillMaxWidth()
                                     .background(ColorResource.white, RoundedCornerShape(8.dp)).padding(horizontal = 16.dp, vertical = 16.dp), verticalAlignment = Alignment.CenterVertically
                             ) {
-                                val click = remember {
-                                    {
-                                        val msg = input.value
-                                        if (msg.isEmpty()) {
-                                            screenNavigator.toast("Please enter a message")
-                                        } else if (chatViewModel.lastChatResponse.value is ScreenResult.Loading) {
-                                            screenNavigator.toast("Please wait a moment")
-                                        } else {
-                                            chatViewModel.chat(msg, selectedLLmConfigValue, selectedLLMModel.value.orEmpty(), mcpViewModel.getServer(), false) {
-                                                mcpViewModel.callServer(it)
-                                            }
-                                            input.value = ""
+                                val click = {
+                                    val msg = input.value
+                                    if (msg.isEmpty()) {
+                                        screenNavigator.toast("Please enter a message")
+                                    } else if (chatViewModel.lastChatResponse.value is ScreenResult.Loading) {
+                                        screenNavigator.toast("Please wait a moment")
+                                    } else {
+                                        chatViewModel.chat(msg, selectedLLmConfigValue, mcpViewModel.getServer(), false) {
+                                            mcpViewModel.callServer(it)
                                         }
+                                        input.value = ""
                                     }
                                 }
                                 AnimatedSelector(STREAM_LIST, DEFAULT_STREAM_MODEL) {
@@ -585,36 +593,42 @@ private fun MessageItem(
             Spacer(modifier = Modifier.height(6.dp))
             if (!message.isFromMe && !message.isLoading()) {
                 Row {
-                    Image(
-                        modifier = Modifier.size(12.dp),
-                        contentDescription = null,
-                        painter = painterResource(resource = Res.drawable.ic_token_up),
-                    )
-                    Spacer(modifier = Modifier.width(3.dp))
-                    Text(
-                        text = "prompt ${message.promptTokens}", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Image(
-                        modifier = Modifier.size(12.dp),
-                        contentDescription = null,
-                        painter = painterResource(resource = Res.drawable.ic_token_down),
-                    )
-                    Spacer(modifier = Modifier.width(3.dp))
-                    Text(
-                        text = "completion ${message.completionTokens}", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Image(
-                        modifier = Modifier.size(12.dp),
-                        contentDescription = null,
-                        painter = painterResource(resource = Res.drawable.ic_token_total),
-                    )
-                    Spacer(modifier = Modifier.width(3.dp))
-                    Text(
-                        text = "total ${message.promptTokens + message.completionTokens}", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
+                    if (message.promptTokens > 0) {
+                        Image(
+                            modifier = Modifier.size(12.dp),
+                            contentDescription = null,
+                            painter = painterResource(resource = Res.drawable.ic_token_up),
+                        )
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(
+                            text = "prompt ${message.promptTokens}", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                    }
+                    if (message.completionTokens > 0) {
+                        Image(
+                            modifier = Modifier.size(12.dp),
+                            contentDescription = null,
+                            painter = painterResource(resource = Res.drawable.ic_token_down),
+                        )
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(
+                            text = "completion ${message.completionTokens}", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                    }
+                    if ((message.promptTokens + message.completionTokens) > 0) {
+                        Image(
+                            modifier = Modifier.size(12.dp),
+                            contentDescription = null,
+                            painter = painterResource(resource = Res.drawable.ic_token_total),
+                        )
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(
+                            text = "total ${message.promptTokens + message.completionTokens}", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                    }
                     Image(
                         modifier = Modifier.size(12.dp).noClickableAndCopyStr(message.content.value, true),
                         contentDescription = null,

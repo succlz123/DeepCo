@@ -36,10 +36,8 @@ import org.succlz123.deepco.app.base.AppButton
 import org.succlz123.deepco.app.base.CustomEdit
 import org.succlz123.deepco.app.base.CustomExposedDropdownMenu
 import org.succlz123.deepco.app.base.DropdownMenuDes
-import org.succlz123.deepco.app.llm.role.PromptType
+import org.succlz123.deepco.app.role.PromptType
 import org.succlz123.deepco.app.theme.ColorResource
-import org.succlz123.deepco.app.ui.llm.LLM
-import org.succlz123.deepco.app.ui.llm.MainLLMViewModel.Companion.DEFAULT_LLM
 import org.succlz123.lib.click.noRippleClickable
 import org.succlz123.lib.screen.LocalScreenNavigator
 import org.succlz123.lib.screen.viewmodel.globalViewModel

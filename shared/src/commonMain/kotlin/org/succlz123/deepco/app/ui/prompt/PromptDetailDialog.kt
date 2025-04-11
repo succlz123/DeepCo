@@ -34,7 +34,7 @@ import deep_co.shared.generated.resources.ic_close
 import org.jetbrains.compose.resources.painterResource
 import org.succlz123.deepco.app.base.AppButton
 import org.succlz123.deepco.app.base.CustomEdit
-import org.succlz123.deepco.app.llm.role.PromptInfo
+import org.succlz123.deepco.app.role.PromptInfo
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.lib.click.noRippleClickable
 import org.succlz123.lib.screen.LocalScreenNavigator

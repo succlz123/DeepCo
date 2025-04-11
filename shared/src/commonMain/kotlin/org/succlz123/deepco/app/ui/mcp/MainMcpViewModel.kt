@@ -10,9 +10,9 @@ import org.succlz123.deepco.app.base.LocalStorage
 import org.succlz123.deepco.app.base.JSON_MCP
 import org.succlz123.deepco.app.json.appJson
 import org.succlz123.deepco.app.llm.deepseek.ToolCall
-import org.succlz123.deepco.app.llm.mcp.McpConfig
-import org.succlz123.deepco.app.llm.mcp.Tool
-import org.succlz123.deepco.app.llm.mcp.ToolUse
+import org.succlz123.deepco.app.mcp.biz.McpConfig
+import org.succlz123.deepco.app.mcp.biz.Tool
+import org.succlz123.deepco.app.mcp.biz.ToolUse
 import org.succlz123.deepco.app.mcp.callServerTool
 import org.succlz123.deepco.app.mcp.connectToServer
 import org.succlz123.lib.screen.result.ScreenResult

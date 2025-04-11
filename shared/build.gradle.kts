@@ -45,22 +45,23 @@ kotlin {
             kotlin.srcDirs("src/jvmMain/kotlin")
         }
         androidMain.dependencies {
-            api("androidx.activity:activity-compose:1.9.1")
-            api("androidx.appcompat:appcompat:1.7.0")
-            api("androidx.core:core-ktx:1.13.1")
-            api("io.modelcontextprotocol:kotlin-sdk:0.4.0")
+            implementation("androidx.activity:activity-compose:1.9.1")
+            implementation("androidx.appcompat:appcompat:1.7.0")
+            implementation("androidx.core:core-ktx:1.13.1")
+            implementation("io.modelcontextprotocol:kotlin-sdk:0.4.0")
         }
         val desktopMain by getting {
             kotlin.srcDirs("src/jvmMain/kotlin")
         }
         desktopMain.dependencies {
             implementation(compose.desktop.common)
-            api(fileTree(mapOf("dir" to "${projectDir}/libs", "include" to listOf("**.jar", "**.aar"))))
+            implementation(fileTree(mapOf("dir" to "${projectDir}/libs", "include" to listOf("**.jar", "**.aar"))))
 
-            api("com.google.code.gson:gson:2.11.0")
-            api("io.github.succlz123:compose-imageloader-desktop:0.0.2")
-            api("io.modelcontextprotocol:kotlin-sdk:0.4.0")
+            implementation("com.google.code.gson:gson:2.11.0")
+            implementation("io.github.succlz123:compose-imageloader-desktop:0.0.2")
+            implementation("io.modelcontextprotocol:kotlin-sdk:0.4.0")
             implementation("com.anthropic:anthropic-java:0.8.0")
+            implementation("com.google.genai:google-genai:0.3.0")
         }
     }
 }

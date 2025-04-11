@@ -1,4 +1,4 @@
-package org.succlz123.deepco.app.llm.mcp
+package org.succlz123.deepco.app.mcp.biz
 
 import kotlinx.serialization.Serializable
 

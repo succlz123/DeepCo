@@ -23,7 +23,7 @@ A Chat Client for LLMs, written in Compose Multiplatform. Target supports API pr
 Coze, Dify, Google Gemini, etc. You can also configure any OpenAI-compatible API or use native models via LM Studio/Ollama.
 
 > [!IMPORTANT]  
-> (Only the Official DeepSeek Provider is currently supported)
+> (Only the Official DeepSeek Provider & Official Google Gemini Provider are currently supported)
 
 ## Feature
 
@@ -34,7 +34,7 @@ Coze, Dify, Google Gemini, etc. You can also configure any OpenAI-compatible API
 - [x] DeepSeek LLM
 - [ ] OpenAI LLM
 - [ ] Claude LLM
-- [ ] Google Gemini LLM
+- [x] Google Gemini LLM
 - [ ] OLLama LLM
 - [ ] MCP Server Market
 - [ ] RAG

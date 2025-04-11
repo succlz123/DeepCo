@@ -1,7 +1,7 @@
 package org.succlz123.deepco.app.llm.deepseek
 
 import kotlinx.serialization.Serializable
-import org.succlz123.deepco.app.llm.mcp.ToolRequest
+import org.succlz123.deepco.app.mcp.biz.ToolRequest
 
 @Serializable
 data class DeepSeekRequest(

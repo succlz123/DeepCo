@@ -2,14 +2,14 @@ package org.succlz123.deepco.app.main
 
 import androidx.compose.runtime.Composable
 import org.succlz123.deepco.app.Manifest
+import org.succlz123.deepco.app.base.BaseWindow
 import org.succlz123.deepco.app.ui.llm.LLMAddDialog
 import org.succlz123.deepco.app.ui.mcp.MCPAddDialog
-import org.succlz123.lib.screen.ScreenHost
-import org.succlz123.lib.screen.rememberScreenNavigator
-import org.succlz123.deepco.app.base.BaseWindow
 import org.succlz123.deepco.app.ui.prompt.PromptAddDialog
 import org.succlz123.deepco.app.ui.prompt.PromptDetailDialog
 import org.succlz123.deepco.app.window.AppWindow
+import org.succlz123.lib.screen.ScreenHost
+import org.succlz123.lib.screen.rememberScreenNavigator
 
 @Composable
 fun MainWindow(appWindow: AppWindow) {

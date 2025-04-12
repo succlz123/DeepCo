@@ -19,11 +19,9 @@
 </p>
 
 
-A Chat Client for LLMs, written in Compose Multiplatform. Target supports API providers such as OpenRouter, Anthropic, OpenAI, DeepSeek,
+A Chat Client for LLMs, written in Compose Multiplatform. Target supports API providers such as OpenRouter, Anthropic, Grok, OpenAI, DeepSeek,
 Coze, Dify, Google Gemini, etc. You can also configure any OpenAI-compatible API or use native models via LM Studio/Ollama.
 
-> [!IMPORTANT]  
-> (Only the Official DeepSeek Provider & Official Google Gemini Provider are currently supported)
 
 ## Feature
 
@@ -32,6 +30,7 @@ Coze, Dify, Google Gemini, etc. You can also configure any OpenAI-compatible API
 - [x] MCP Support
 - [x] Prompt Management
 - [x] DeepSeek LLM
+- [x] Grok LLM
 - [ ] OpenAI LLM
 - [ ] Claude LLM
 - [x] Google Gemini LLM
@@ -39,6 +38,7 @@ Coze, Dify, Google Gemini, etc. You can also configure any OpenAI-compatible API
 - [ ] MCP Server Market
 - [ ] RAG
 - [x] TTS (Edge API)
+- [ ] SillyTavern Character Adaptation
 - [ ] Dark/Light Theme
 
 ### Chat With LLMs

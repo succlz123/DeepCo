@@ -13,9 +13,6 @@ data class DeepSeekResponse(
     val error: Error? = null,
     val usage: Usage? = null
 ) {
-
-    var elapsedTime: Long = 0
-
     var errorMsg: String = ""
 }
 

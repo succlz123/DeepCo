@@ -60,7 +60,7 @@ kotlin {
             implementation("com.google.code.gson:gson:2.11.0")
             implementation("io.github.succlz123:compose-imageloader-desktop:0.0.2")
             implementation("io.modelcontextprotocol:kotlin-sdk:0.4.0")
-            implementation("com.anthropic:anthropic-java:0.8.0")
+            implementation("com.anthropic:anthropic-java:1.1.0")
             implementation("com.google.genai:google-genai:0.3.0")
 //            implementation("de.dfki.mary:voice-cmu-slt-hsmm:5.2.1")
             implementation("io.github.ikfly:java-tts:1.0.2")

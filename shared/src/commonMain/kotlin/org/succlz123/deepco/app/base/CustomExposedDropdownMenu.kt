@@ -62,7 +62,7 @@ fun CustomExposedDropdownMenu(
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            modifier = Modifier.heightIn(max = 120.dp)
+            modifier = Modifier.heightIn(max = 620.dp)
         ) {
             options.forEach { option ->
                 DropdownMenuItem(content = { Text(option.showName) }, onClick = {

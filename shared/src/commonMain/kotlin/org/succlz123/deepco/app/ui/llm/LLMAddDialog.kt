@@ -132,7 +132,7 @@ fun LLMAddDialog() {
                         modifier = Modifier.align(Alignment.BottomEnd), text = "Save", contentPaddingValues = PaddingValues(
                             start = 16.dp, top = 10.dp, end = 16.dp, bottom = 10.dp
                         ), onClick = {
-                            vm.add(selectedProvider.value?.provider.orEmpty(), name.value, apiKey.value, baseUrl.value)
+                            vm.add(selectedProvider.value?.provider.orEmpty(), name.value, selectedProvider.value?.modes.orEmpty(), apiKey.value, baseUrl.value)
                             screenNavigator.pop()
                         })
                 }

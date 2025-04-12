@@ -5,8 +5,9 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.succlz123.deepco.app.base.JSON_HISTORY
-import org.succlz123.deepco.app.base.LocalStorage
+import org.succlz123.deepco.app.base.DIR_HISTORY
+import org.succlz123.deepco.app.base.LocalDirStorage
+import org.succlz123.deepco.app.llm.ChatResponse
 import org.succlz123.deepco.app.msg.ChatMessage
 import org.succlz123.deepco.app.msg.ChatMessage.Companion.TYPE_LOADING
 import org.succlz123.deepco.app.msg.ChatMessageData
@@ -21,11 +22,12 @@ import org.succlz123.deepco.app.role.RoleDefine
 import org.succlz123.deepco.app.ui.llm.LLM
 import org.succlz123.deepco.app.ui.llm.MainLLMViewModel
 import org.succlz123.deepco.app.ui.llm.MainLLMViewModel.Companion.PROVIDER_GEMINI
+import org.succlz123.deepco.app.ui.llm.MainLLMViewModel.Companion.PROVIDER_GROK
 import org.succlz123.lib.logger.Logger
 import org.succlz123.lib.screen.result.ScreenResult
 import kotlin.random.Random
 
-class ChatViewModel {
+class MainChatViewModel {
 
     companion object {
 
@@ -34,7 +36,7 @@ class ChatViewModel {
         val DEFAULT_STREAM_MODEL = "stream"
     }
 
-    val chatLocalStorage = LocalStorage(JSON_HISTORY)
+    val chatLocalStorage = LocalDirStorage(DIR_HISTORY)
 
     val history = MutableStateFlow<Map<Long, ChatMessageData>>(localHistory().orEmpty())
 
@@ -59,7 +61,7 @@ class ChatViewModel {
 
     fun localHistory(): HashMap<Long, ChatMessageData>? {
         val map = hashMapOf<Long, ChatMessageData>()
-        val chats = chatLocalStorage.get<List<ChatMessageData>>().orEmpty()
+        val chats = chatLocalStorage.getAllFileDir<ChatMessageData>().orEmpty()
         for (data in chats) {
             map[data.id] = data
         }
@@ -72,8 +74,8 @@ class ChatViewModel {
                 val nonLoading = preChatMessage.value.list.filter { !it.isLoading() }
                 put(preChatMessage.value.id, preChatMessage.value.copy(list = nonLoading))
             }
+            chatLocalStorage.put(preChatMessage.value, preChatMessage.value.id.toString())
         }
-        chatLocalStorage.put(history.value.values.toList())
     }
 
     fun removeHistory(messagesId: Long) {
@@ -84,7 +86,7 @@ class ChatViewModel {
         if (preChatMessage.value.id == messagesId) {
             preChatMessage.value = ChatMessageData()
         }
-        chatLocalStorage.put(history.value.values.toList())
+        chatLocalStorage.remove(messagesId.toString())
     }
 
     fun chat(chatText: String, llm: LLM, mcpList: Map<String, List<Tool>>, manuallyClear: Boolean, toolsCallCb: suspend (List<ToolCall>) -> List<ToolUse>?) {
@@ -100,7 +102,7 @@ class ChatViewModel {
 
         preChatMessage.value = preChatMessage.value.copy(
             list = preChatMessage.value.list.toMutableList().apply {
-                add(ChatMessage(modelKey = llm.getSelectedModeMode(), isFromMe = true).apply {
+                add(ChatMessage(model = llm.getSelectedModeMode(), isFromMe = true).apply {
                     changeContent(chatText)
                 })
                 add(loadingMessage)
@@ -157,6 +159,7 @@ class ChatViewModel {
                                     loadingMessage.promptTokens = response.usage?.prompt_tokens ?: 0
                                     loadingMessage.completionTokens = response.usage?.completion_tokens ?: 0
                                     loadingMessage.elapsedTime = System.currentTimeMillis() - startTime
+                                    loadingMessage.model = response.model.orEmpty()
 
                                     loadingMessage.changeReasoningContent(reasoningContentSb.toString())
                                     loadingMessage.changeContent(contentSb.toString())
@@ -185,14 +188,15 @@ class ChatViewModel {
                             Logger.log("Call Next")
                         }
                     }
-                } else if (llm.provider == PROVIDER_GEMINI) {
+                } else if (llm.provider == PROVIDER_GEMINI || llm.provider == PROVIDER_GROK) {
                     if (loadingMessage.id == TYPE_LOADING) {
                         loadingMessage.id = System.nanoTime()
                     }
                     if (stream) {
-                        org.succlz123.deepco.app.llm.gemini.geminiChatStream(llm.apiKey, llm.getSelectedModeMode(), prompt, content) { response, isStop ->
+                        val streamCb = { response: ChatResponse, isStop: Boolean ->
                             if (!isStop) {
                                 if (response.errorMsg.isNullOrEmpty()) {
+                                    reasoningContentSb.append(response.thinking.orEmpty())
                                     contentSb.append(response.text.orEmpty())
                                 } else {
                                     contentSb.append(response.errorMsg.orEmpty())
@@ -206,12 +210,25 @@ class ChatViewModel {
                                     lastChatResponse.value = ScreenResult.Success(Random.nextInt())
                                 }
                             }
+                            loadingMessage.model = response.model.orEmpty()
+                            loadingMessage.changeReasoningContent(reasoningContentSb.toString().trim())
                             loadingMessage.changeContent(contentSb.toString().trim())
                         }
+                        if (llm.provider == PROVIDER_GEMINI) {
+                            org.succlz123.deepco.app.llm.gemini.geminiChatStream(llm.apiKey, llm.getSelectedModeMode(), prompt, content, streamCb)
+                        } else {
+                            org.succlz123.deepco.app.llm.grok.grokChatStream(llm.apiKey, llm.getSelectedModeMode(), prompt, content, streamCb)
+                        }
                     } else {
-                        val response = org.succlz123.deepco.app.llm.gemini.geminiChat(llm.apiKey, llm.getSelectedModeMode(), prompt, content)
+                        val response = if (llm.provider == PROVIDER_GEMINI) {
+                            org.succlz123.deepco.app.llm.gemini.geminiChat(llm.apiKey, llm.getSelectedModeMode(), prompt, content)
+                        } else {
+                            org.succlz123.deepco.app.llm.grok.grokChat(llm.apiKey, llm.getSelectedModeMode(), prompt, content)
+                        }
                         loadingMessage.elapsedTime = System.currentTimeMillis() - startTime
+                        loadingMessage.model = response.model.orEmpty()
                         if (response.errorMsg.isNullOrEmpty()) {
+                            loadingMessage.changeReasoningContent(response.thinking?.trim().orEmpty())
                             loadingMessage.changeContent(response.text?.trim().orEmpty())
                             lastChatResponse.value = ScreenResult.Success(Random.nextInt())
                         } else {

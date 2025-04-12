@@ -8,6 +8,7 @@ import com.google.genai.types.Part
 import com.google.genai.types.Tool
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.succlz123.deepco.app.llm.ChatResponse
 import org.succlz123.deepco.app.msg.ChatMessage
 import org.succlz123.lib.logger.Logger
 import kotlin.jvm.optionals.getOrNull
@@ -36,7 +37,7 @@ fun getConfig(prompt: String): GenerateContentConfig {
         .build()
 }
 
-actual suspend fun geminiChat(key: String, model: String, prompt: String, content: List<ChatMessage>): GeminiResponse {
+actual suspend fun geminiChat(key: String, model: String, prompt: String, content: List<ChatMessage>): ChatResponse {
     return withContext(Dispatchers.Default) {
         val client = getClient(key)
         val config = getConfig(prompt)
@@ -53,7 +54,7 @@ actual suspend fun geminiChat(key: String, model: String, prompt: String, conten
                 }, config)
                 val text = response.text()
                 Logger.log("geminiChat " + text.orEmpty())
-                GeminiResponse(
+                ChatResponse(
                     text = text,
                     id = response.responseId().getOrNull(),
                     created = response.createTime().getOrNull(),
@@ -61,17 +62,17 @@ actual suspend fun geminiChat(key: String, model: String, prompt: String, conten
                 )
             } catch (e: Exception) {
                 Logger.log("geminiChat e" + e.message)
-                GeminiResponse(errorMsg = e.message.orEmpty())
+                ChatResponse(errorMsg = e.message.orEmpty())
             }
         }
     }
 }
 
-actual suspend fun geminiChatStream(key: String, model: String, prompt: String, content: List<ChatMessage>, cb: (GeminiResponse, Boolean) -> Unit) {
-    return withContext(Dispatchers.Default) {
+actual suspend fun geminiChatStream(key: String, model: String, prompt: String, content: List<ChatMessage>, cb: (ChatResponse, Boolean) -> Unit) {
+    withContext(Dispatchers.Default) {
         val client = getClient(key)
         val config = getConfig(prompt)
-        return@withContext withContext(Dispatchers.IO) {
+        withContext(Dispatchers.IO) {
             try {
                 val responseStream = client.models.generateContentStream(model, content.mapNotNull {
                     if (it.isFromMe) {
@@ -86,7 +87,7 @@ actual suspend fun geminiChatStream(key: String, model: String, prompt: String, 
                     val text = response.text()
                     Logger.log("geminiChatStream " + text.orEmpty())
                     cb.invoke(
-                        GeminiResponse(
+                        ChatResponse(
                             text = text,
                             id = response.responseId().getOrNull(),
                             created = response.createTime().getOrNull(),
@@ -95,10 +96,10 @@ actual suspend fun geminiChatStream(key: String, model: String, prompt: String, 
                     )
                 }
                 responseStream.close()
-                cb.invoke(GeminiResponse(), true)
+                cb.invoke(ChatResponse(), true)
             } catch (e: Exception) {
                 Logger.log("geminiChatStream e" + e.message)
-                cb.invoke(GeminiResponse(errorMsg = e.message.orEmpty()), true)
+                cb.invoke(ChatResponse(errorMsg = e.message.orEmpty()), true)
             }
         }
     }

@@ -8,3 +8,7 @@ expect fun saveConfig2AppDir(dirName: String, fileName: String, content: String)
 
 expect fun getConfigFromAppDir(dirName: String, fileName: String): String?
 
+expect fun getAllConfigFromAppDir(dirName: String): List<String>?
+
+expect fun removeFile(filePath: String)
+

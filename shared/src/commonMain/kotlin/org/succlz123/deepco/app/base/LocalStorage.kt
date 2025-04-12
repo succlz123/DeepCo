@@ -4,7 +4,7 @@ import org.succlz123.deepco.app.json.appJson
 import org.succlz123.lib.setting.getConfigFromAppDir
 import org.succlz123.lib.setting.saveConfig2AppDir
 
-const val JSON_HISTORY = "history.json"
+const val DIR_HISTORY = "history"
 const val JSON_LLM = "llm.json"
 const val JSON_MCP = "mcp.json"
 const val JSON_PROMPT = "prompt.json"

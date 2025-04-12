@@ -3,8 +3,8 @@ package org.succlz123.deepco.app
 object AppBuildConfig {
     var isDebug = true
     var showFPS = false
-    var versionName = "1.0.0"
-    var versionCode = 1
+    var versionName = "1.0.1"
+    var versionCode = 2
 }
 
 object Manifest {

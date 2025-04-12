@@ -11,6 +11,7 @@ class MainLLMViewModel : BaseBizViewModel() {
 
         val PROVIDER_DEEPSEEK = "DeepSeek"
         val PROVIDER_GEMINI = "Google-Gemini"
+        val PROVIDER_GROK = "Grok"
 
         val MODEL_V3 = "deepseek-chat"
         val MODEL_R1 = "deepseek-reasoner"
@@ -26,18 +27,47 @@ class MainLLMViewModel : BaseBizViewModel() {
         val MODEL_GEMINI_VEO_20_001 = "veo-2.0-generate-001"
         val MODEL_GEMINI_20_FLASH_LIVE_001 = "gemini-2.0-flash-live-001"
 
+        val MODEL_GROK_3 = "grok-3"
+        val MODEL_GROK_3_LATEST = "grok-3-latest"
+        val MODEL_GROK_3_FAST = "grok-3-fast"
+        val MODEL_GROK_3_FAST_LATEST = "grok-3-fast-latest"
+        val MODEL_GROK_3_MINI = "grok-3-mini"
+        val MODEL_GROK_3_MINI_LATEST = "grok-3-mini-latest"
+        val MODEL_GROK_3_MINI_FAST = "grok-3-mini-fast"
+        val MODEL_GROK_3_MINI_FAST_LATEST = "grok-3-mini-fast-latest"
+
+        val MODEL_GROK_2_VISION = "grok-2-vision"
+        val MODEL_GROK_2_VISION_LATEST = "grok-2-vision-latest"
+        val MODEL_GROK_2_IMAGE = "grok-2-image"
+        val MODEL_GROK_2_IMAGE_LATEST = "grok-2-image-latest"
+
         val DEFAULT_LLM = listOf<LLM>(
             LLM(
                 provider = PROVIDER_DEEPSEEK,
                 name = "",
-                modes = emptyList(),
+                modes = listOf(MODEL_V3, MODEL_R1),
                 apiKey = "",
                 baseUrl = "https://api.deepseek.com"
             ),
             LLM(
                 provider = PROVIDER_GEMINI,
                 name = "",
-                modes = emptyList(),
+                modes = listOf(
+                    MODEL_GEMINI_25_PRO_0325, MODEL_GEMINI_20_FLASH, MODEL_GEMINI_20_FLASH_LITE, MODEL_GEMINI_15_FLASH,
+                    MODEL_GEMINI_15_FLASH_8B, MODEL_GEMINI_15_PRO, MODEL_GEMINI_EMBEDDING_EXP, MODEL_GEMINI_IMAGEN_30_002,
+                    MODEL_GEMINI_VEO_20_001, MODEL_GEMINI_20_FLASH_LIVE_001
+                ),
+                apiKey = "",
+                baseUrl = ""
+            ),
+            LLM(
+                provider = PROVIDER_GROK,
+                name = "",
+                modes = listOf(
+                    MODEL_GROK_3, MODEL_GROK_3_LATEST, MODEL_GROK_3_FAST, MODEL_GROK_3_FAST_LATEST,
+                    MODEL_GROK_3_MINI, MODEL_GROK_3_MINI_LATEST, MODEL_GROK_3_MINI_FAST, MODEL_GROK_3_MINI_FAST_LATEST,
+                    MODEL_GROK_2_VISION, MODEL_GROK_2_VISION_LATEST, MODEL_GROK_2_IMAGE, MODEL_GROK_2_IMAGE_LATEST
+                ),
                 apiKey = "",
                 baseUrl = ""
             )
@@ -78,18 +108,7 @@ class MainLLMViewModel : BaseBizViewModel() {
         llmLocalStorage.put(LLMLocalConfig(newConfigs, selectedLLM.value?.name))
     }
 
-    fun add(provider: String, name: String, apiKey: String, baseUrl: String) {
-        val modes = if (provider == PROVIDER_DEEPSEEK) {
-            listOf(MODEL_V3, MODEL_R1)
-        } else if (provider == PROVIDER_GEMINI) {
-            listOf(
-                MODEL_GEMINI_25_PRO_0325, MODEL_GEMINI_20_FLASH, MODEL_GEMINI_20_FLASH_LITE, MODEL_GEMINI_15_FLASH,
-                MODEL_GEMINI_15_FLASH_8B, MODEL_GEMINI_15_PRO, MODEL_GEMINI_EMBEDDING_EXP, MODEL_GEMINI_IMAGEN_30_002,
-                MODEL_GEMINI_VEO_20_001, MODEL_GEMINI_20_FLASH_LIVE_001
-            )
-        } else {
-            emptyList()
-        }
+    fun add(provider: String, name: String, modes: List<String>, apiKey: String, baseUrl: String) {
         val llm = LLM(provider, name, modes, apiKey, baseUrl)
         llmConfigs.value = llmConfigs.value.toMutableList().apply {
             add(llm)

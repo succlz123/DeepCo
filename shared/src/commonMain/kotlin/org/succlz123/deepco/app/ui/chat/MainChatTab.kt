@@ -65,11 +65,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import deep_co.shared.generated.resources.Res
+import deep_co.shared.generated.resources.ic_chat
 import deep_co.shared.generated.resources.ic_copy
 import deep_co.shared.generated.resources.ic_down
 import deep_co.shared.generated.resources.ic_elapsed
 import deep_co.shared.generated.resources.ic_model
 import deep_co.shared.generated.resources.ic_remove
+import deep_co.shared.generated.resources.ic_send
 import deep_co.shared.generated.resources.ic_show_more
 import deep_co.shared.generated.resources.ic_speaker
 import deep_co.shared.generated.resources.ic_token_down
@@ -77,6 +79,7 @@ import deep_co.shared.generated.resources.ic_token_total
 import deep_co.shared.generated.resources.ic_token_up
 import deep_co.shared.generated.resources.logo_deepseek
 import deep_co.shared.generated.resources.logo_google
+import deep_co.shared.generated.resources.logo_grok
 import deep_co.shared.generated.resources.logo_llm
 import org.jetbrains.compose.resources.painterResource
 import org.succlz123.deepco.app.base.AppButton
@@ -88,8 +91,8 @@ import org.succlz123.deepco.app.role.PromptType
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.deepco.app.theme.LocalTheme
 import org.succlz123.deepco.app.theme.Theme
-import org.succlz123.deepco.app.ui.chat.ChatViewModel.Companion.DEFAULT_STREAM_MODEL
-import org.succlz123.deepco.app.ui.chat.ChatViewModel.Companion.STREAM_LIST
+import org.succlz123.deepco.app.ui.chat.MainChatViewModel.Companion.DEFAULT_STREAM_MODEL
+import org.succlz123.deepco.app.ui.chat.MainChatViewModel.Companion.STREAM_LIST
 import org.succlz123.deepco.app.ui.llm.MainLLMViewModel
 import org.succlz123.deepco.app.ui.mcp.MainMcpViewModel
 import org.succlz123.deepco.app.ui.prompt.MainPromptViewModel
@@ -137,11 +140,11 @@ fun ChatView() {
     val llmViewModel = globalViewModel { MainLLMViewModel() }
     val mcpViewModel = globalViewModel { MainMcpViewModel() }
     val promptViewModel = globalViewModel { MainPromptViewModel() }
-    val chatViewModel = remember { ChatViewModel() }
+    val mainChatViewModel = remember { MainChatViewModel() }
 
     DisposableEffect(Unit) {
         onDispose {
-            chatViewModel.clear()
+            mainChatViewModel.clear()
         }
     }
     val screenNavigator = LocalScreenNavigator.current
@@ -158,8 +161,8 @@ fun ChatView() {
                     AppHorizontalDivider()
                     if (panelState.isExpanded) {
                         Spacer(Modifier.height(6.dp))
-                        chatViewModel.history.collectAsState().value.entries.reversed().forEach {
-                            val curSelect = chatViewModel.selectedHistory.collectAsState().value?.id
+                        mainChatViewModel.history.collectAsState().value.entries.reversed().forEach {
+                            val curSelect = mainChatViewModel.selectedHistory.collectAsState().value?.id
                             Text(
                                 it.value.list.firstOrNull()?.createdTimeFormatted().orEmpty(),
                                 overflow = TextOverflow.Ellipsis,
@@ -173,9 +176,9 @@ fun ChatView() {
                                     it.value.list.lastOrNull()?.content?.value.orEmpty(),
                                     overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier.weight(1f).noRippleClickable {
-                                        chatViewModel.updateHistory()
-                                        chatViewModel.selectedHistory.value = it.value
-                                        chatViewModel.preChatMessage.value = it.value
+                                        mainChatViewModel.updateHistory()
+                                        mainChatViewModel.selectedHistory.value = it.value
+                                        mainChatViewModel.preChatMessage.value = it.value
                                     }.background(if (curSelect == it.key) ColorResource.theme else ColorResource.transparent, shape = RoundedCornerShape(4.dp)).padding(vertical = 4.dp, horizontal = 6.dp),
                                     maxLines = 1,
                                     color = if (curSelect == it.key) ColorResource.white else ColorResource.primaryText,
@@ -184,7 +187,7 @@ fun ChatView() {
                                 Spacer(Modifier.width(6.dp))
                                 Image(
                                     modifier = Modifier.size(14.dp).noRippleClickable {
-                                        chatViewModel.removeHistory(it.key)
+                                        mainChatViewModel.removeHistory(it.key)
                                     },
                                     contentDescription = null,
                                     colorFilter = ColorFilter.tint(ColorResource.error),
@@ -233,6 +236,8 @@ fun ChatView() {
                                         Res.drawable.logo_deepseek to 80.dp
                                     } else if (selectedLLmConfigValue.provider == MainLLMViewModel.PROVIDER_GEMINI) {
                                         Res.drawable.logo_google to 50.dp
+                                    } else if (selectedLLmConfigValue.provider == MainLLMViewModel.PROVIDER_GROK) {
+                                        Res.drawable.logo_grok to 38.dp
                                     } else {
                                         Res.drawable.logo_llm to 18.dp
                                     }
@@ -287,10 +292,20 @@ fun ChatView() {
                             }
                             Spacer(modifier = Modifier.weight(1f))
                             AppButton(
-                                modifier = Modifier, text = "New Chat", contentPaddingValues = PaddingValues(
+                                Modifier, contentPaddingValues = PaddingValues(
                                     start = 16.dp, top = 10.dp, end = 16.dp, bottom = 10.dp
                                 ), onClick = {
-                                    chatViewModel.clear()
+                                    mainChatViewModel.clear()
+                                }, content = {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Image(
+                                            modifier = Modifier.size(16.dp),
+                                            contentDescription = null,
+                                            painter = painterResource(resource = Res.drawable.ic_chat),
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text("New Chat", color = ColorResource.white, style = MaterialTheme.typography.body1)
+                                    }
                                 })
                         }
                         AppHorizontalDivider()
@@ -302,7 +317,7 @@ fun ChatView() {
 //                                if (chatViewModel.selectedRole.value.name.isNullOrEmpty()) {
 //                                }
 //                            }
-                            val selectedRole = chatViewModel.selectedRole.collectAsState().value
+                            val selectedRole = mainChatViewModel.selectedRole.collectAsState().value
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 LazyRow(modifier = Modifier.weight(1f)) {
                                     itemsIndexed(roles) { index, role ->
@@ -322,7 +337,7 @@ fun ChatView() {
                                                     }
                                                 ), shape = RoundedCornerShape(4.dp)
                                             ).padding(horizontal = 10.dp, vertical = 4.dp).noRippleClickable {
-                                                chatViewModel.selectedRole.value = role
+                                                mainChatViewModel.selectedRole.value = role
                                             }) {
                                             Text(
                                                 role.name, color = if (selectedRole.name == role.name) {
@@ -348,7 +363,7 @@ fun ChatView() {
                             Text("TOOL", color = ColorResource.primaryText, style = MaterialTheme.typography.h5)
                             Spacer(modifier = Modifier.width(12.dp))
                             val mcpList = mcpViewModel.mcpList.collectAsState().value
-                            val selectedMCPList = chatViewModel.selectedMCPList.collectAsState().value
+                            val selectedMCPList = mainChatViewModel.selectedMCPList.collectAsState().value
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 LazyRow(modifier = Modifier.weight(1f)) {
                                     itemsIndexed(mcpList) { index, mcp ->
@@ -370,9 +385,9 @@ fun ChatView() {
                                                 ), shape = RoundedCornerShape(4.dp)
                                             ).padding(horizontal = 10.dp, vertical = 4.dp).noRippleClickable {
                                                 if (mcpList.map { it.name }.intersect(selectedMCPList.map { it.name }).isNotEmpty()) {
-                                                    chatViewModel.selectedMCPList.value = chatViewModel.selectedMCPList.value - mcp
+                                                    mainChatViewModel.selectedMCPList.value = mainChatViewModel.selectedMCPList.value - mcp
                                                 } else {
-                                                    chatViewModel.selectedMCPList.value = chatViewModel.selectedMCPList.value + mcp
+                                                    mainChatViewModel.selectedMCPList.value = mainChatViewModel.selectedMCPList.value + mcp
                                                 }
                                             }) {
                                             Text(
@@ -396,7 +411,7 @@ fun ChatView() {
                             Spacer(modifier = Modifier.height(12.dp))
                         }
                         AppHorizontalDivider()
-                        val chatList = chatViewModel.preChatMessage.collectAsState().value
+                        val chatList = mainChatViewModel.preChatMessage.collectAsState().value
                         val input = remember {
                             mutableStateOf("")
                         }
@@ -407,7 +422,7 @@ fun ChatView() {
                                 )
                             } else {
                                 Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp).weight(1f)) {
-                                    Text("Recommended", modifier = Modifier, color = ColorResource.primaryText, style = MaterialTheme.typography.h2)
+                                    Text("Recommend", modifier = Modifier, color = ColorResource.primaryText, style = MaterialTheme.typography.h2)
                                     Spacer(modifier = Modifier.height(16.dp))
                                     Row {
                                         Box(
@@ -461,17 +476,17 @@ fun ChatView() {
                                     val msg = input.value
                                     if (msg.isEmpty()) {
                                         screenNavigator.toast("Please enter a message")
-                                    } else if (chatViewModel.lastChatResponse.value is ScreenResult.Loading) {
+                                    } else if (mainChatViewModel.lastChatResponse.value is ScreenResult.Loading) {
                                         screenNavigator.toast("Please wait a moment")
                                     } else {
-                                        chatViewModel.chat(msg, selectedLLmConfigValue, mcpViewModel.getServer(), false) {
+                                        mainChatViewModel.chat(msg, selectedLLmConfigValue, mcpViewModel.getServer(), false) {
                                             mcpViewModel.callServer(it)
                                         }
                                         input.value = ""
                                     }
                                 }
                                 AnimatedSelector(STREAM_LIST, DEFAULT_STREAM_MODEL) {
-                                    chatViewModel.selectedStreamModel.value = it
+                                    mainChatViewModel.selectedStreamModel.value = it
                                 }
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Box(
@@ -495,10 +510,20 @@ fun ChatView() {
                                 }
                                 Spacer(modifier = Modifier.width(12.dp))
                                 AppButton(
-                                    modifier = Modifier, text = "Send", contentPaddingValues = PaddingValues(
-                                        start = 16.dp, top = 12.dp, end = 16.dp, bottom = 12.dp
-                                    ), {
+                                    Modifier, contentPaddingValues = PaddingValues(
+                                        start = 16.dp, top = 10.dp, end = 16.dp, bottom = 10.dp
+                                    ), onClick = {
                                         click()
+                                    }, content = {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Image(
+                                                modifier = Modifier.size(16.dp),
+                                                contentDescription = null,
+                                                painter = painterResource(resource = Res.drawable.ic_send),
+                                            )
+                                            Spacer(modifier = Modifier.width(6.dp))
+                                            Text("Send", color = ColorResource.white, style = MaterialTheme.typography.body1)
+                                        }
                                     })
                             }
                         }
@@ -631,6 +656,18 @@ private fun MessageItem(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                     }
+                    if (message.model.isNotEmpty()) {
+                        Image(
+                            modifier = Modifier.size(12.dp),
+                            contentDescription = null,
+                            painter = painterResource(resource = Res.drawable.ic_model),
+                        )
+                        Spacer(modifier = Modifier.width(3.dp))
+                        Text(
+                            text = "${message.model}", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                    }
                     Image(
                         modifier = Modifier.size(12.dp).onClickableAndSpeakStr(message.content.value),
                         contentDescription = null,
@@ -678,7 +715,7 @@ private fun MessageItem(
         }
         if (message.isFromMe) {
             Spacer(modifier = Modifier.width(8.dp))
-            Avatar(message.isFromMe, message.modelKey)
+            Avatar(message.isFromMe, message.model)
         }
     }
     Spacer(modifier = Modifier.height(6.dp))

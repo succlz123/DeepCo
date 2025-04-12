@@ -55,3 +55,21 @@ actual fun openConfigDir(dirName: String) {
         e.printStackTrace()
     }
 }
+
+actual fun getAllConfigFromAppDir(dirName: String): List<String>? {
+    val file = File(getAppDirPath(arrayOf(dirName)))
+    return if (file.isDirectory) {
+        file.listFiles().map {
+            it.readText()
+        }
+    } else {
+        emptyList()
+    }
+}
+
+actual fun removeFile(filePath: String) {
+    val file = File(getAppDirPath(arrayOf(filePath)))
+    if (file.exists()) {
+        file.delete()
+    }
+}

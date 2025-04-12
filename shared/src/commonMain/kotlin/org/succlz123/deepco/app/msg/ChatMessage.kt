@@ -43,9 +43,8 @@ data class ChatMessage(
     val reasoningContent: MutableState<String> = mutableStateOf(""),
     val isFromMe: Boolean = false,
 
-    val modelKey: String = "",
+    var model: String = "",
     var elapsedTime: Long = 0,
-
     var promptTokens: Int = 0,
     var completionTokens: Int = 0,
 

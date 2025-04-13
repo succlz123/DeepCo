@@ -7,7 +7,8 @@ import com.anthropic.models.messages.MessageParam
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.succlz123.deepco.app.llm.ChatResponse
-import org.succlz123.deepco.app.msg.ChatMessage
+import org.succlz123.deepco.app.chat.msg.ChatMessage
+import org.succlz123.deepco.app.ui.chat.ChatModeConfig
 import org.succlz123.lib.logger.Logger
 import kotlin.jvm.optionals.getOrNull
 
@@ -36,14 +37,18 @@ private fun getClient(key: String): AnthropicClient {
 // grok-2-vision-latest
 // grok-2-image
 // grok-2-image-latest
-fun getConfig(model: String): MessageCreateParams.Builder {
-    return MessageCreateParams.builder().model(model).maxTokens(2048)
+fun getConfig(model: String, modeConfig: ChatModeConfig): MessageCreateParams.Builder {
+    return MessageCreateParams.builder()
+        .model(model)
+        .maxTokens(modeConfig.maxOutTokens.toLong())
+        .temperature(modeConfig.temperature.toDouble() / 2)
+        .topP(modeConfig.topP.toDouble())
 }
 
-actual suspend fun grokChat(key: String, model: String, prompt: String, content: List<ChatMessage>): ChatResponse {
+actual suspend fun grokChat(key: String, model: String, prompt: String, modeConfig: ChatModeConfig, content: List<ChatMessage>): ChatResponse {
     return withContext(Dispatchers.Default) {
         val client = getClient(key)
-        val config = getConfig(model)
+        val config = getConfig(model, modeConfig)
         return@withContext withContext(Dispatchers.IO) {
             try {
                 val messages = content.mapNotNull {
@@ -79,10 +84,10 @@ actual suspend fun grokChat(key: String, model: String, prompt: String, content:
     }
 }
 
-actual suspend fun grokChatStream(key: String, model: String, prompt: String, content: List<ChatMessage>, cb: (ChatResponse, Boolean) -> Unit) {
+actual suspend fun grokChatStream(key: String, model: String, prompt: String, modeConfig: ChatModeConfig, content: List<ChatMessage>, cb: (ChatResponse, Boolean) -> Unit) {
     withContext(Dispatchers.Default) {
         val client = getClient(key)
-        val config = getConfig(model)
+        val config = getConfig(model, modeConfig)
         withContext(Dispatchers.IO) {
             try {
                 val messages = content.mapNotNull {

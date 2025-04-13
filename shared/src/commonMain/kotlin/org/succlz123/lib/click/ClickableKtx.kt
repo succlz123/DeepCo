@@ -16,13 +16,13 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import org.succlz123.lib.common.openURLByBrowser
 import org.succlz123.lib.screen.LocalScreenNavigator
 
-fun Modifier.noRippleClickable(onClick: () -> Unit): Modifier = composed {
+fun Modifier.noRippleClick(onClick: () -> Unit): Modifier = composed {
     clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) {
         onClick()
     }
 }
 
-fun Modifier.noDoubleClickable(onClick: () -> Unit): Modifier = composed {
+fun Modifier.noDoubleClick(onClick: () -> Unit): Modifier = composed {
     pointerInput(Unit) {
         detectTapGestures(onDoubleTap = {
             onClick.invoke()
@@ -30,7 +30,7 @@ fun Modifier.noDoubleClickable(onClick: () -> Unit): Modifier = composed {
     }
 }
 
-fun Modifier.noDoubleClickableAndCopyStr(str: String, showToast: Boolean = false): Modifier = composed {
+fun Modifier.noDoubleClickAndCopyStr(str: String, showToast: Boolean = false): Modifier = composed {
     val clipboardManager = LocalClipboardManager.current
     val screenNavigator = LocalScreenNavigator.current
     pointerInput(Unit) {
@@ -43,7 +43,7 @@ fun Modifier.noDoubleClickableAndCopyStr(str: String, showToast: Boolean = false
     }
 }
 
-fun Modifier.onClickableAndCopyStr(str: String, showToast: Boolean = false): Modifier = composed {
+fun Modifier.onClickAndCopyStr(str: String, showToast: Boolean = false): Modifier = composed {
     val clipboardManager = LocalClipboardManager.current
     val screenNavigator = LocalScreenNavigator.current
     pointerInput(Unit) {
@@ -56,7 +56,7 @@ fun Modifier.onClickableAndCopyStr(str: String, showToast: Boolean = false): Mod
     }
 }
 
-fun Modifier.onClickableAndSpeakStr(str: String): Modifier = composed {
+fun Modifier.onClickAndSpeakStr(str: String): Modifier = composed {
     val screenNavigator = LocalScreenNavigator.current
     pointerInput(Unit) {
         detectTapGestures(onTap = {
@@ -66,7 +66,7 @@ fun Modifier.onClickableAndSpeakStr(str: String): Modifier = composed {
     }
 }
 
-fun Modifier.clickUrl(url: String): Modifier = composed {
+fun Modifier.onClickUrl(url: String): Modifier = composed {
     pointerInput(Unit) {
         detectTapGestures(onTap = {
             openURLByBrowser(url)
@@ -77,7 +77,7 @@ fun Modifier.clickUrl(url: String): Modifier = composed {
 fun Modifier.soundClick(onClick: () -> Unit): Modifier = composed {
     val soundInteraction = remember {
 //        val mediaPlayer = CallbackMediaPlayerComponent().mediaPlayer()
-//        mediaPlayer.media()?.prepare("/Users/succlz123/Downloads/android_assets_sound_se_item00.wav")
+//        mediaPlayer.media()?.prepare("")
         val interaction = object : MutableInteractionSource {
 
             override val interactions = MutableSharedFlow<Interaction>(

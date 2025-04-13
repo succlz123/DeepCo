@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -61,6 +62,7 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -70,6 +72,8 @@ import deep_co.shared.generated.resources.ic_copy
 import deep_co.shared.generated.resources.ic_down
 import deep_co.shared.generated.resources.ic_elapsed
 import deep_co.shared.generated.resources.ic_model
+import deep_co.shared.generated.resources.ic_my
+import deep_co.shared.generated.resources.ic_prompt
 import deep_co.shared.generated.resources.ic_remove
 import deep_co.shared.generated.resources.ic_send
 import deep_co.shared.generated.resources.ic_show_more
@@ -77,17 +81,20 @@ import deep_co.shared.generated.resources.ic_speaker
 import deep_co.shared.generated.resources.ic_token_down
 import deep_co.shared.generated.resources.ic_token_total
 import deep_co.shared.generated.resources.ic_token_up
+import deep_co.shared.generated.resources.ic_tool
 import deep_co.shared.generated.resources.logo_deepseek
 import deep_co.shared.generated.resources.logo_google
 import deep_co.shared.generated.resources.logo_grok
 import deep_co.shared.generated.resources.logo_llm
 import org.jetbrains.compose.resources.painterResource
+import org.succlz123.deepco.app.Manifest
 import org.succlz123.deepco.app.base.AppButton
 import org.succlz123.deepco.app.base.AppHorizontalDivider
 import org.succlz123.deepco.app.base.CustomEdit
 import org.succlz123.deepco.app.base.shadow
-import org.succlz123.deepco.app.msg.ChatMessage
-import org.succlz123.deepco.app.role.PromptType
+import org.succlz123.deepco.app.chat.msg.ChatMessage
+import org.succlz123.deepco.app.chat.prompt.PromptInfo
+import org.succlz123.deepco.app.chat.user.ChatUser
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.deepco.app.theme.LocalTheme
 import org.succlz123.deepco.app.theme.Theme
@@ -99,12 +106,14 @@ import org.succlz123.deepco.app.ui.prompt.MainPromptViewModel
 import org.succlz123.deepco.app.ui.resize.PanelState
 import org.succlz123.deepco.app.ui.resize.ResizablePanel
 import org.succlz123.deepco.app.ui.resize.ResizablePanelTabView
+import org.succlz123.deepco.app.ui.user.MainUserViewModel
 import org.succlz123.deepco.app.util.VerticalSplittable
-import org.succlz123.lib.click.clickUrl
-import org.succlz123.lib.click.onClickableAndCopyStr
-import org.succlz123.lib.click.noRippleClickable
-import org.succlz123.lib.click.onClickableAndSpeakStr
+import org.succlz123.lib.click.onClickUrl
+import org.succlz123.lib.click.onClickAndCopyStr
+import org.succlz123.lib.click.noRippleClick
+import org.succlz123.lib.click.onClickAndSpeakStr
 import org.succlz123.lib.common.openURLByBrowser
+import org.succlz123.lib.image.AsyncImageUrlMultiPlatform
 import org.succlz123.lib.screen.LocalScreenNavigator
 import org.succlz123.lib.screen.result.ScreenResult
 import org.succlz123.lib.screen.viewmodel.globalViewModel
@@ -140,11 +149,13 @@ fun ChatView() {
     val llmViewModel = globalViewModel { MainLLMViewModel() }
     val mcpViewModel = globalViewModel { MainMcpViewModel() }
     val promptViewModel = globalViewModel { MainPromptViewModel() }
-    val mainChatViewModel = remember { MainChatViewModel() }
+    val mainChatViewModel = globalViewModel { MainChatViewModel() }
+    val userViewModel = globalViewModel { MainUserViewModel() }
+    val chatUser = userViewModel.chatUsers.collectAsState().value.find { it.isSelected }
 
     DisposableEffect(Unit) {
         onDispose {
-            mainChatViewModel.clear()
+            mainChatViewModel.clearIfNotDisplayed()
         }
     }
     val screenNavigator = LocalScreenNavigator.current
@@ -161,39 +172,42 @@ fun ChatView() {
                     AppHorizontalDivider()
                     if (panelState.isExpanded) {
                         Spacer(Modifier.height(6.dp))
-                        mainChatViewModel.history.collectAsState().value.entries.reversed().forEach {
-                            val curSelect = mainChatViewModel.selectedHistory.collectAsState().value?.id
-                            Text(
-                                it.value.list.firstOrNull()?.createdTimeFormatted().orEmpty(),
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.padding(vertical = 6.dp, horizontal = 6.dp),
-                                maxLines = 1,
-                                color = ColorResource.secondaryText,
-                                style = MaterialTheme.typography.overline
-                            )
-                            Row(verticalAlignment = Alignment.CenterVertically) {
+                        val h = mainChatViewModel.history.collectAsState().value
+                        LazyColumn(modifier = Modifier.fillMaxHeight()) {
+                            items(h.entries.toList()) { item ->
+                                val curSelect = mainChatViewModel.selectedHistory.collectAsState().value?.id
                                 Text(
-                                    it.value.list.lastOrNull()?.content?.value.orEmpty(),
+                                    item.value.list.firstOrNull()?.createdTimeFormatted().orEmpty(),
                                     overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier.weight(1f).noRippleClickable {
-                                        mainChatViewModel.updateHistory()
-                                        mainChatViewModel.selectedHistory.value = it.value
-                                        mainChatViewModel.preChatMessage.value = it.value
-                                    }.background(if (curSelect == it.key) ColorResource.theme else ColorResource.transparent, shape = RoundedCornerShape(4.dp)).padding(vertical = 4.dp, horizontal = 6.dp),
+                                    modifier = Modifier.padding(vertical = 6.dp, horizontal = 6.dp),
                                     maxLines = 1,
-                                    color = if (curSelect == it.key) ColorResource.white else ColorResource.primaryText,
-                                    style = MaterialTheme.typography.body2
+                                    color = ColorResource.secondaryText,
+                                    style = MaterialTheme.typography.overline
                                 )
-                                Spacer(Modifier.width(6.dp))
-                                Image(
-                                    modifier = Modifier.size(14.dp).noRippleClickable {
-                                        mainChatViewModel.removeHistory(it.key)
-                                    },
-                                    contentDescription = null,
-                                    colorFilter = ColorFilter.tint(ColorResource.error),
-                                    painter = painterResource(resource = Res.drawable.ic_remove),
-                                )
-                                Spacer(Modifier.width(6.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        item.value.list.lastOrNull()?.content?.value.orEmpty(),
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.weight(1f).noRippleClick {
+                                            mainChatViewModel.updateHistory()
+                                            mainChatViewModel.selectedHistory.value = item.value
+                                            mainChatViewModel.preChatMessage.value = item.value
+                                        }.background(if (curSelect == item.key) ColorResource.theme else ColorResource.transparent, shape = RoundedCornerShape(4.dp)).padding(vertical = 4.dp, horizontal = 6.dp),
+                                        maxLines = 1,
+                                        color = if (curSelect == item.key) ColorResource.white else ColorResource.primaryText,
+                                        style = MaterialTheme.typography.body2
+                                    )
+                                    Spacer(Modifier.width(6.dp))
+                                    Image(
+                                        modifier = Modifier.size(14.dp).noRippleClick {
+                                            mainChatViewModel.removeHistory(item.key)
+                                        },
+                                        contentDescription = null,
+                                        colorFilter = ColorFilter.tint(ColorResource.error),
+                                        painter = painterResource(resource = Res.drawable.ic_remove),
+                                    )
+                                    Spacer(Modifier.width(6.dp))
+                                }
                             }
                         }
                     }
@@ -212,7 +226,7 @@ fun ChatView() {
                                 mutableStateOf(false)
                             }
                             Row(
-                                modifier = Modifier.background(ColorResource.theme.copy(0.1f), shape = RoundedCornerShape(4.dp)).padding(horizontal = 12.dp, vertical = 6.dp).noRippleClickable {
+                                modifier = Modifier.background(ColorResource.theme.copy(0.1f), shape = RoundedCornerShape(4.dp)).padding(horizontal = 12.dp, vertical = 6.dp).noRippleClick {
                                     providerExpanded.value = true
                                 }, verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -252,14 +266,14 @@ fun ChatView() {
                                     painter = painterResource(resource = Res.drawable.ic_down),
                                     contentDescription = "down",
                                     colorFilter = ColorFilter.tint(ColorResource.theme),
-                                    modifier = Modifier.width(10.dp).noRippleClickable {})
+                                    modifier = Modifier.width(10.dp).noRippleClick {})
                             }
                             Spacer(modifier = Modifier.width(12.dp))
                             val modeExpanded = remember {
                                 mutableStateOf(false)
                             }
                             Row(
-                                modifier = Modifier.background(ColorResource.theme.copy(0.1f), shape = RoundedCornerShape(4.dp)).padding(horizontal = 12.dp, vertical = 6.dp).noRippleClickable {
+                                modifier = Modifier.background(ColorResource.theme.copy(0.1f), shape = RoundedCornerShape(4.dp)).padding(horizontal = 12.dp, vertical = 6.dp).noRippleClick {
                                     modeExpanded.value = true
                                 }, verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -278,9 +292,6 @@ fun ChatView() {
                                         }
                                     },
                                 )
-                                Image(
-                                    painter = painterResource(resource = Res.drawable.ic_model), contentDescription = "model", colorFilter = ColorFilter.tint(ColorResource.theme), modifier = Modifier.width(16.dp)
-                                )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(selectedLLMModel, color = ColorResource.theme, style = MaterialTheme.typography.body2)
                                 Spacer(modifier = Modifier.width(4.dp))
@@ -288,14 +299,14 @@ fun ChatView() {
                                     painter = painterResource(resource = Res.drawable.ic_down),
                                     contentDescription = "down",
                                     colorFilter = ColorFilter.tint(ColorResource.theme),
-                                    modifier = Modifier.width(10.dp).noRippleClickable {})
+                                    modifier = Modifier.width(10.dp).noRippleClick {})
                             }
                             Spacer(modifier = Modifier.weight(1f))
                             AppButton(
                                 Modifier, contentPaddingValues = PaddingValues(
                                     start = 16.dp, top = 10.dp, end = 16.dp, bottom = 10.dp
                                 ), onClick = {
-                                    mainChatViewModel.clear()
+                                    mainChatViewModel.clearIfNotDisplayed()
                                 }, content = {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Image(
@@ -310,37 +321,37 @@ fun ChatView() {
                         }
                         AppHorizontalDivider()
                         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Text("ROLE", color = ColorResource.primaryText, style = MaterialTheme.typography.h5)
+                            Image(
+                                modifier = Modifier.size(16.dp),
+                                contentDescription = null,
+                                painter = painterResource(resource = Res.drawable.ic_prompt),
+                            )
                             Spacer(modifier = Modifier.width(12.dp))
-                            val roles = promptViewModel.prompt.collectAsState().value.filter { it.type == PromptType.ROLE }.sortedByDescending { it.updateTime }
-//                            LaunchedEffect(Unit) {
-//                                if (chatViewModel.selectedRole.value.name.isNullOrEmpty()) {
-//                                }
-//                            }
-                            val selectedRole = mainChatViewModel.selectedRole.collectAsState().value
+                            val prompts = promptViewModel.prompt.collectAsState().value.sortedByDescending { it.updateTime }
+                            val selectedPrompt = mainChatViewModel.selectedPrompt.collectAsState().value
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 LazyRow(modifier = Modifier.weight(1f)) {
-                                    itemsIndexed(roles) { index, role ->
+                                    itemsIndexed(prompts) { index, prompt ->
                                         Box(
                                             modifier = Modifier.background(
-                                                if (selectedRole.name == role.name) {
+                                                if (selectedPrompt.name == prompt.name) {
                                                     ColorResource.theme
                                                 } else {
                                                     ColorResource.white
                                                 }, shape = RoundedCornerShape(4.dp)
                                             ).border(
                                                 BorderStroke(
-                                                    1.dp, if (selectedRole.name == role.name) {
+                                                    1.dp, if (selectedPrompt.name == prompt.name) {
                                                         ColorResource.white
                                                     } else {
                                                         ColorResource.theme
                                                     }
                                                 ), shape = RoundedCornerShape(4.dp)
-                                            ).padding(horizontal = 10.dp, vertical = 4.dp).noRippleClickable {
-                                                mainChatViewModel.selectedRole.value = role
+                                            ).padding(horizontal = 10.dp, vertical = 4.dp).noRippleClick {
+                                                mainChatViewModel.selectedPrompt.value = prompt
                                             }) {
                                             Text(
-                                                role.name, color = if (selectedRole.name == role.name) {
+                                                prompt.name, color = if (selectedPrompt.name == prompt.name) {
                                                     ColorResource.white
                                                 } else {
                                                     ColorResource.theme
@@ -351,7 +362,7 @@ fun ChatView() {
                                     }
                                 }
                                 Image(
-                                    modifier = Modifier.size(12.dp).noRippleClickable {},
+                                    modifier = Modifier.size(12.dp).noRippleClick {},
                                     contentDescription = null,
                                     painter = painterResource(resource = Res.drawable.ic_show_more),
                                 )
@@ -360,7 +371,11 @@ fun ChatView() {
                         }
                         AppHorizontalDivider()
                         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Text("TOOL", color = ColorResource.primaryText, style = MaterialTheme.typography.h5)
+                            Image(
+                                modifier = Modifier.size(16.dp),
+                                contentDescription = null,
+                                painter = painterResource(resource = Res.drawable.ic_tool),
+                            )
                             Spacer(modifier = Modifier.width(12.dp))
                             val mcpList = mcpViewModel.mcpList.collectAsState().value
                             val selectedMCPList = mainChatViewModel.selectedMCPList.collectAsState().value
@@ -383,7 +398,7 @@ fun ChatView() {
                                                         ColorResource.theme
                                                     }
                                                 ), shape = RoundedCornerShape(4.dp)
-                                            ).padding(horizontal = 10.dp, vertical = 4.dp).noRippleClickable {
+                                            ).padding(horizontal = 10.dp, vertical = 4.dp).noRippleClick {
                                                 if (mcpList.map { it.name }.intersect(selectedMCPList.map { it.name }).isNotEmpty()) {
                                                     mainChatViewModel.selectedMCPList.value = mainChatViewModel.selectedMCPList.value - mcp
                                                 } else {
@@ -403,7 +418,7 @@ fun ChatView() {
                                     }
                                 }
                                 Image(
-                                    modifier = Modifier.size(12.dp).noRippleClickable {},
+                                    modifier = Modifier.size(12.dp).noRippleClick {},
                                     contentDescription = null,
                                     painter = painterResource(resource = Res.drawable.ic_show_more),
                                 )
@@ -412,13 +427,14 @@ fun ChatView() {
                         }
                         AppHorizontalDivider()
                         val chatList = mainChatViewModel.preChatMessage.collectAsState().value
+                        val promptInfo = mainChatViewModel.selectedPrompt.collectAsState().value
                         val input = remember {
                             mutableStateOf("")
                         }
                         Column(modifier = Modifier.weight(1f).fillMaxWidth()) {
                             if (chatList.list.isNotEmpty()) {
                                 ChatMessageList(
-                                    messages = chatList.list, model = "De", modifier = Modifier.fillMaxWidth().weight(1f)
+                                    messages = chatList.list, model = "", modifier = Modifier.fillMaxWidth().weight(1f), promptInfo = promptInfo, chatUser = chatUser
                                 )
                             } else {
                                 Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp).weight(1f)) {
@@ -427,7 +443,7 @@ fun ChatView() {
                                     Row {
                                         Box(
                                             modifier = Modifier.weight(1f).border(BorderStroke(1.dp, ColorResource.subText), shape = RoundedCornerShape(4.dp)).padding(horizontal = 16.dp, vertical = 16.dp)
-                                                .noRippleClickable {
+                                                .noRippleClick {
                                                     openURLByBrowser("https://modelcontextprotocol.io/introduction")
                                                 }) {
                                             Column {
@@ -443,7 +459,7 @@ fun ChatView() {
                                         Spacer(modifier = Modifier.width(16.dp))
                                         Box(
                                             modifier = Modifier.weight(1f).border(BorderStroke(1.dp, ColorResource.subText), shape = RoundedCornerShape(4.dp)).padding(horizontal = 16.dp, vertical = 16.dp)
-                                                .clickUrl("https://api-docs.deepseek.com/")
+                                                .onClickUrl("https://api-docs.deepseek.com/")
                                         ) {
                                             Column {
                                                 Text("Deepseek API Docs", color = ColorResource.primaryText, style = MaterialTheme.typography.body1)
@@ -472,6 +488,33 @@ fun ChatView() {
                                 modifier = Modifier.fillMaxWidth()
                                     .background(ColorResource.white, RoundedCornerShape(8.dp)).padding(horizontal = 16.dp, vertical = 16.dp), verticalAlignment = Alignment.CenterVertically
                             ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center, modifier = Modifier.noRippleClick {
+                                        screenNavigator.push(Manifest.ChatUserSelectPopupScreen)
+                                    }) {
+                                    Box(modifier = Modifier.size(28.dp).clip(RoundedCornerShape(28.dp)).background(ColorResource.theme), contentAlignment = Alignment.Center) {
+                                        if (chatUser?.avatar.isNullOrEmpty()) {
+                                            Image(
+                                                modifier = Modifier.size(14.dp),
+                                                contentDescription = null,
+                                                colorFilter = ColorFilter.tint(ColorResource.white),
+                                                painter = painterResource(resource = Res.drawable.ic_my),
+                                            )
+                                        } else {
+                                            AsyncImageUrlMultiPlatform(modifier = Modifier.size(28.dp), chatUser.avatar)
+                                        }
+                                    }
+                                    Spacer(modifier = Modifier.height(3.dp))
+                                    Text(
+                                        if (!chatUser?.name.isNullOrEmpty()) {
+                                            chatUser.name
+                                        } else {
+                                            "USER"
+                                        }, modifier = Modifier.width(32.dp), textAlign = TextAlign.Center, maxLines = 2, color = ColorResource.primaryText, fontSize = 8.sp
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(12.dp))
                                 val click = {
                                     val msg = input.value
                                     if (msg.isEmpty()) {
@@ -479,7 +522,7 @@ fun ChatView() {
                                     } else if (mainChatViewModel.lastChatResponse.value is ScreenResult.Loading) {
                                         screenNavigator.toast("Please wait a moment")
                                     } else {
-                                        mainChatViewModel.chat(msg, selectedLLmConfigValue, mcpViewModel.getServer(), false) {
+                                        mainChatViewModel.chat(msg, selectedLLmConfigValue, mcpViewModel.getServer(), false, chatUser) {
                                             mcpViewModel.callServer(it)
                                         }
                                         input.value = ""
@@ -509,9 +552,24 @@ fun ChatView() {
                                     )
                                 }
                                 Spacer(modifier = Modifier.width(12.dp))
+                                Box() {
+                                    Image(
+                                        modifier = Modifier.size(24.dp).noRippleClick {
+                                            screenNavigator.push(Manifest.ChatModeConfigPopupScreen)
+                                        },
+                                        contentDescription = null,
+                                        colorFilter = ColorFilter.tint(ColorResource.theme),
+                                        painter = painterResource(resource = Res.drawable.ic_model),
+                                    )
+                                    val chatModeConfig = mainChatViewModel.chatModeConfig.collectAsState().value
+                                    if (chatModeConfig != mainChatViewModel.defaultChatModeConfig) {
+                                        Box(modifier = Modifier.size(8.dp).background(ColorResource.red, RoundedCornerShape(16.dp)).align(Alignment.TopEnd)) {}
+                                    }
+                                }
+                                Spacer(modifier = Modifier.width(12.dp))
                                 AppButton(
                                     Modifier, contentPaddingValues = PaddingValues(
-                                        start = 16.dp, top = 10.dp, end = 16.dp, bottom = 10.dp
+                                        start = 14.dp, top = 10.dp, end = 14.dp, bottom = 10.dp
                                     ), onClick = {
                                         click()
                                     }, content = {
@@ -539,7 +597,7 @@ fun ChatView() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ChatMessageList(
-    messages: List<ChatMessage>, model: String, modifier: Modifier = Modifier, onLoadMore: () -> Unit = {}
+    messages: List<ChatMessage>, model: String, modifier: Modifier = Modifier, onLoadMore: () -> Unit = {}, promptInfo: PromptInfo?, chatUser: ChatUser?
 ) {
     val listState = rememberLazyListState()
 
@@ -572,7 +630,7 @@ fun ChatMessageList(
         }, contentType = { "message" } // 提升性能
         ) { index ->
             MessageItem(
-                message = messages[index], model, modifier = Modifier.animateItemPlacement()
+                message = messages[index], model, promptInfo, chatUser, modifier = Modifier.animateItemPlacement()
             )
         }
         item { Spacer(Modifier.height(12.dp)) }
@@ -581,7 +639,7 @@ fun ChatMessageList(
 
 @Composable
 private fun MessageItem(
-    message: ChatMessage, model: String, modifier: Modifier = Modifier
+    message: ChatMessage, model: String, promptInfo: PromptInfo?, chatUser: ChatUser?, modifier: Modifier = Modifier
 ) {
     Spacer(modifier = Modifier.height(6.dp))
     Row(
@@ -590,7 +648,7 @@ private fun MessageItem(
         verticalAlignment = Alignment.Top
     ) {
         if (!message.isFromMe) {
-            Avatar(message.isFromMe, model)
+            Avatar(message.isFromMe, promptInfo, chatUser, model)
             Spacer(modifier = Modifier.width(8.dp))
         }
         Column(
@@ -664,58 +722,58 @@ private fun MessageItem(
                         )
                         Spacer(modifier = Modifier.width(3.dp))
                         Text(
-                            text = "${message.model}", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier
+                            text = message.model, style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                     }
                     Image(
-                        modifier = Modifier.size(12.dp).onClickableAndSpeakStr(message.content.value),
+                        modifier = Modifier.size(12.dp).onClickAndSpeakStr(message.content.value),
                         contentDescription = null,
                         painter = painterResource(resource = Res.drawable.ic_speaker),
                     )
                     Spacer(modifier = Modifier.width(3.dp))
                     Text(
-                        text = "speak", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier.onClickableAndSpeakStr(message.content.value)
+                        text = "speak", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier.onClickAndSpeakStr(message.content.value)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Image(
-                        modifier = Modifier.size(12.dp).onClickableAndCopyStr(message.content.value, true),
+                        modifier = Modifier.size(12.dp).onClickAndCopyStr(message.content.value, true),
                         contentDescription = null,
                         painter = painterResource(resource = Res.drawable.ic_copy),
                     )
                     Spacer(modifier = Modifier.width(3.dp))
                     Text(
-                        text = "copy", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier.onClickableAndCopyStr(message.content.value, true)
+                        text = "copy", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier.onClickAndCopyStr(message.content.value, true)
                     )
                 }
             }
             if (message.isFromMe && !message.isLoading()) {
                 Row {
                     Image(
-                        modifier = Modifier.size(12.dp).onClickableAndSpeakStr(message.content.value),
+                        modifier = Modifier.size(12.dp).onClickAndSpeakStr(message.content.value),
                         contentDescription = null,
                         painter = painterResource(resource = Res.drawable.ic_speaker),
                     )
                     Spacer(modifier = Modifier.width(3.dp))
                     Text(
-                        text = "speak", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier.onClickableAndSpeakStr(message.content.value)
+                        text = "speak", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier.onClickAndSpeakStr(message.content.value)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Image(
-                        modifier = Modifier.size(12.dp).onClickableAndCopyStr(message.content.value, true),
+                        modifier = Modifier.size(12.dp).onClickAndCopyStr(message.content.value, true),
                         contentDescription = null,
                         painter = painterResource(resource = Res.drawable.ic_copy),
                     )
                     Spacer(modifier = Modifier.width(3.dp))
                     Text(
-                        text = "copy", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier.onClickableAndCopyStr(message.content.value, true)
+                        text = "copy", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier.onClickAndCopyStr(message.content.value, true)
                     )
                 }
             }
         }
         if (message.isFromMe) {
             Spacer(modifier = Modifier.width(8.dp))
-            Avatar(message.isFromMe, message.model)
+            Avatar(message.isFromMe, promptInfo, chatUser, message.model)
         }
     }
     Spacer(modifier = Modifier.height(6.dp))
@@ -773,23 +831,56 @@ private fun ChatBubble(
 }
 
 @Composable
-private fun Avatar(isFromMe: Boolean, model: String) {
-    val word = if (isFromMe) {
-        "ME"
-    } else {
-        model.substring(0, 1)
+private fun Avatar(isFromMe: Boolean, promptInfo: PromptInfo?, chatUser: ChatUser?, model: String) {
+    val size = remember {
+        48
     }
-    Box(
-        modifier = Modifier.size(36.dp).clip(RoundedCornerShape(36.dp)).background(if (isFromMe) ColorResource.theme else ColorResource.chatAvatar)
-    ) {
-        Text(word, modifier = Modifier.align(Alignment.Center), color = ColorResource.white, style = MaterialTheme.typography.body1)
+    Column(verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(modifier = Modifier.size(size.dp).clip(RoundedCornerShape(size.dp)).background(ColorResource.theme), contentAlignment = Alignment.Center) {
+            if (isFromMe) {
+                if (chatUser?.avatar.isNullOrEmpty()) {
+                    Image(
+                        modifier = Modifier.size((size / 2).dp),
+                        contentDescription = null,
+                        colorFilter = ColorFilter.tint(ColorResource.white),
+                        painter = painterResource(resource = Res.drawable.ic_my),
+                    )
+                } else {
+                    AsyncImageUrlMultiPlatform(modifier = Modifier.size(size.dp), chatUser.avatar)
+                }
+            } else {
+                if (promptInfo?.avatar.isNullOrEmpty()) {
+                    Text("M", modifier = Modifier.align(Alignment.Center), color = ColorResource.white, style = MaterialTheme.typography.body1)
+                } else {
+                    AsyncImageUrlMultiPlatform(modifier = Modifier.size(size.dp), promptInfo.avatar)
+                }
+            }
+        }
+        Spacer(modifier = Modifier.height(3.dp))
+        if (isFromMe) {
+            Text(
+                if (!chatUser?.name.isNullOrEmpty()) {
+                    chatUser.name
+                } else {
+                    "USER"
+                }, modifier = Modifier.width((size - 4).dp), textAlign = TextAlign.Center, maxLines = 2, color = ColorResource.primaryText, fontSize = 10.sp
+            )
+        } else {
+            Text(
+                if (!promptInfo?.name.isNullOrEmpty()) {
+                    promptInfo.name
+                } else {
+                    "DEFAULT"
+                }, modifier = Modifier.width((size - 4).dp), textAlign = TextAlign.Center, maxLines = 2, color = ColorResource.primaryText, fontSize = 10.sp
+            )
+        }
     }
 }
 
 @Composable
 fun AnimatedSelector(items: List<String>, default: String, select: (String) -> Unit) {
     val selectedIndex = remember { mutableStateOf(items.indexOf(default)) }
-    val blockWidth = 68
+    val blockWidth = 58
     val offsetX = animateDpAsState(
         targetValue = with(LocalDensity.current) { (selectedIndex.value * blockWidth).dp }, label = "selectorAnimation"
     )
@@ -803,7 +894,7 @@ fun AnimatedSelector(items: List<String>, default: String, select: (String) -> U
         // 选项布局
         Row {
             items.forEachIndexed { index, text ->
-                Box(modifier = Modifier.size(blockWidth.dp, 24.dp).noRippleClickable {
+                Box(modifier = Modifier.size(blockWidth.dp, 24.dp).noRippleClick {
                     selectedIndex.value = index
                     select.invoke(text)
                 }.padding(4.dp), contentAlignment = Alignment.Center) {

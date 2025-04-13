@@ -34,9 +34,9 @@ import deep_co.shared.generated.resources.ic_close
 import org.jetbrains.compose.resources.painterResource
 import org.succlz123.deepco.app.base.AppButton
 import org.succlz123.deepco.app.base.CustomEdit
-import org.succlz123.deepco.app.role.PromptInfo
+import org.succlz123.deepco.app.chat.prompt.PromptInfo
 import org.succlz123.deepco.app.theme.ColorResource
-import org.succlz123.lib.click.noRippleClickable
+import org.succlz123.lib.click.noRippleClick
 import org.succlz123.lib.screen.LocalScreenNavigator
 import org.succlz123.lib.screen.LocalScreenRecord
 import org.succlz123.lib.screen.value
@@ -54,7 +54,7 @@ fun PromptDetailDialog() {
     val vm = globalViewModel {
         MainPromptViewModel()
     }
-    Box(modifier = Modifier.fillMaxSize().noRippleClickable {}, contentAlignment = Alignment.Center) {
+    Box(modifier = Modifier.fillMaxSize().noRippleClick {}, contentAlignment = Alignment.Center) {
         Card(
             modifier = Modifier.fillMaxSize().padding(128.dp)
                 .align(Alignment.Center), elevation = 3.dp, backgroundColor = Color.White
@@ -74,7 +74,7 @@ fun PromptDetailDialog() {
                     )
                     Spacer(modifier = Modifier.weight(1f))
                     Image(
-                        modifier = Modifier.size(16.dp).noRippleClickable {
+                        modifier = Modifier.size(16.dp).noRippleClick {
                             screenNavigator.pop()
                         },
                         contentDescription = null,

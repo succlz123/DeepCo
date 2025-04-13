@@ -40,7 +40,7 @@ fun BaseWindow(appWindow: AppWindow, onCloseRequest: () -> Unit, hostLayout: @Co
     }
 
     val density = LocalDensity.current
-    val minSize = DpSize(80.dp, 52.dp)
+    val minSize = DpSize(680.dp, 420.dp)
     ScreenContainer(
         enableEscBack = true,
         onCloseRequest = {

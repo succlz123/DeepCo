@@ -9,7 +9,8 @@ import com.google.genai.types.Tool
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.succlz123.deepco.app.llm.ChatResponse
-import org.succlz123.deepco.app.msg.ChatMessage
+import org.succlz123.deepco.app.chat.msg.ChatMessage
+import org.succlz123.deepco.app.ui.chat.ChatModeConfig
 import org.succlz123.lib.logger.Logger
 import kotlin.jvm.optionals.getOrNull
 
@@ -26,21 +27,26 @@ private fun getClient(key: String): Client {
     return client
 }
 
-fun getConfig(prompt: String): GenerateContentConfig {
+fun getConfig(prompt: String, modeConfig: ChatModeConfig): GenerateContentConfig {
     val systemInstruction = Content.fromParts(Part.fromText(prompt))
     val googleSearchTool = Tool.builder().googleSearch(GoogleSearch.builder().build()).build()
     return GenerateContentConfig.builder()
         .candidateCount(1)
-        .maxOutputTokens(1024)
+        .maxOutputTokens(modeConfig.maxOutTokens)
         .systemInstruction(systemInstruction)
+        .temperature(modeConfig.temperature)
+        .topP(modeConfig.topP)
+        .topK(modeConfig.topK)
+        .presencePenalty(modeConfig.presencePenalty)
+        .frequencyPenalty(modeConfig.frequencyPenalty)
 //        .tools(ImmutableList.of(googleSearchTool))
         .build()
 }
 
-actual suspend fun geminiChat(key: String, model: String, prompt: String, content: List<ChatMessage>): ChatResponse {
+actual suspend fun geminiChat(key: String, model: String, prompt: String, modeConfig: ChatModeConfig, content: List<ChatMessage>): ChatResponse {
     return withContext(Dispatchers.Default) {
         val client = getClient(key)
-        val config = getConfig(prompt)
+        val config = getConfig(prompt, modeConfig)
         return@withContext withContext(Dispatchers.IO) {
             try {
                 val response = client.models.generateContent(model, content.mapNotNull {
@@ -68,10 +74,10 @@ actual suspend fun geminiChat(key: String, model: String, prompt: String, conten
     }
 }
 
-actual suspend fun geminiChatStream(key: String, model: String, prompt: String, content: List<ChatMessage>, cb: (ChatResponse, Boolean) -> Unit) {
+actual suspend fun geminiChatStream(key: String, model: String, prompt: String, modeConfig: ChatModeConfig, content: List<ChatMessage>, cb: (ChatResponse, Boolean) -> Unit) {
     withContext(Dispatchers.Default) {
         val client = getClient(key)
-        val config = getConfig(prompt)
+        val config = getConfig(prompt, modeConfig)
         withContext(Dispatchers.IO) {
             try {
                 val responseStream = client.models.generateContentStream(model, content.mapNotNull {

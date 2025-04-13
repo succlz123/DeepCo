@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import io.ktor.client.plugins.logging.*
 import org.succlz123.lib.imageloader.ImageAsyncImageFile
 import org.succlz123.lib.imageloader.ImageAsyncImageUrl
 import org.succlz123.lib.imageloader.ImageRes

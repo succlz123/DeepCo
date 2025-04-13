@@ -1,4 +1,4 @@
-package org.succlz123.deepco.app.ui.llm
+package org.succlz123.deepco.app.ui.user
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
@@ -23,7 +24,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -31,21 +34,34 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import deep_co.shared.generated.resources.Res
 import deep_co.shared.generated.resources.ic_close
+import deep_co.shared.generated.resources.ic_my
+import org.jetbrains.compose.resources.painterResource
+import org.succlz123.deepco.app.AppBuildConfig
 import org.succlz123.deepco.app.base.AppButton
 import org.succlz123.deepco.app.base.CustomEdit
-import org.succlz123.deepco.app.base.CustomExposedDropdownMenu
-import org.succlz123.deepco.app.base.DropdownMenuDes
-import org.succlz123.deepco.app.ui.llm.MainLLMViewModel.Companion.DEFAULT_LLM
+import org.succlz123.deepco.app.chat.user.ChatUser
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.lib.click.noRippleClick
+import org.succlz123.lib.file.choseImgFile
+import org.succlz123.lib.image.AsyncImageUrlMultiPlatform
 import org.succlz123.lib.screen.LocalScreenNavigator
+import org.succlz123.lib.screen.LocalScreenRecord
+import org.succlz123.lib.screen.value
 import org.succlz123.lib.screen.viewmodel.globalViewModel
+import org.succlz123.lib.setting.copyFile2ConfigDir
+import java.io.File
 
 @Composable
-fun LLMAddDialog() {
+fun ChatUserDetailDialog() {
     val screenNavigator = LocalScreenNavigator.current
+    val chatUser = LocalScreenRecord.current.arguments.value<ChatUser>("item")
+    if (chatUser == null) {
+        screenNavigator.toast("ChatUser is Null!")
+        screenNavigator.pop()
+        return
+    }
     val vm = globalViewModel {
-        MainLLMViewModel()
+        MainUserViewModel()
     }
     Box(modifier = Modifier.fillMaxSize().noRippleClick {}, contentAlignment = Alignment.Center) {
         Card(
@@ -53,15 +69,15 @@ fun LLMAddDialog() {
                 .align(Alignment.Center), elevation = 3.dp, backgroundColor = Color.White
         ) {
             Column(modifier = Modifier.padding(horizontal = 32.dp).verticalScroll(state = rememberScrollState())) {
-                val selectedProvider = remember { mutableStateOf<LLM?>(null) }
-                val name = remember { mutableStateOf("") }
-                val baseUrl = remember { mutableStateOf("") }
-                val apiKey = remember { mutableStateOf("") }
+                val avatar = remember { mutableStateOf(chatUser.avatar) }
+                val id = remember { mutableStateOf(chatUser.id) }
+                val name = remember { mutableStateOf(chatUser.name) }
+                val description = remember { mutableStateOf(chatUser.description) }
                 Spacer(modifier = Modifier.height(32.dp))
                 Row {
                     Text(
                         modifier = Modifier,
-                        text = "Configure LLM",
+                        text = "Chat User Detail",
                         style = MaterialTheme.typography.h3,
                         color = Color.Black,
                         fontWeight = FontWeight.Normal,
@@ -73,19 +89,30 @@ fun LLMAddDialog() {
                             screenNavigator.pop()
                         },
                         contentDescription = null,
-                        painter = org.jetbrains.compose.resources.painterResource(resource = Res.drawable.ic_close),
+                        painter = painterResource(resource = Res.drawable.ic_close),
                     )
                 }
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Provider", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
+                    text = "Avatar", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                CustomExposedDropdownMenu(DEFAULT_LLM.map {
-                    DropdownMenuDes(it.provider.orEmpty(), it)
-                }, "Select Provider") { item ->
-                    selectedProvider.value = item.tag as LLM
-                    baseUrl.value = selectedProvider.value?.baseUrl.orEmpty()
+                Box(modifier = Modifier.size(100.dp).clip(RoundedCornerShape(100.dp)).background(ColorResource.theme).noRippleClick {
+                    val choseFile = choseImgFile()
+                    if (choseFile != null) {
+                        avatar.value = choseFile
+                    }
+                }, contentAlignment = Alignment.Center) {
+                    if (avatar.value.isNullOrEmpty()) {
+                        Image(
+                            modifier = Modifier.size(50.dp),
+                            contentDescription = null,
+                            colorFilter = ColorFilter.tint(ColorResource.white),
+                            painter = painterResource(resource = Res.drawable.ic_my),
+                        )
+                    } else {
+                        AsyncImageUrlMultiPlatform(modifier = Modifier.size(100.dp), avatar.value)
+                    }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
@@ -96,34 +123,25 @@ fun LLMAddDialog() {
                     name.value,
                     textStyle = TextStyle.Default.copy(fontSize = 14.sp),
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    hint = "123",
                     onValueChange = {
                         name.value = it
                     }, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
                 )
-//                Spacer(modifier = Modifier.height(12.dp))
-//                Text(
-//                    text = "Base API Url", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
-//                )
-//                Spacer(modifier = Modifier.height(12.dp))
-//                CustomEdit(
-//                    baseUrl.value,
-//                    textStyle = TextStyle.Default.copy(fontSize = 14.sp),
-//                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-//                    onValueChange = {
-//                        baseUrl.value = it
-//                    }, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
-//                )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "API Key", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
+                    text = "Description", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 CustomEdit(
-                    apiKey.value,
+                    description.value,
                     textStyle = TextStyle.Default.copy(fontSize = 14.sp),
+                    hint = "321",
+                    singleLine = false,
+                    scrollHeight = 160.dp,
                     keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                     onValueChange = {
-                        apiKey.value = it
+                        description.value = it
                     }, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
@@ -132,8 +150,25 @@ fun LLMAddDialog() {
                         modifier = Modifier.align(Alignment.BottomEnd), text = "Save", contentPaddingValues = PaddingValues(
                             start = 16.dp, top = 10.dp, end = 16.dp, bottom = 10.dp
                         ), onClick = {
-                            vm.add(selectedProvider.value?.provider.orEmpty(), name.value, selectedProvider.value?.modes.orEmpty(), apiKey.value, baseUrl.value)
-                            screenNavigator.pop()
+                            if (name.value.isNullOrEmpty()) {
+                                screenNavigator.toast("Name is empty!")
+                            } else if (description.value.isNullOrEmpty()) {
+                                screenNavigator.toast("Description is empty!")
+                            } else {
+                                val isChange = chatUser.name != name.value || chatUser.avatar != avatar.value || chatUser.description != description.value
+                                if (isChange) {
+                                    val savedPath = if (chatUser.avatar != avatar.value) {
+                                        copyFile2ConfigDir(avatar.value, AppBuildConfig.APP + File.separator + "avatar", "${id.value}")
+                                    } else {
+                                        chatUser.avatar
+                                    }
+                                    vm.changeUser(chatUser, savedPath, name.value, description.value)
+                                    screenNavigator.toast("Chat user info is changed!")
+                                } else {
+                                    screenNavigator.toast("Chat user info is no change!")
+                                }
+                                screenNavigator.pop()
+                            }
                         })
                 }
                 Spacer(modifier = Modifier.height(32.dp))

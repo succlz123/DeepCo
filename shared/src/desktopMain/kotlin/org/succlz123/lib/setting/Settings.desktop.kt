@@ -73,3 +73,10 @@ actual fun removeFile(filePath: String) {
         file.delete()
     }
 }
+
+actual fun copyFile2ConfigDir(filePath: String, dirName: String, destName: String): String {
+    val extension = filePath.substringAfterLast('.', "")
+    val file = File(getAppDirPath(arrayOf(dirName, "$destName.$extension")))
+    File(filePath).copyTo(file, true)
+    return file.absolutePath
+}

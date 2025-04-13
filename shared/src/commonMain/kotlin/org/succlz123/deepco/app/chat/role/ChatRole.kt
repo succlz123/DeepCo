@@ -1,25 +1,10 @@
-package org.succlz123.deepco.app.role
+package org.succlz123.deepco.app.chat.role
 
-import kotlinx.serialization.Serializable
+import org.succlz123.deepco.app.chat.prompt.PromptInfo
+import org.succlz123.deepco.app.chat.prompt.PromptType
 
-@Serializable
-data class PromptInfo(
-    val type: PromptType,
-    val name: String,
-    val description: String,
-    val links: List<String> = emptyList<String>(),
-    val isDefault: Boolean = false,
-    val createTime: Long = System.currentTimeMillis(),
-    val updateTime: Long = System.currentTimeMillis()
-)
 
-@Serializable
-enum class PromptType {
-    ROLE,
-    NORMAL
-}
-
-object RoleDefine {
+object ChatRoleDefine {
     const val DESC_PAPAYA_BOT = "正常聊天"
 
     const val DESC_FULL_STACK_DEVELOPER = "全栈工程师"
@@ -35,26 +20,21 @@ object RoleDefine {
     const val DESC_XIAOHONGSHU = "小红书种草文"
     const val DESC_DOUYIN_WRITER = "抖音文案"
 
-    const val DESC_WRITING_ASSISTANT = "优化文章"
-    const val DESC_WEEKLY_REPORT = "写周报"
-    const val DESC_RESUME_OPTIMIZER = "简历优化"
     const val DESC_DREAM_INTERPRETER = "梦境解读"
     const val DESC_PSYCHOLOGIST = "心理咨询"
     const val DESC_FEYNMAN_TUTOR = "费曼学习法教练"
-    const val DESC_PPT_OUTLINER = "生成主题大纲"
-    const val DESC_STORY_WRITER = "关键字写故事"
 
-    const val DESC_CAT_GIRL = "AI猫娘"
-    const val DESC_SUCCUBUS = "AI魅魔"
-    const val DESC_CRAZY_PERSON = "AI疯子"
+    val cd = System.currentTimeMillis()
 
     val roles = listOf(
         PromptInfo(
+            cd,
             PromptType.ROLE, DESC_PAPAYA_BOT,
             "你现在是一个友好且乐于助人的AI助手...",
             isDefault = true
         ),
         PromptInfo(
+            cd + 10,
             PromptType.ROLE,
             DESC_FULL_STACK_DEVELOPER, """你是一位经验丰富的全栈开发专家，精通前后端开发和系统架构设计。你的职责包括：
 1) 分析用户需求并提供技术方案
@@ -77,6 +57,7 @@ object RoleDefine {
             isDefault = true
         ),
         PromptInfo(
+            cd + 20,
             PromptType.ROLE,
             DESC_ALGO_EXPERT,
             """你是一位专业的算法竞赛教练，专注于ACM/ICPC、LeetCode等编程竞赛。你的职责包括：
@@ -101,6 +82,7 @@ object RoleDefine {
             isDefault = true
         ),
         PromptInfo(
+            cd + 30,
             PromptType.ROLE,
             DESC_CODE_OPTIMIZER,
             """作为代码优化专家，你的职责是：
@@ -113,6 +95,7 @@ object RoleDefine {
             isDefault = true
         ),
         PromptInfo(
+            cd + 40,
             PromptType.ROLE,
             DESC_DB_TABLE_DESIGNER,
             """你是一位专业的数据库架构师，专注于SQL优化和数据库设计。你的职责包括：
@@ -141,6 +124,7 @@ object RoleDefine {
             - 对复杂查询提供可视化执行计划解释""", isDefault = true
         ),
         PromptInfo(
+            cd + 50,
             PromptType.ROLE,
             DESC_TRANSLATOR,
             """你是一位专业的语言翻译专家，精通中英双语互译。你的职责包括：
@@ -169,6 +153,7 @@ object RoleDefine {
             - 保持性别中立翻译""", isDefault = true
         ),
         PromptInfo(
+            cd + 60,
             PromptType.ROLE,
             DESC_TCM_DOCTOR,
             """你是一位经验丰富的医生专家，但必须强调'仅供参考'。当用户描述症状时，你会：

@@ -5,20 +5,24 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.succlz123.deepco.app.base.BaseBizViewModel
 import org.succlz123.deepco.app.base.DIR_HISTORY
+import org.succlz123.deepco.app.base.JSON_CHAT_MODE
 import org.succlz123.deepco.app.base.LocalDirStorage
+import org.succlz123.deepco.app.base.LocalStorage
+import org.succlz123.deepco.app.chat.msg.ChatMessage
+import org.succlz123.deepco.app.chat.msg.ChatMessage.Companion.TYPE_LOADING
+import org.succlz123.deepco.app.chat.msg.ChatMessageData
+import org.succlz123.deepco.app.chat.msg.ChatMessageData.Companion.NON_ID
+import org.succlz123.deepco.app.chat.prompt.PromptInfo
+import org.succlz123.deepco.app.chat.role.ChatRoleDefine
+import org.succlz123.deepco.app.chat.user.ChatUser
 import org.succlz123.deepco.app.llm.ChatResponse
-import org.succlz123.deepco.app.msg.ChatMessage
-import org.succlz123.deepco.app.msg.ChatMessage.Companion.TYPE_LOADING
-import org.succlz123.deepco.app.msg.ChatMessageData
-import org.succlz123.deepco.app.msg.ChatMessageData.Companion.NON_ID
 import org.succlz123.deepco.app.llm.deepseek.DeepSeekApiService
 import org.succlz123.deepco.app.llm.deepseek.ToolCall
 import org.succlz123.deepco.app.mcp.biz.McpConfig
 import org.succlz123.deepco.app.mcp.biz.Tool
 import org.succlz123.deepco.app.mcp.biz.ToolUse
-import org.succlz123.deepco.app.role.PromptInfo
-import org.succlz123.deepco.app.role.RoleDefine
 import org.succlz123.deepco.app.ui.llm.LLM
 import org.succlz123.deepco.app.ui.llm.MainLLMViewModel
 import org.succlz123.deepco.app.ui.llm.MainLLMViewModel.Companion.PROVIDER_GEMINI
@@ -27,7 +31,7 @@ import org.succlz123.lib.logger.Logger
 import org.succlz123.lib.screen.result.ScreenResult
 import kotlin.random.Random
 
-class MainChatViewModel {
+class MainChatViewModel : BaseBizViewModel() {
 
     companion object {
 
@@ -35,6 +39,8 @@ class MainChatViewModel {
 
         val DEFAULT_STREAM_MODEL = "stream"
     }
+
+    val chatModeLocalStorage = LocalStorage(JSON_CHAT_MODE)
 
     val chatLocalStorage = LocalDirStorage(DIR_HISTORY)
 
@@ -44,15 +50,19 @@ class MainChatViewModel {
 
     val selectedStreamModel = MutableStateFlow<String>(DEFAULT_STREAM_MODEL)
 
-    val selectedRole = MutableStateFlow<PromptInfo>(RoleDefine.roles.first())
+    val selectedPrompt = MutableStateFlow<PromptInfo>(ChatRoleDefine.roles.first())
 
     val selectedMCPList = MutableStateFlow<List<McpConfig>>(emptyList())
+
+    val defaultChatModeConfig = ChatModeConfig()
+
+    val chatModeConfig = MutableStateFlow<ChatModeConfig>(chatModeLocalStorage.get() ?: defaultChatModeConfig)
 
     val preChatMessage = MutableStateFlow<ChatMessageData>(ChatMessageData())
 
     val lastChatResponse = MutableStateFlow<ScreenResult<Int>>(ScreenResult.Uninitialized)
 
-    fun clear() {
+    fun clearIfNotDisplayed() {
         updateHistory()
         selectedHistory.value = null
         preChatMessage.value = ChatMessageData()
@@ -89,7 +99,11 @@ class MainChatViewModel {
         chatLocalStorage.remove(messagesId.toString())
     }
 
-    fun chat(chatText: String, llm: LLM, mcpList: Map<String, List<Tool>>, manuallyClear: Boolean, toolsCallCb: suspend (List<ToolCall>) -> List<ToolUse>?) {
+    fun saveChatModeConfig() {
+        chatModeLocalStorage.put(chatModeConfig.value)
+    }
+
+    fun chat(chatText: String, llm: LLM, mcpList: Map<String, List<Tool>>, manuallyClear: Boolean, chatUser: ChatUser?, toolsCallCb: suspend (List<ToolCall>) -> List<ToolUse>?) {
         if (lastChatResponse.value is ScreenResult.Loading) {
             return
         }
@@ -113,7 +127,12 @@ class MainChatViewModel {
             }
         )
         lastChatResponse.value = ScreenResult.Loading()
-        val prompt = selectedRole.value.description
+        val user = if (chatUser == null || chatUser.isDefault) {
+            ""
+        } else {
+            "{\"user\":\"${chatUser.name}\", \"userDescription\":\"${chatUser.description}\"}"
+        }
+        val prompt = selectedPrompt.value.description + "\n\n\n" + user
         val mcp = selectedMCPList.value
         val tools = mcpList.filter { server -> mcp.find { inner -> inner.name == server.key } != null }.values.toList()
         val content = if (manuallyClear) {
@@ -133,7 +152,7 @@ class MainChatViewModel {
                     while (reCall) {
                         reCall = false
                         DeepSeekApiService.chat(
-                            llm.apiKey, llm.getSelectedModeMode(), stream, tools, toolUseResult, prompt, content, { response, isStop ->
+                            llm.apiKey, llm.getSelectedModeMode(), stream, tools, toolUseResult, prompt, chatModeConfig.value, content, { response, isStop ->
                                 if (loadingMessage.id == TYPE_LOADING) {
                                     loadingMessage.id = System.nanoTime()
                                 }
@@ -215,15 +234,15 @@ class MainChatViewModel {
                             loadingMessage.changeContent(contentSb.toString().trim())
                         }
                         if (llm.provider == PROVIDER_GEMINI) {
-                            org.succlz123.deepco.app.llm.gemini.geminiChatStream(llm.apiKey, llm.getSelectedModeMode(), prompt, content, streamCb)
+                            org.succlz123.deepco.app.llm.gemini.geminiChatStream(llm.apiKey, llm.getSelectedModeMode(), prompt, chatModeConfig.value, content, streamCb)
                         } else {
-                            org.succlz123.deepco.app.llm.grok.grokChatStream(llm.apiKey, llm.getSelectedModeMode(), prompt, content, streamCb)
+                            org.succlz123.deepco.app.llm.grok.grokChatStream(llm.apiKey, llm.getSelectedModeMode(), prompt, chatModeConfig.value, content, streamCb)
                         }
                     } else {
                         val response = if (llm.provider == PROVIDER_GEMINI) {
-                            org.succlz123.deepco.app.llm.gemini.geminiChat(llm.apiKey, llm.getSelectedModeMode(), prompt, content)
+                            org.succlz123.deepco.app.llm.gemini.geminiChat(llm.apiKey, llm.getSelectedModeMode(), prompt, chatModeConfig.value, content)
                         } else {
-                            org.succlz123.deepco.app.llm.grok.grokChat(llm.apiKey, llm.getSelectedModeMode(), prompt, content)
+                            org.succlz123.deepco.app.llm.grok.grokChat(llm.apiKey, llm.getSelectedModeMode(), prompt, chatModeConfig.value, content)
                         }
                         loadingMessage.elapsedTime = System.currentTimeMillis() - startTime
                         loadingMessage.model = response.model.orEmpty()

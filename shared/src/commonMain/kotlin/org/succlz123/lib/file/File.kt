@@ -9,3 +9,7 @@ interface File {
     val children: List<File>
     val hasChildren: Boolean
 }
+
+expect fun choseFile(suffix: List<String>): String?
+
+expect fun choseImgFile(): String?

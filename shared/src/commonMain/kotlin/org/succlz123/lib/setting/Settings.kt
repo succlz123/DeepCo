@@ -12,3 +12,4 @@ expect fun getAllConfigFromAppDir(dirName: String): List<String>?
 
 expect fun removeFile(filePath: String)
 
+expect fun copyFile2ConfigDir(filePath: String, dirName: String, destName: String): String

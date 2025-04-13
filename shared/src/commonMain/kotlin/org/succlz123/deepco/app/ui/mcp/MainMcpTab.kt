@@ -33,8 +33,8 @@ import org.succlz123.deepco.app.base.AppHorizontalDivider
 import org.succlz123.deepco.app.base.MainRightTitleLayout
 import org.succlz123.deepco.app.ui.mcp.MainMcpViewModel.Companion.MCP_SERVERS
 import org.succlz123.deepco.app.theme.ColorResource
-import org.succlz123.lib.click.clickUrl
-import org.succlz123.lib.click.noRippleClickable
+import org.succlz123.lib.click.onClickUrl
+import org.succlz123.lib.click.noRippleClick
 import org.succlz123.lib.screen.LocalScreenNavigator
 import org.succlz123.lib.screen.viewmodel.viewModel
 
@@ -197,7 +197,7 @@ fun MainMcpTab(modifier: Modifier = Modifier) {
                             n,
                             color = ColorResource.theme,
                             fontSize = 14.sp,
-                            modifier = Modifier.padding(horizontal = 6.dp).clickUrl(n)
+                            modifier = Modifier.padding(horizontal = 6.dp).onClickUrl(n)
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                     }
@@ -238,7 +238,7 @@ fun MainMcpTab(modifier: Modifier = Modifier) {
                         item.toString()
                     }) { index, item ->
                         Row(
-                            modifier = Modifier.noRippleClickable {
+                            modifier = Modifier.noRippleClick {
                             }.padding(vertical = 3.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {

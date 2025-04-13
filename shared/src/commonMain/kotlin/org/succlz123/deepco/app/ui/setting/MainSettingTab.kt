@@ -1,7 +1,6 @@
 package org.succlz123.deepco.app.ui.setting
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,13 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.succlz123.deepco.app.AppBuildConfig
-import org.succlz123.deepco.app.Manifest
 import org.succlz123.deepco.app.base.AppButton
 import org.succlz123.deepco.app.base.AppHorizontalDivider
-import org.succlz123.deepco.app.base.LocalStorage
 import org.succlz123.deepco.app.base.MainRightTitleLayout
 import org.succlz123.deepco.app.theme.ColorResource
-import org.succlz123.lib.click.noRippleClickable
+import org.succlz123.lib.click.noRippleClick
+import org.succlz123.lib.click.onClickUrl
 import org.succlz123.lib.common.getPlatformName
 import org.succlz123.lib.screen.viewmodel.viewModel
 
@@ -39,7 +37,7 @@ fun MainSettingTab(modifier: Modifier = Modifier) {
         val map = remember { System.getenv() }
 
         Column(
-            modifier = Modifier.padding(26.dp, 26.dp, 26.dp, 26.dp).fillMaxSize()
+            modifier = Modifier.padding(16.dp).fillMaxSize()
         ) {
             Text(text = "LLM", style = MaterialTheme.typography.h3)
             Spacer(modifier = Modifier.height(12.dp))
@@ -49,7 +47,7 @@ fun MainSettingTab(modifier: Modifier = Modifier) {
                 Spacer(modifier = Modifier.width(12.dp))
                 MainSettingViewModel.llmToolModeList.forEachIndexed { index, s ->
                     Text(
-                        modifier = Modifier.padding(16.dp, 6.dp).noRippleClickable {
+                        modifier = Modifier.padding(16.dp, 6.dp).noRippleClick {
                             viewModel.settingLocalStorage.put((mode ?: SettingLocal()).copy(llmToolMode = s))
                         }, text = s, style = MaterialTheme.typography.body1,
                         color = if ((index == MainSettingViewModel.llmToolModeList.indexOf(mode?.llmToolMode.orEmpty()))) {
@@ -66,7 +64,7 @@ fun MainSettingTab(modifier: Modifier = Modifier) {
             Text(text = "Local File", style = MaterialTheme.typography.h3)
             Spacer(modifier = Modifier.height(12.dp))
             AppButton(modifier = Modifier, text = "Local File Dir", onClick = {
-                org.succlz123.lib.setting.openConfigDir(LocalStorage.APP)
+                org.succlz123.lib.setting.openConfigDir(AppBuildConfig.APP)
             })
             Spacer(modifier = Modifier.height(12.dp))
             AppHorizontalDivider()
@@ -82,8 +80,13 @@ fun MainSettingTab(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(24.dp))
             Text(text = "Github", style = MaterialTheme.typography.h3)
             Spacer(modifier = Modifier.height(12.dp))
+            val url = remember {
+                "https://github.com/succlz123/DeepCo"
+            }
             Text(
-                text = "https://github.com/succlz123/DeepCo", style = MaterialTheme.typography.body2
+                text = url, modifier = Modifier.onClickUrl(url),
+                color = ColorResource.theme,
+                style = MaterialTheme.typography.body2
             )
             Spacer(modifier = Modifier.height(12.dp))
             AppHorizontalDivider()

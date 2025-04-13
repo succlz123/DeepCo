@@ -1,5 +1,6 @@
 package org.succlz123.deepco.app.base
 
+import org.succlz123.deepco.app.AppBuildConfig
 import org.succlz123.deepco.app.json.appJson
 import org.succlz123.lib.setting.getAllConfigFromAppDir
 import org.succlz123.lib.setting.getConfigFromAppDir
@@ -10,7 +11,7 @@ import java.io.File
 class LocalDirStorage(val dir: String) {
 
     inline fun <reified S> getAllFileDir(noinline default: (() -> List<S>?)? = null): List<S>? {
-        val list = getAllConfigFromAppDir(LocalStorage.APP + File.separator + dir)
+        val list = getAllConfigFromAppDir(AppBuildConfig.APP + File.separator + dir)
         if (list.isNullOrEmpty()) {
             return default?.invoke()
         }
@@ -24,16 +25,16 @@ class LocalDirStorage(val dir: String) {
     }
 
     inline fun <reified S> put(any: S, fileName: String) {
-        saveConfig2AppDir(LocalStorage.APP + File.separator + dir, "$fileName.json", appJson.encodeToString(any))
+        saveConfig2AppDir(AppBuildConfig.APP + File.separator + dir, "$fileName.json", appJson.encodeToString(any))
     }
 
     fun remove(fileName: String) {
-        removeFile(LocalStorage.APP + File.separator + dir + File.separator + "$fileName.json")
+        removeFile(AppBuildConfig.APP + File.separator + dir + File.separator + "$fileName.json")
     }
 
     inline fun <reified S> get(fileName: String, noinline default: (() -> S?)? = null): S? {
         return try {
-            val l = getConfigFromAppDir(LocalStorage.APP + File.separator + dir, "$fileName.json")
+            val l = getConfigFromAppDir(AppBuildConfig.APP + File.separator + dir, "$fileName.json")
             if (l.isNullOrEmpty()) {
                 return default?.invoke()
             }

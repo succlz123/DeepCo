@@ -10,12 +10,13 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import org.succlz123.deepco.app.json.appJson
 import org.succlz123.deepco.app.api.AppApiService.httpClient
-import org.succlz123.deepco.app.msg.ChatMessage
+import org.succlz123.deepco.app.chat.msg.ChatMessage
 import org.succlz123.deepco.app.mcp.biz.Tool
 import org.succlz123.deepco.app.mcp.biz.ToolFunction
 import org.succlz123.deepco.app.mcp.biz.ToolParameters
 import org.succlz123.deepco.app.mcp.biz.ToolRequest
 import org.succlz123.deepco.app.mcp.biz.ToolUse
+import org.succlz123.deepco.app.ui.chat.ChatModeConfig
 import org.succlz123.lib.logger.Logger
 
 object DeepSeekApiService {
@@ -24,7 +25,7 @@ object DeepSeekApiService {
 
     suspend fun chat(
         apiKey: String, model: String, stream: Boolean, tools: List<List<Tool>>?, toolUses: List<ToolUse>?,
-        prompt: String, content: List<ChatMessage>,
+        prompt: String, modeConfig: ChatModeConfig, content: List<ChatMessage>,
         streamCb: suspend (DeepSeekResponse, Boolean) -> Unit
     ) {
         val requestBody = DeepSeekRequest(
@@ -35,8 +36,12 @@ object DeepSeekApiService {
             } else {
                 null
             },
-            frequency_penalty = 0,
-            max_tokens = 8192,
+            frequency_penalty = modeConfig.frequencyPenalty,
+            max_tokens = modeConfig.maxOutTokens,
+            presence_penalty = modeConfig.presencePenalty,
+            temperature = modeConfig.temperature,
+            top_p = modeConfig.topP,
+            top_k = modeConfig.topK,
             response_format = ResponseFormat("text"),
             messages = buildList {
                 add(RequestMessage(prompt, "system"))

@@ -36,9 +36,9 @@ import org.succlz123.deepco.app.base.AppButton
 import org.succlz123.deepco.app.base.CustomEdit
 import org.succlz123.deepco.app.base.CustomExposedDropdownMenu
 import org.succlz123.deepco.app.base.DropdownMenuDes
-import org.succlz123.deepco.app.role.PromptType
+import org.succlz123.deepco.app.chat.prompt.PromptType
 import org.succlz123.deepco.app.theme.ColorResource
-import org.succlz123.lib.click.noRippleClickable
+import org.succlz123.lib.click.noRippleClick
 import org.succlz123.lib.screen.LocalScreenNavigator
 import org.succlz123.lib.screen.viewmodel.globalViewModel
 
@@ -48,7 +48,7 @@ fun PromptAddDialog() {
     val vm = globalViewModel {
         MainPromptViewModel()
     }
-    Box(modifier = Modifier.fillMaxSize().noRippleClickable {}, contentAlignment = Alignment.Center) {
+    Box(modifier = Modifier.fillMaxSize().noRippleClick {}, contentAlignment = Alignment.Center) {
         Card(
             modifier = Modifier.fillMaxSize().padding(128.dp)
                 .align(Alignment.Center), elevation = 3.dp, backgroundColor = Color.White
@@ -69,7 +69,7 @@ fun PromptAddDialog() {
                     )
                     Spacer(modifier = Modifier.weight(1f))
                     Image(
-                        modifier = Modifier.size(16.dp).noRippleClickable {
+                        modifier = Modifier.size(16.dp).noRippleClick {
                             screenNavigator.pop()
                         },
                         contentDescription = null,
@@ -123,13 +123,13 @@ fun PromptAddDialog() {
                             start = 16.dp, top = 10.dp, end = 16.dp, bottom = 10.dp
                         ), onClick = {
                             if (name.value.isNullOrEmpty()) {
-                                screenNavigator.toast("name is empty!")
+                                screenNavigator.toast("Name is empty!")
                             } else if (description.value.isNullOrEmpty()) {
-                                screenNavigator.toast("description is empty!")
+                                screenNavigator.toast("Description is empty!")
                             } else {
                                 val found = vm.prompt.value.find { it.name == name.value }
                                 if (found != null) {
-                                    screenNavigator.toast("name is duplicate!")
+                                    screenNavigator.toast("Name is duplicate!")
                                 } else {
                                     vm.add(selectedType.value, name.value, description.value)
                                     screenNavigator.pop()

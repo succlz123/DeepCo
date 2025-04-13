@@ -33,7 +33,8 @@ import org.succlz123.deepco.app.ui.mcp.MainMcpTab
 import org.succlz123.deepco.app.ui.setting.MainSettingTab
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.deepco.app.ui.prompt.MainPromptTab
-import org.succlz123.lib.click.noRippleClickable
+import org.succlz123.deepco.app.ui.user.MainUserTab
+import org.succlz123.lib.click.noRippleClick
 import org.succlz123.lib.screen.viewmodel.viewModel
 
 @Composable
@@ -75,7 +76,7 @@ fun MainLeft(
 fun LazyListScope.mainLeft(changeLeftSelect: (Int) -> Unit, getLeftSelect: () -> Int) {
     itemsIndexed(MainViewModel.MAIN_TITLE) { index, item ->
         Card(
-            modifier = Modifier.noRippleClickable {
+            modifier = Modifier.noRippleClick {
                 changeLeftSelect(index)
             }, shape = RoundedCornerShape(8.dp), elevation = 0.dp, backgroundColor = if (getLeftSelect() == index) {
                 ColorResource.theme
@@ -128,10 +129,14 @@ fun MainRight(modifier: Modifier, leftSelectItem: () -> Int) {
         }
 
         3 -> {
-            MainMcpTab(modifier = modifier)
+            MainUserTab(modifier = modifier)
         }
 
         4 -> {
+            MainMcpTab(modifier = modifier)
+        }
+
+        5 -> {
             MainSettingTab(modifier = modifier)
         }
 

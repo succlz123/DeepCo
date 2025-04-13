@@ -25,37 +25,50 @@ Coze, Dify, Google Gemini, etc. You can also configure any OpenAI-compatible API
 
 ## Feature
 
-- [x] Chat with MCP Server (Stream&Complete)
+- [x] Chat(Stream&Complete)
 - [x] Chat History
-- [x] MCP Support
+- [ ] Chat Messages Export
+- [ ] Chat Translate Server
 - [x] Prompt Management
+- [x] User Define
+- [x] SillyTavern Character Adaptation(PNG&JSON)
 - [x] DeepSeek LLM
 - [x] Grok LLM
-- [ ] OpenAI LLM
-- [ ] Claude LLM
 - [x] Google Gemini LLM
+- [ ] Claude LLM
+- [ ] OpenAI LLM
 - [ ] OLLama LLM
+- [ ] Online API polling
+- [x] MCP Support
 - [ ] MCP Server Market
 - [ ] RAG
-- [x] TTS (Edge API)
-- [ ] SillyTavern Character Adaptation
+- [x] TTS(Edge API)
 - [ ] Dark/Light Theme
+- [ ] i18n(Chinese/English)
 
 ### Chat With LLMs
 
-![1.jpg](screenshots/1.jpg)
+![1](screenshots/1.jpg)
 
 ### Config Your LLMs API Key
 
-![2.jpg](screenshots/2.jpg)
+![2](screenshots/2.jpg)
 
 ### Prompt Management
 
-![4.jpg](screenshots/4.jpg)
+![4](screenshots/4.png)
+
+### Chat With Tavern Character
+
+![6](screenshots/6.jpg)
+
+### User Management
+
+![5](screenshots/5.png)
 
 ### Config MCP Servers
 
-![3.jpg](screenshots/3.jpg)
+![3](screenshots/3.jpg)
 
 ## Model Context Protocol (MCP) ENV
 
@@ -94,3 +107,4 @@ winget install OpenJS.NodeJS.LTS
 - [MCP-Kotlin-SDK](https://github.com/modelcontextprotocol/kotlin-sdk)
 - [DeepSeek](https://api-docs.deepseek.com/zh-cn/)
 - [HyperChat](https://github.com/BigSweetPotatoStudio/HyperChat)
+- [SillyTavern](https://github.com/SillyTavern/SillyTavern)

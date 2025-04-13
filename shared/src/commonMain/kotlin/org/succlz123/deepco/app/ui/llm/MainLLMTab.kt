@@ -25,7 +25,7 @@ import org.succlz123.deepco.app.base.AppButton
 import org.succlz123.deepco.app.base.AppHorizontalDivider
 import org.succlz123.deepco.app.base.MainRightTitleLayout
 import org.succlz123.deepco.app.theme.ColorResource
-import org.succlz123.lib.click.noRippleClickable
+import org.succlz123.lib.click.noRippleClick
 import org.succlz123.lib.screen.LocalScreenNavigator
 import org.succlz123.lib.screen.viewmodel.globalViewModel
 
@@ -43,7 +43,7 @@ fun MainLLMTab(modifier: Modifier = Modifier) {
             })
     }) {
         Column(
-            modifier = Modifier.padding(26.dp, 26.dp, 26.dp, 26.dp).fillMaxSize()
+            modifier = Modifier.padding(16.dp).fillMaxSize()
         ) {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
                 item {
@@ -80,7 +80,7 @@ fun MainLLMTab(modifier: Modifier = Modifier) {
                     item.toString()
                 }) { index, item ->
                     Row(
-                        modifier = Modifier.noRippleClickable {
+                        modifier = Modifier.noRippleClick {
                         }.padding(vertical = 3.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {

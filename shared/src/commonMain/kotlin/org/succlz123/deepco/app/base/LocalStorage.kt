@@ -1,19 +1,21 @@
 package org.succlz123.deepco.app.base
 
+import org.succlz123.deepco.app.AppBuildConfig
 import org.succlz123.deepco.app.json.appJson
 import org.succlz123.lib.setting.getConfigFromAppDir
 import org.succlz123.lib.setting.saveConfig2AppDir
 
 const val DIR_HISTORY = "history"
+const val JSON_CHAT_MODE = "chatMode.json"
 const val JSON_LLM = "llm.json"
 const val JSON_MCP = "mcp.json"
 const val JSON_PROMPT = "prompt.json"
+const val JSON_USER = "user.json"
 const val JSON_SETTING = "setting.json"
 
 class LocalStorage(val localFileName: String) {
 
     companion object {
-        const val APP = "deepco"
 
         fun stringToUniqueIntId(input: String): Int {
             var hashCode = input.hashCode()
@@ -27,12 +29,12 @@ class LocalStorage(val localFileName: String) {
     }
 
     inline fun <reified S> put(any: S) {
-        saveConfig2AppDir(APP, localFileName, appJson.encodeToString(any))
+        saveConfig2AppDir(AppBuildConfig.APP, localFileName, appJson.encodeToString(any))
     }
 
     inline fun <reified S> get(noinline default: (() -> S?)? = null): S? {
         return try {
-            val l = getConfigFromAppDir(APP, localFileName)
+            val l = getConfigFromAppDir(AppBuildConfig.APP, localFileName)
             if (l.isNullOrEmpty()) {
                 return default?.invoke()
             }

@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.sp
 import org.jetbrains.skia.FilterBlurMode
 import org.jetbrains.skia.MaskFilter
 import org.succlz123.deepco.app.theme.ColorResource
-import org.succlz123.lib.click.noRippleClickable
+import org.succlz123.lib.click.noRippleClick
 import org.succlz123.lib.screen.LocalScreenNavigator
 
 fun Modifier.shadow(
@@ -120,7 +120,7 @@ fun LoadingFailView(modifier: Modifier = Modifier, cancelClick: () -> Unit, okCl
 @Composable
 fun AppRefreshButton(modifier: Modifier, onClick: () -> Unit) {
     Card(modifier = modifier, backgroundColor = Color.White, elevation = 12.dp) {
-        Box(modifier = Modifier.padding(12.dp).noRippleClickable(onClick)) {
+        Box(modifier = Modifier.padding(12.dp).noRippleClick(onClick)) {
             Icon(
                 Icons.Sharp.Refresh,
                 modifier = Modifier.size(32.dp).padding(2.dp),
@@ -134,7 +134,7 @@ fun AppRefreshButton(modifier: Modifier, onClick: () -> Unit) {
 @Composable
 fun AppAddButton(modifier: Modifier, onClick: () -> Unit) {
     Card(modifier = modifier, backgroundColor = Color.White, elevation = 12.dp) {
-        Box(modifier = Modifier.padding(12.dp).noRippleClickable(onClick)) {
+        Box(modifier = Modifier.padding(12.dp).noRippleClick(onClick)) {
             Icon(
                 Icons.Default.Add,
                 modifier = Modifier.size(32.dp).padding(2.dp),
@@ -148,7 +148,7 @@ fun AppAddButton(modifier: Modifier, onClick: () -> Unit) {
 @Composable
 fun AppGo2TopButton(modifier: Modifier, onClick: () -> Unit) {
     Card(modifier = modifier, backgroundColor = Color.White, elevation = 12.dp) {
-        Box(modifier = Modifier.padding(12.dp).noRippleClickable(onClick)) {
+        Box(modifier = Modifier.padding(12.dp).noRippleClick(onClick)) {
             Icon(
                 Icons.Sharp.KeyboardArrowUp,
                 modifier = Modifier.size(32.dp).padding(2.dp),
@@ -163,7 +163,7 @@ fun AppGo2TopButton(modifier: Modifier, onClick: () -> Unit) {
 fun AppBackButton(modifier: Modifier = Modifier, tint: Color = Color.Black, onClick: (() -> Boolean)? = null) {
     val navigationScene = LocalScreenNavigator.current
     Icon(
-        Icons.Sharp.ArrowBack, modifier = modifier.size(32.dp).noRippleClickable {
+        Icons.Sharp.ArrowBack, modifier = modifier.size(32.dp).noRippleClick {
             if (onClick?.invoke() == true) {
             } else {
                 navigationScene.pop()
@@ -202,7 +202,7 @@ fun AppButton(
 ) {
     Box(
         modifier = modifier.background(ColorResource.theme, shape = RoundedCornerShape(4.dp))
-            .padding(contentPaddingValues).noRippleClickable {
+            .padding(contentPaddingValues).noRippleClick {
                 onClick.invoke()
             }
     ) {
@@ -226,5 +226,34 @@ fun AppOutlineButton(
         ), contentPadding = contentPaddingValues
     ) {
         content.invoke()
+    }
+}
+
+@Composable
+fun AppSliderBar(modifier: Modifier, min: Float, max: Float, progress: Float, showText: Boolean = false, change: (Float) -> Unit) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (showText) {
+            Text(min.toString(), color = ColorResource.primaryText, style = MaterialTheme.typography.body1)
+            Spacer(Modifier.width(6.dp))
+        }
+        Slider(
+            modifier = Modifier.weight(1f),
+            value = progress,
+            valueRange = min..max,
+            onValueChange = {
+                change(it)
+            }, colors = SliderDefaults.colors(
+                thumbColor = ColorResource.theme,
+                inactiveTrackColor = ColorResource.border,
+                activeTrackColor = ColorResource.theme,
+            )
+        )
+        if (showText) {
+            Spacer(Modifier.width(6.dp))
+            Text(max.toString(), color = ColorResource.primaryText, style = MaterialTheme.typography.body1)
+        }
     }
 }

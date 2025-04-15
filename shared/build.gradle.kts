@@ -45,10 +45,19 @@ kotlin {
             kotlin.srcDirs("src/jvmMain/kotlin")
         }
         androidMain.dependencies {
-            implementation("androidx.activity:activity-compose:1.9.1")
-            implementation("androidx.appcompat:appcompat:1.7.0")
-            implementation("androidx.core:core-ktx:1.13.1")
-            implementation("io.modelcontextprotocol:kotlin-sdk:0.4.0")
+            api("androidx.activity:activity-compose:1.10.1")
+            api("androidx.appcompat:appcompat:1.7.0")
+            api("androidx.core:core-ktx:1.16.0")
+
+            api("androidx.compose.ui:ui-geometry-android:1.7.8")
+            api("androidx.compose.ui:ui-graphics-android:1.7.8")
+
+            api("io.modelcontextprotocol:kotlin-sdk:0.4.0")
+            api("com.anthropic:anthropic-java:1.1.0")
+            api("com.google.genai:google-genai:0.3.0")
+
+            api("io.coil-kt.coil3:coil-compose:3.1.0")
+            api("io.coil-kt.coil3:coil-network-okhttp:3.1.0")
         }
         val desktopMain by getting {
             kotlin.srcDirs("src/jvmMain/kotlin")
@@ -59,9 +68,11 @@ kotlin {
 
             implementation("com.google.code.gson:gson:2.11.0")
             implementation("io.github.succlz123:compose-imageloader-desktop:0.0.2")
+
             implementation("io.modelcontextprotocol:kotlin-sdk:0.4.0")
             implementation("com.anthropic:anthropic-java:1.1.0")
             implementation("com.google.genai:google-genai:0.3.0")
+
 //            implementation("de.dfki.mary:voice-cmu-slt-hsmm:5.2.1")
             implementation("io.github.ikfly:java-tts:1.0.2")
         }
@@ -69,11 +80,11 @@ kotlin {
 }
 
 android {
-    compileSdk = 34
-    namespace = "org.jetbrains.codeviewer.common"
+    compileSdk = 35
+    namespace = "org.succlz123.deepco.app"
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
-        minSdk = 21
+        minSdk = 26
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
@@ -82,9 +93,5 @@ android {
     kotlin {
         jvmToolchain(21)
     }
-}
-dependencies {
-    implementation("androidx.compose.ui:ui-geometry-android:1.7.7")
-    implementation("androidx.compose.ui:ui-graphics-android:1.7.7")
 }
 

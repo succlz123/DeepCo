@@ -2,10 +2,32 @@ package org.succlz123.deepco.app.base
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.ButtonDefaults.outlinedButtonColors
+import androidx.compose.material.Card
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedButton
+import androidx.compose.material.Slider
+import androidx.compose.material.SliderDefaults
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.sharp.ArrowBack
@@ -14,57 +36,13 @@ import androidx.compose.material.icons.sharp.Refresh
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.jetbrains.skia.FilterBlurMode
-import org.jetbrains.skia.MaskFilter
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.lib.click.noRippleClick
 import org.succlz123.lib.screen.LocalScreenNavigator
-
-fun Modifier.shadow(
-    color: Color = Color.Black,
-    borderRadius: Dp = 0.dp,
-    blurRadius: Dp = 0.dp,
-    offsetY: Dp = 0.dp,
-    offsetX: Dp = 0.dp,
-    spread: Dp = 0f.dp,
-    modifier: Modifier = Modifier
-) = this.then(
-    modifier.drawBehind {
-        this.drawIntoCanvas {
-            val paint = Paint()
-            val frameworkPaint = paint.asFrameworkPaint()
-            val spreadPixel = spread.toPx()
-            val leftPixel = (0f - spreadPixel) + offsetX.toPx()
-            val topPixel = (0f - spreadPixel) + offsetY.toPx()
-            val rightPixel = (this.size.width + spreadPixel)
-            val bottomPixel = (this.size.height + spreadPixel)
-
-            if (blurRadius != 0.dp) {
-                frameworkPaint.maskFilter = (MaskFilter.makeBlur(FilterBlurMode.NORMAL, blurRadius.toPx()))
-            }
-
-            frameworkPaint.color = color.toArgb()
-            it.drawRoundRect(
-                left = leftPixel,
-                top = topPixel,
-                right = rightPixel,
-                bottom = bottomPixel,
-                radiusX = borderRadius.toPx(),
-                radiusY = borderRadius.toPx(),
-                paint
-            )
-        }
-    }
-)
 
 
 @Composable

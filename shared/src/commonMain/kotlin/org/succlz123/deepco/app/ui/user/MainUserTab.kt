@@ -44,6 +44,7 @@ import org.succlz123.deepco.app.base.AppHorizontalDivider
 import org.succlz123.deepco.app.base.MainRightTitleLayout
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.lib.click.noRippleClick
+import org.succlz123.lib.image.AsyncImageUrlMultiPlatform
 import org.succlz123.lib.screen.LocalScreenNavigator
 import org.succlz123.lib.screen.ScreenArgs
 import org.succlz123.lib.screen.viewmodel.globalViewModel
@@ -94,7 +95,7 @@ fun MainUserTab(modifier: Modifier = Modifier) {
                                             painter = painterResource(resource = Res.drawable.ic_my),
                                         )
                                     } else {
-                                        org.succlz123.lib.image.AsyncImageUrlMultiPlatform(modifier = Modifier.size(56.dp), item.avatar)
+                                        AsyncImageUrlMultiPlatform(modifier = Modifier.size(56.dp), item.avatar)
                                     }
                                 }
                                 Spacer(modifier = Modifier.width(6.dp))

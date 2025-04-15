@@ -51,6 +51,7 @@ import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.deepco.app.ui.prompt.MainPromptViewModel.Companion.CHARACTER
 import org.succlz123.lib.click.noRippleClick
 import org.succlz123.lib.click.onClickUrl
+import org.succlz123.lib.image.AsyncImageUrlMultiPlatform
 import org.succlz123.lib.screen.LocalScreenNavigator
 import org.succlz123.lib.screen.ScreenArgs
 import org.succlz123.lib.screen.viewmodel.globalViewModel
@@ -173,7 +174,7 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
                     Box(modifier = Modifier.clip(RoundedCornerShape(8.dp)).height(200.dp).border(BorderStroke(1.dp, ColorResource.black5), shape = RoundedCornerShape(8.dp))) {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             if (!item.avatar.isNullOrEmpty()) {
-                                org.succlz123.lib.image.AsyncImageUrlMultiPlatform(modifier = Modifier.fillMaxSize(), item.avatar)
+                                AsyncImageUrlMultiPlatform(modifier = Modifier.fillMaxSize(), item.avatar)
                                 Box(modifier = Modifier.fillMaxSize().background(ColorResource.black.copy(alpha = 0.2f)))
                             }
                         }

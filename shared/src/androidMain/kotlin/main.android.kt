@@ -1,5 +1,7 @@
 import androidx.compose.runtime.Composable
-import org.succlz123.deepco.app.ui.chat.MainChatView
+import org.succlz123.deepco.app.main.MainActivity
 
 @Composable
-fun MainView() = MainView()
+fun MainAndroidActivity() {
+    MainActivity()
+}

@@ -6,9 +6,12 @@
 </kbd>
   <br>
   <br>
-  <img alt="windows" src="http://img.shields.io/badge/-windows-4D76CD.svg?style=flat">
-  <img alt="macos" src="http://img.shields.io/badge/-macos-111111.svg?style=flat">
-  <img alt="linux" src="http://img.shields.io/badge/-linux-2D3F6C.svg?style=flat">
+  <img alt="windows" src="http://img.shields.io/badge/-Windows-477FE4.svg?style=flat">
+  <img alt="macos" src="http://img.shields.io/badge/-MacOS-FCF0E7.svg?style=flat">
+  <img alt="linux" src="http://img.shields.io/badge/-Linux-5D1A42.svg?style=flat">
+  <br>
+  <img alt="android" src="http://img.shields.io/badge/-Android-00FF00.svg?style=flat">
+  <img alt="iOS" src="http://img.shields.io/badge/-iOS-000000.svg?style=flat">
   <br>
   <img alt="kotlin" src="https://img.shields.io/badge/kotlin-2.1.20-blue.svg?logo=kotlin">
   <img alt="compose" src="https://img.shields.io/badge/compose-1.7.3-blue?logoColor=f5f5f5">
@@ -23,21 +26,21 @@ A Chat Client for LLMs, written in Compose Multiplatform. Target supports API pr
 Coze, Dify, Google Gemini, etc. You can also configure any OpenAI-compatible API or use native models via LM Studio/Ollama.
 
 
+## Release
+
+[v1.0.2](https://github.com/succlz123/DeepCo/releases)
+
+
 ## Feature
 
-- [x] Chat(Stream&Complete)
-- [x] Chat History
-- [ ] Chat Messages Export
-- [ ] Chat Translate Server
-- [x] Prompt Management
-- [x] User Define
+- [x] Desktop Platform Support(Windows/MacOS/Linux)
+- [ ] Mobile Platform Support(Android/iOS)
+- [x] Chat(Stream&Complete) / Chat History
+- [ ] Chat Messages Export / Chat Translate Server
+- [x] Prompt Management / User Define
 - [x] SillyTavern Character Adaptation(PNG&JSON)
-- [x] DeepSeek LLM
-- [x] Grok LLM
-- [x] Google Gemini LLM
-- [ ] Claude LLM
-- [ ] OpenAI LLM
-- [ ] OLLama LLM
+- [x] DeepSeek LLM / Grok LLM / Google Gemini LLM
+- [ ] Claude LLM / OpenAI LLM / OLLama LLM
 - [ ] Online API polling
 - [x] MCP Support
 - [ ] MCP Server Market
@@ -91,7 +94,7 @@ winget install OpenJS.NodeJS.LTS
 ### Run desktop via Gradle
 
 ```
-./gradlew desktopApp:run
+./gradlew :desktopApp:run
 ```
 
 ### Building desktop distribution
@@ -99,6 +102,19 @@ winget install OpenJS.NodeJS.LTS
 ```
 ./gradlew :desktop:packageDistributionForCurrentOS
 # outputs are written to desktopApp/build/compose/binaries
+```
+
+### Run Android via Gradle
+
+```
+./gradlew :androidApp:installDebug
+```
+
+### Building Android distribution
+
+```
+./gradlew clean :androidApp:assembleRelease
+# outputs are written to androidApp/build/outputs/apk/release
 ```
 
 ## Thanks

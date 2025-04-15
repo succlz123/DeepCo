@@ -91,7 +91,7 @@ import org.succlz123.deepco.app.Manifest
 import org.succlz123.deepco.app.base.AppButton
 import org.succlz123.deepco.app.base.AppHorizontalDivider
 import org.succlz123.deepco.app.base.CustomEdit
-import org.succlz123.deepco.app.base.shadow
+import org.succlz123.lib.modifier.shadow
 import org.succlz123.deepco.app.chat.msg.ChatMessage
 import org.succlz123.deepco.app.chat.prompt.PromptInfo
 import org.succlz123.deepco.app.chat.user.ChatUser
@@ -235,7 +235,7 @@ fun ChatView() {
                                     modifier = Modifier,
                                     onDismissRequest = {},
                                     content = {
-                                        llmViewModel.llmConfigs.value.orEmpty().forEach {
+                                        llmViewModel.llmConfigs.value.forEach {
                                             DropdownMenuItem(contentPadding = PaddingValues(12.dp, 4.dp), onClick = {
                                                 providerExpanded.value = !providerExpanded.value
                                                 llmViewModel.saveDefaultLLM(it)

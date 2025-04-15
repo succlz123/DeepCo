@@ -1,12 +1,9 @@
 package org.succlz123.deepco.app.main
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.sharp.AccountCircle
 import androidx.compose.material.icons.sharp.Add
-import androidx.compose.material.icons.sharp.AddCircle
 import androidx.compose.material.icons.sharp.Build
 import androidx.compose.material.icons.sharp.Home
-import androidx.compose.material.icons.sharp.LocationOn
 import androidx.compose.material.icons.sharp.Person
 import androidx.compose.material.icons.sharp.Settings
 import androidx.compose.material.icons.sharp.Star

@@ -67,8 +67,8 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
     MainRightTitleLayout(modifier, text = "Prompt", topRightContent = {
         Row {
             AppButton(
-                modifier = Modifier, text = "Import Tavern V2 Card(PNG/JSON)", contentPaddingValues = PaddingValues(
-                    start = 16.dp, top = 10.dp, end = 16.dp, bottom = 10.dp
+                modifier = Modifier, text = "Import Tavern V2 Card\n(PNG/JSON)", contentPaddingValues = PaddingValues(
+                    start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp
                 ), onClick = {
                     scope.launch(Dispatchers.IO) {
                         val choseFile = org.succlz123.lib.file.choseFile(listOf(".png", ".json"))
@@ -119,10 +119,10 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
                         }
                     }
                 })
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(12.dp))
             AppButton(
-                modifier = Modifier, text = "Add New Prompt", contentPaddingValues = PaddingValues(
-                    start = 16.dp, top = 10.dp, end = 16.dp, bottom = 10.dp
+                modifier = Modifier, text = "New Prompt", contentPaddingValues = PaddingValues(
+                    start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp
                 ), onClick = {
                     screenNavigator.push(Manifest.PromptAddPopupScreen)
                 })

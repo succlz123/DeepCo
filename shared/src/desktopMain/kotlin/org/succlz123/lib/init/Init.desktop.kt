@@ -1,10 +1,11 @@
 package org.succlz123.lib.init
 
 import androidx.compose.runtime.Composable
+import org.succlz123.deepco.app.AppBuildConfig
 import org.succlz123.deepco.app.tts.TTSClient.deleteTTSSavePathOnExit
+import org.succlz123.lib.common.isWindows
 import org.succlz123.lib.filedownloader.core.FileDownLoader
 import org.succlz123.lib.imageloader.core.ImageLoader
-import org.succlz123.lib.paltform.isWindows
 import java.io.File
 import java.util.Locale
 
@@ -18,11 +19,11 @@ actual fun initComposeMultiplatform() {
         System.setProperty("skiko.renderApi", "OPENGL")
     }
     ImageLoader.configuration(
-        rootDirectory = getCacheFolder("AcFun"),
+        rootDirectory = getCacheFolder(AppBuildConfig.APP),
         maxMemoryCacheSize = 150 * 1024 * 1024,
         maxDiskCacheSize = 300 * 1024 * 1024
     )
-    FileDownLoader.configuration(rootDirectory = getCacheFolder("Scrcpy"))
+    FileDownLoader.configuration(rootDirectory = getCacheFolder(AppBuildConfig.APP))
 }
 
 fun getCacheFolder(dir: String): File {

@@ -29,6 +29,9 @@ object ColorResource {
     val yellowLight = Color(0xFFFFF176)  // 浅黄色
     val yellowAccent = Color(0xFFFFD600)  // 黄色强调色
 
+    val orange = Color(0xFFEDA060)
+    val orangeLight = Color(0xFFFCF8E8)
+
     val itemBackground = Color(0xFFE0E0E0)
     val transparent = Color(0x00000000)
 

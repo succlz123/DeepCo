@@ -10,7 +10,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.animateScrollBy
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,7 +41,6 @@ import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -74,6 +72,7 @@ import deep_co.shared.generated.resources.ic_elapsed
 import deep_co.shared.generated.resources.ic_model
 import deep_co.shared.generated.resources.ic_my
 import deep_co.shared.generated.resources.ic_prompt
+import deep_co.shared.generated.resources.ic_qq
 import deep_co.shared.generated.resources.ic_remove
 import deep_co.shared.generated.resources.ic_send
 import deep_co.shared.generated.resources.ic_show_more
@@ -91,13 +90,10 @@ import org.succlz123.deepco.app.Manifest
 import org.succlz123.deepco.app.base.AppButton
 import org.succlz123.deepco.app.base.AppHorizontalDivider
 import org.succlz123.deepco.app.base.CustomEdit
-import org.succlz123.lib.modifier.shadow
 import org.succlz123.deepco.app.chat.msg.ChatMessage
 import org.succlz123.deepco.app.chat.prompt.PromptInfo
 import org.succlz123.deepco.app.chat.user.ChatUser
 import org.succlz123.deepco.app.theme.ColorResource
-import org.succlz123.deepco.app.theme.LocalTheme
-import org.succlz123.deepco.app.theme.Theme
 import org.succlz123.deepco.app.ui.chat.MainChatViewModel.Companion.DEFAULT_STREAM_MODEL
 import org.succlz123.deepco.app.ui.chat.MainChatViewModel.Companion.STREAM_LIST
 import org.succlz123.deepco.app.ui.llm.MainLLMViewModel
@@ -108,12 +104,13 @@ import org.succlz123.deepco.app.ui.resize.ResizablePanel
 import org.succlz123.deepco.app.ui.resize.ResizablePanelTabView
 import org.succlz123.deepco.app.ui.user.MainUserViewModel
 import org.succlz123.deepco.app.util.VerticalSplittable
-import org.succlz123.lib.click.onClickUrl
-import org.succlz123.lib.click.onClickAndCopyStr
 import org.succlz123.lib.click.noRippleClick
+import org.succlz123.lib.click.onClickAndCopyStr
 import org.succlz123.lib.click.onClickAndSpeakStr
+import org.succlz123.lib.click.onClickUrl
 import org.succlz123.lib.common.openURLByBrowser
 import org.succlz123.lib.image.AsyncImageUrlMultiPlatform
+import org.succlz123.lib.modifier.shadow
 import org.succlz123.lib.screen.LocalScreenNavigator
 import org.succlz123.lib.screen.result.ScreenResult
 import org.succlz123.lib.screen.viewmodel.globalViewModel
@@ -123,12 +120,7 @@ import org.succlz123.lib.screen.viewmodel.globalViewModel
 fun MainChatTab(modifier: Modifier = Modifier) {
     Box(modifier = modifier.padding(0.dp, 0.dp, 0.dp, 0.dp).fillMaxSize()) {
         DisableSelection {
-            val theme = if (isSystemInDarkTheme()) Theme.dark else Theme.light
-            CompositionLocalProvider(LocalTheme provides theme) {
-                MaterialTheme(colors = theme.materialColors) {
-                    ChatView()
-                }
-            }
+            ChatView()
         }
     }
 }
@@ -219,8 +211,6 @@ fun ChatView() {
                 if (selectedLLmConfigValue != null) {
                     val selectedLLMModel = selectedLLmConfigValue.getSelectedModeMode()
                     Column(Modifier.fillMaxSize()) {
-//                        EditorTabsView(model.editors)
-//                        StatusBars(scalableState, model.editors.active?.file?.absolutePath.orEmpty())
                         Row(Modifier.height(48.dp).fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                             val providerExpanded = remember {
                                 mutableStateOf(false)
@@ -304,13 +294,13 @@ fun ChatView() {
                             Spacer(modifier = Modifier.weight(1f))
                             AppButton(
                                 Modifier, contentPaddingValues = PaddingValues(
-                                    start = 16.dp, top = 10.dp, end = 16.dp, bottom = 10.dp
+                                    start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp
                                 ), onClick = {
                                     mainChatViewModel.clearIfNotDisplayed()
                                 }, content = {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Image(
-                                            modifier = Modifier.size(16.dp),
+                                            modifier = Modifier.size(14.dp),
                                             contentDescription = null,
                                             painter = painterResource(resource = Res.drawable.ic_chat),
                                         )
@@ -438,51 +428,17 @@ fun ChatView() {
                                 )
                             } else {
                                 Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp).weight(1f)) {
-                                    Text("Recommend", modifier = Modifier, color = ColorResource.primaryText, style = MaterialTheme.typography.h2)
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    Row {
-                                        Box(
-                                            modifier = Modifier.weight(1f).border(BorderStroke(1.dp, ColorResource.subText), shape = RoundedCornerShape(4.dp)).padding(horizontal = 16.dp, vertical = 16.dp)
-                                                .noRippleClick {
-                                                    openURLByBrowser("https://modelcontextprotocol.io/introduction")
-                                                }) {
-                                            Column {
-                                                Text("MCP Docs", color = ColorResource.primaryText, style = MaterialTheme.typography.body1)
-                                                Spacer(modifier = Modifier.height(16.dp))
-                                                Text(
-                                                    "Model Context Protocol\n" + "The Model Context Protocol (MCP) is an open protocol designed to facilitate seamless integration between Large Language Model (LLM) applications and external data sources and tools. It acts as a standardized connector, similar to a USB-C port, allowing AI models to easily access data and utilize various tools. MCP supports features such as data integration, tool integration, and secure two-way connections, enabling developers to build applications that can effectively communicate with different data sources.",
-                                                    color = ColorResource.secondaryText,
-                                                    style = MaterialTheme.typography.body2
-                                                )
-                                            }
-                                        }
-                                        Spacer(modifier = Modifier.width(16.dp))
-                                        Box(
-                                            modifier = Modifier.weight(1f).border(BorderStroke(1.dp, ColorResource.subText), shape = RoundedCornerShape(4.dp)).padding(horizontal = 16.dp, vertical = 16.dp)
-                                                .onClickUrl("https://api-docs.deepseek.com/")
-                                        ) {
-                                            Column {
-                                                Text("Deepseek API Docs", color = ColorResource.primaryText, style = MaterialTheme.typography.body1)
-                                                Spacer(modifier = Modifier.height(16.dp))
-                                                Text(
-                                                    "DeepSeek，全称杭州深度求索人工智能基础技术研究有限公司。DeepSeek是一家创新型科技公，成立于2023年7月17日，使用数据蒸馏技术，得到更为精炼、有用的数据。由知名私募巨头幻方量化孕育而生，专注于开发先进的大语言模型（LLM）和相关技术。注册地址：浙江省杭州市拱墅区环城北路169号汇金国际大厦西1幢1201室。法定代表人为裴湉，经营范围包括技术服务、技术开发、软件开发等。",
-                                                    color = ColorResource.secondaryText,
-                                                    style = MaterialTheme.typography.body2
-                                                )
-                                            }
-                                        }
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text("Recommend", modifier = Modifier, style = MaterialTheme.typography.h3)
+                                        Spacer(modifier = Modifier.weight(1f))
+                                        QQGroupView()
                                     }
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    RecommendView()
                                 }
                             }
                             Box(
-                                modifier = Modifier.fillMaxWidth().height(3.dp).shadow(
-                                    Color(0x47000000),
-                                    borderRadius = 0.dp,
-                                    offsetX = 0.dp,
-                                    offsetY = 0.dp,
-                                    spread = 0.dp,
-                                    blurRadius = 10.dp
-                                )
+                                modifier = Modifier.fillMaxWidth().height(3.dp).shadow()
                             )
                             Row(
                                 modifier = Modifier.fillMaxWidth()
@@ -533,7 +489,7 @@ fun ChatView() {
                                 }
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Box(
-                                    modifier = Modifier.weight(1f).border(BorderStroke(1.dp, ColorResource.theme), shape = RoundedCornerShape(4.dp)),
+                                    modifier = Modifier.weight(1f).border(BorderStroke(1.dp, ColorResource.border), shape = RoundedCornerShape(4.dp)),
                                 ) {
                                     CustomEdit(
                                         input.value,
@@ -569,13 +525,13 @@ fun ChatView() {
                                 Spacer(modifier = Modifier.width(12.dp))
                                 AppButton(
                                     Modifier, contentPaddingValues = PaddingValues(
-                                        start = 14.dp, top = 10.dp, end = 14.dp, bottom = 10.dp
+                                        start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp
                                     ), onClick = {
                                         click()
                                     }, content = {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Image(
-                                                modifier = Modifier.size(16.dp),
+                                                modifier = Modifier.size(14.dp),
                                                 contentDescription = null,
                                                 painter = painterResource(resource = Res.drawable.ic_send),
                                             )
@@ -906,6 +862,59 @@ fun AnimatedSelector(items: List<String>, default: String, select: (String) -> U
                         }, fontSize = 10.sp
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun QQGroupView() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.background(ColorResource.orangeLight, RoundedCornerShape(26.dp))
+            .border(BorderStroke(1.dp, ColorResource.orange), RoundedCornerShape(26.dp))
+            .padding(horizontal = 12.dp, vertical = 6.dp)
+    ) {
+        Image(
+            modifier = Modifier.size(16.dp),
+            contentDescription = null,
+            colorFilter = ColorFilter.tint(ColorResource.orange),
+            painter = painterResource(resource = Res.drawable.ic_qq),
+        )
+        Spacer(modifier = Modifier.width(6.dp))
+        Text("Join QQ Group 681703796", modifier = Modifier.onClickAndCopyStr("681703796", true), style = MaterialTheme.typography.caption.copy(color = ColorResource.orange))
+    }
+}
+
+@Composable
+fun RecommendView() {
+    Row {
+        Box(
+            modifier = Modifier.weight(1f).background(ColorResource.background, shape = RoundedCornerShape(4.dp)).padding(horizontal = 16.dp, vertical = 16.dp)
+                .noRippleClick {
+                    openURLByBrowser("https://modelcontextprotocol.io/introduction")
+                }) {
+            Column {
+                Text("MCP Docs", style = MaterialTheme.typography.h5)
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    "Model Context Protocol\n" + "The Model Context Protocol (MCP) is an open protocol designed to facilitate seamless integration between Large Language Model (LLM) applications and external data sources and tools. It acts as a standardized connector, similar to a USB-C port, allowing AI models to easily access data and utilize various tools. MCP supports features such as data integration, tool integration, and secure two-way connections, enabling developers to build applications that can effectively communicate with different data sources.",
+                    style = MaterialTheme.typography.body2
+                )
+            }
+        }
+        Spacer(modifier = Modifier.width(16.dp))
+        Box(
+            modifier = Modifier.weight(1f).background(ColorResource.background, shape = RoundedCornerShape(4.dp)).padding(horizontal = 16.dp, vertical = 16.dp)
+                .onClickUrl("https://api-docs.deepseek.com/")
+        ) {
+            Column {
+                Text("Deepseek API Docs", style = MaterialTheme.typography.h5)
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    "DeepSeek，全称杭州深度求索人工智能基础技术研究有限公司。DeepSeek是一家创新型科技公，成立于2023年7月17日，使用数据蒸馏技术，得到更为精炼、有用的数据。由知名私募巨头幻方量化孕育而生，专注于开发先进的大语言模型（LLM）和相关技术。注册地址：浙江省杭州市拱墅区环城北路169号汇金国际大厦西1幢1201室。法定代表人为裴湉，经营范围包括技术服务、技术开发、软件开发等。",
+                    style = MaterialTheme.typography.body2
+                )
             }
         }
     }

@@ -20,7 +20,7 @@ fun MainRightTitleLayout(
 ) {
     Column(modifier = modifier.background(Color.White)) {
         Row(
-            modifier = Modifier.padding(18.dp, 12.dp, 18.dp, 12.dp).fillMaxWidth(),
+            modifier = Modifier.padding(16.dp, 10.dp, 16.dp, 10.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = text, style = MaterialTheme.typography.h1)

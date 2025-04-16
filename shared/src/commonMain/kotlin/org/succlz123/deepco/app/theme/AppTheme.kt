@@ -5,29 +5,48 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.succlz123.lib.common.isDesktop
 import org.succlz123.lib.screen.LocalScreenWindowSizeOwner
 import org.succlz123.lib.screen.window.ScreenWindowSizeClass
 
 private val DarkColorPalette = darkColors(
-    primary = ColorResource.theme, secondary = Color.LightGray
+    background = Color(0xFF2B2B2B),
+    surface = Color(0xFF3C3F41)
 )
 
 private val LightColorPalette = lightColors(
-    primary = ColorResource.theme, secondary = Color.Black
+    background = Color(0xFFF5F5F5),
+    surface = Color(0xFFFFFFFF)
 )
 
 val LocalAppDimens = staticCompositionLocalOf { expandedDimens }
+
+val AppDialogPadding
+    @Composable
+    get() = LocalAppDialogPadding.current
+
+val LocalAppDialogPadding = staticCompositionLocalOf { 16.dp }
+
+val ContentPadding
+    @Composable
+    get() = LocalContentPadding.current
+
+val LocalContentPadding = staticCompositionLocalOf { 16.dp }
+
+class AppDimens(val listContentPadding: Dp)
+
+val compactDimens = AppDimens(listContentPadding = 12.dp)
+
+val expandedDimens = AppDimens(listContentPadding = 16.dp)
 
 @Composable
 fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() () -> Unit) {
@@ -49,13 +68,26 @@ fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() 
             fontFamily = FontFamily.Default, fontWeight = FontWeight.Bold, fontSize = 12.sp
         ), h6 = TextStyle(
             fontFamily = FontFamily.Default, fontWeight = FontWeight.Bold, fontSize = 10.sp
+        ), subtitle1 = TextStyle(
+            fontFamily = FontFamily.Default,
+            fontWeight = FontWeight.Normal,
+            fontSize = 18.sp,
+            color = ColorResource.primaryText
+        ), subtitle2 = TextStyle(
+            fontFamily = FontFamily.Default,
+            fontWeight = FontWeight.Normal,
+            fontSize = 16.sp,
+            color = ColorResource.secondaryText
         ), body1 = TextStyle(
-            fontFamily = FontFamily.Default, fontWeight = FontWeight.Normal, fontSize = 12.sp
+            fontFamily = FontFamily.Default,
+            fontWeight = FontWeight.Normal,
+            fontSize = 14.sp,
+            color = ColorResource.primaryText
         ), body2 = TextStyle(
             fontFamily = FontFamily.Default,
             fontWeight = FontWeight.Normal,
             fontSize = 12.sp,
-            color = ColorResource.subText
+            color = ColorResource.secondaryText
         ), button = TextStyle(
             fontFamily = FontFamily.Default, fontWeight = FontWeight.W500, fontSize = 12.sp
         ), caption = TextStyle(
@@ -82,92 +114,27 @@ fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() 
 
         ScreenWindowSizeClass.Expanded -> expandedDimens
     }
+    val dialogPadding = remember {
+        if (isDesktop()) {
+            48.dp
+        } else {
+            16.dp
+        }
+    }
+    val contentPadding = remember {
+        if (isDesktop()) {
+            32.dp
+        } else {
+            16.dp
+        }
+    }
     CompositionLocalProvider(
-        LocalAppDimens provides dimens
+        LocalAppDimens provides dimens,
+        LocalAppDialogPadding provides dialogPadding,
+        LocalContentPadding provides contentPadding
     ) {
         MaterialTheme(
             colors = colors, typography = typography, shapes = shapes, content = content
         )
     }
 }
-
-class AppDimens(
-    val listContentPadding: Dp
-)
-
-val compactDimens = AppDimens(
-    listContentPadding = 12.dp,
-)
-
-val expandedDimens = AppDimens(
-    listContentPadding = 16.dp,
-)
-
-
-@Immutable
-data class Theme(
-    val materialColors: Colors,
-    val colors: ExtendedColors,
-    val code: CodeStyle
-) {
-
-    @Immutable
-    class ExtendedColors(
-        val codeGuide: Color
-    )
-
-    @Immutable
-    data class CodeStyle(
-        val simple: SpanStyle,
-        val value: SpanStyle,
-        val keyword: SpanStyle,
-        val punctuation: SpanStyle,
-        val annotation: SpanStyle,
-        val comment: SpanStyle
-    )
-
-    companion object {
-
-        val dark = Theme(
-            materialColors = darkColors(
-                background = Color(0xFF2B2B2B),
-                surface = Color(0xFF3C3F41)
-            ),
-            colors = ExtendedColors(
-                codeGuide = Color(0xFF4E5254)
-            ),
-            code = CodeStyle(
-                simple = SpanStyle(Color(0xFFA9B7C6)),
-                value = SpanStyle(Color(0xFF6897BB)),
-                keyword = SpanStyle(Color(0xFFCC7832)),
-                punctuation = SpanStyle(Color(0xFFA1C17E)),
-                annotation = SpanStyle(Color(0xFFBBB529)),
-                comment = SpanStyle(Color(0xFF808080))
-            )
-        )
-
-        val light = Theme(
-            materialColors = lightColors(
-                background = Color(0xFFF5F5F5),
-                surface = Color(0xFFFFFFFF)
-            ),
-            colors = ExtendedColors(
-                codeGuide = Color(0xFF8E9294)
-            ),
-            code = CodeStyle(
-                simple = SpanStyle(Color(0xFF000000)),
-                value = SpanStyle(Color(0xFF4A86E8)),
-                keyword = SpanStyle(Color(0xFF000080)),
-                punctuation = SpanStyle(Color(0xFFA1A1A1)),
-                annotation = SpanStyle(Color(0xFFBBB529)),
-                comment = SpanStyle(Color(0xFF808080))
-            )
-        )
-    }
-}
-
-val LocalTheme = staticCompositionLocalOf { Theme.dark }
-
-val AppTheme
-    @Composable
-    get() = LocalTheme.current

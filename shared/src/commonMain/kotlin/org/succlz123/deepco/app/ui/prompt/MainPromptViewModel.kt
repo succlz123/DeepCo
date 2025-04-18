@@ -37,11 +37,11 @@ class MainPromptViewModel : BaseBizViewModel() {
         }
     }
 
-    fun changePrompt(promptInfo: PromptInfo, name: String, description: String) {
+    fun changePrompt(promptInfo: PromptInfo, avatar: String, name: String, description: String) {
         prompt.value = prompt.value.toMutableList().apply {
             replaceAll {
                 if (it.id == promptInfo.id) {
-                    promptInfo.copy(name = name, description = description, updateTime = System.currentTimeMillis())
+                    promptInfo.copy(avatar = avatar, name = name, description = description, updateTime = System.currentTimeMillis())
                 } else {
                     it
                 }
@@ -52,7 +52,7 @@ class MainPromptViewModel : BaseBizViewModel() {
 
     fun add(type: PromptType, name: String, description: String) {
         val id = System.currentTimeMillis()
-        val pro = PromptInfo(id, type, name, description)
+        val pro = PromptInfo(id, id, id, type, name, description)
         prompt.value = prompt.value.toMutableList().apply {
             if (this.find { it.name == name } == null) {
                 add(pro)
@@ -63,11 +63,9 @@ class MainPromptViewModel : BaseBizViewModel() {
 
     fun addTavernCard(id: Long, avatar: String, tavernCardV2: TavernCardV2) {
         val pro = PromptInfo(
-            id, PromptType.TAVERN_CARD_V2, tavernCardV2.data.name, tavernCardV2.data.description,
+            id, id, id, PromptType.TAVERN_CARD_V2, tavernCardV2.data.name, tavernCardV2.data.description,
             avatar = avatar,
-            tavernCardV2 = tavernCardV2,
-            createTime = id,
-            updateTime = id
+            tavernCardV2 = tavernCardV2
         )
         prompt.value = prompt.value.toMutableList().apply {
             if (this.find { it.name == tavernCardV2.data.name } == null) {

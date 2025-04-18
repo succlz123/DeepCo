@@ -10,6 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,13 +28,20 @@ open class DropdownMenuDes(val showName: String, val tag: Any)
 fun CustomExposedDropdownMenu(
     options: List<out DropdownMenuDes>,
     labelStr: String,
+    defaultName: String? = null,
     onSelect: (DropdownMenuDes) -> Unit
 ) {
-
     var expanded by remember {
         mutableStateOf(false)
     }
     var selectedOptionText by remember { mutableStateOf("") }
+    LaunchedEffect(defaultName) {
+        val found = options.find { it.showName == defaultName }
+        if (found != null) {
+            selectedOptionText = found.showName
+            onSelect(found)
+        }
+    }
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = {
@@ -41,7 +49,6 @@ fun CustomExposedDropdownMenu(
         }, modifier = Modifier
     ) {
         TextField(
-//            modifier = Modifier.align(Alignment.Center),
             value = selectedOptionText,
             onValueChange = { v: String -> selectedOptionText = v },
             label = {
@@ -56,7 +63,6 @@ fun CustomExposedDropdownMenu(
                 disabledLabelColor = ColorResource.divider
             ),
             modifier = Modifier,
-//                .background(ColorResource.green)
             readOnly = true,
         )
         ExposedDropdownMenu(

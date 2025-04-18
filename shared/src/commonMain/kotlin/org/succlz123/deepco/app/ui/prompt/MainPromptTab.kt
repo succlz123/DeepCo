@@ -20,28 +20,42 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import deep_co.shared.generated.resources.Res
+import deep_co.shared.generated.resources.ic_confirm
 import deep_co.shared.generated.resources.ic_more_detail
 import deep_co.shared.generated.resources.ic_remove
+import deep_co.shared.generated.resources.logo_st
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.painterResource
 import org.succlz123.deepco.app.Manifest
+import org.succlz123.deepco.app.base.AppAddButton
 import org.succlz123.deepco.app.base.AppButton
+import org.succlz123.deepco.app.base.AppDialogConfig
 import org.succlz123.deepco.app.base.AppHorizontalDivider
+import org.succlz123.deepco.app.base.AppImgButton
+import org.succlz123.deepco.app.base.AppMessageDialog
 import org.succlz123.deepco.app.base.MainRightTitleLayout
 import org.succlz123.deepco.app.character.Png
 import org.succlz123.deepco.app.character.TavernCardV2
@@ -64,12 +78,118 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
     var promptList = viewModel.prompt.collectAsState().value
     val screenNavigator = LocalScreenNavigator.current
     val scope = rememberCoroutineScope()
-    MainRightTitleLayout(modifier, text = "Prompt", topRightContent = {
-        Row {
-            AppButton(
-                modifier = Modifier, text = "Import Tavern V2 Card\n(PNG/JSON)", contentPaddingValues = PaddingValues(
-                    start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp
-                ), onClick = {
+    MainRightTitleLayout(modifier, text = "Prompt", topRightContent = {}) {
+        Box(modifier = Modifier.padding(16.dp).fillMaxSize()) {
+            val showDialog = remember {
+                mutableStateOf(AppDialogConfig.DEFAULT)
+            }
+            Column() {
+                Text(text = "Tavern Card Websites", modifier = Modifier, style = MaterialTheme.typography.h4)
+                Spacer(modifier = Modifier.height(12.dp))
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(minSize = 200.dp), verticalArrangement = Arrangement.spacedBy(12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    itemsIndexed(CHARACTER) { index, item ->
+                        Text(text = item, modifier = Modifier.onClickUrl(item), color = ColorResource.theme, style = MaterialTheme.typography.body1)
+                    }
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(text = "Prompt List", modifier = Modifier, style = MaterialTheme.typography.h4)
+                Spacer(modifier = Modifier.height(12.dp))
+                val isExpandedScreen = rememberIsWindowExpanded()
+                val gridCellSize = remember(isExpandedScreen) {
+                    if (isExpandedScreen) {
+                        5
+                    } else {
+                        3
+                    }
+                }
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(gridCellSize), verticalArrangement = Arrangement.spacedBy(12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    itemsIndexed(promptList.sortedByDescending { it.createTime }) { index, item ->
+                        val textColor = remember(item.avatar) {
+                            if (!item.avatar.isNullOrEmpty()) {
+                                ColorResource.white
+                            } else {
+                                ColorResource.primaryText
+                            }
+                        }
+                        val textThemeColor = remember(item.avatar) {
+                            if (!item.avatar.isNullOrEmpty()) {
+                                ColorResource.white
+                            } else {
+                                ColorResource.theme
+                            }
+                        }
+                        Box(modifier = Modifier.clip(RoundedCornerShape(8.dp)).height(200.dp).border(BorderStroke(1.dp, ColorResource.black5), shape = RoundedCornerShape(8.dp))) {
+                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                if (!item.avatar.isNullOrEmpty()) {
+                                    AsyncImageUrlMultiPlatform(modifier = Modifier.fillMaxSize(), item.avatar)
+                                    Box(modifier = Modifier.fillMaxSize().background(ColorResource.black.copy(alpha = 0.2f)))
+                                }
+                            }
+                            Column(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp)
+                            ) {
+                                Row {
+                                    Text(
+                                        modifier = Modifier.noRippleClick {}, text = item.name, style = MaterialTheme.typography.h5.copy(
+                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
+                                        ), color = textColor, maxLines = 1
+                                    )
+                                    if (!item.isDefault) {
+                                        Spacer(modifier = Modifier.weight(1f))
+                                        Image(
+                                            modifier = Modifier.size(16.dp).noRippleClick {
+                                                showDialog.value = showDialog.value.copy(show = true, onPositiveClick = {
+                                                    viewModel.remove(item)
+                                                })
+                                            },
+                                            contentDescription = null,
+                                            colorFilter = ColorFilter.tint(ColorResource.error),
+                                            painter = painterResource(resource = Res.drawable.ic_remove),
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(6.dp))
+                                AppHorizontalDivider()
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = item.description, modifier = Modifier.weight(1f).fillMaxWidth(), maxLines = 7, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.body2.copy(
+                                        color = textColor
+                                    )
+                                )
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                    if (item.type != PromptType.NORMAL) {
+                                        Text(
+                                            modifier = Modifier, text = item.type.name, style = MaterialTheme.typography.caption, color = textThemeColor, maxLines = 1
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                    }
+                                    if (item.isDefault) {
+                                        Text(
+                                            modifier = Modifier, text = "Default", style = MaterialTheme.typography.caption, color = textThemeColor, maxLines = 1
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Image(
+                                        modifier = Modifier.size(16.dp).noRippleClick {
+                                            screenNavigator.push(Manifest.PromptDetailPopupScreen, arguments = ScreenArgs.putValue("item", item))
+                                        },
+                                        contentDescription = null,
+                                        colorFilter = ColorFilter.tint(textThemeColor),
+                                        painter = painterResource(resource = Res.drawable.ic_more_detail),
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Column(modifier = Modifier.padding(16.dp).align(Alignment.BottomEnd), horizontalAlignment = Alignment.End) {
+                Row(modifier = Modifier.noRippleClick {
                     scope.launch(Dispatchers.IO) {
                         val choseFile = org.succlz123.lib.file.choseFile(listOf(".png", ".json"))
                         if (choseFile == null) {
@@ -89,8 +209,7 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
                                     }
                                 } else {
                                     screenNavigator.push(
-                                        Manifest.PromptCharacterAddPopupScreen,
-                                        arguments = ScreenArgs.putValue("item", CharacterImport(card, choseFile))
+                                        Manifest.PromptCharacterAddPopupScreen, arguments = ScreenArgs.putValue("item", CharacterImport(card, choseFile))
                                     )
                                 }
                             }
@@ -107,8 +226,7 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
                             } else {
                                 withContext(Dispatchers.Default) {
                                     screenNavigator.push(
-                                        Manifest.PromptCharacterAddPopupScreen,
-                                        arguments = ScreenArgs.putValue("item", CharacterImport(card))
+                                        Manifest.PromptCharacterAddPopupScreen, arguments = ScreenArgs.putValue("item", CharacterImport(card))
                                     )
                                 }
                             }
@@ -118,122 +236,31 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
                             }
                         }
                     }
-                })
-            Spacer(modifier = Modifier.width(12.dp))
-            AppButton(
-                modifier = Modifier, text = "New Prompt", contentPaddingValues = PaddingValues(
-                    start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp
-                ), onClick = {
-                    screenNavigator.push(Manifest.PromptAddPopupScreen)
-                })
-        }
-    }) {
-        Column(
-            modifier = Modifier.padding(16.dp).fillMaxSize()
-        ) {
-            Text(text = "Tavern Card Websites", modifier = Modifier, style = MaterialTheme.typography.h4)
-            Spacer(modifier = Modifier.height(6.dp))
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 200.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                itemsIndexed(CHARACTER) { index, item ->
-                    Text(text = item, modifier = Modifier.onClickUrl(item), color = ColorResource.theme, style = MaterialTheme.typography.body1)
-                }
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(text = "Prompt List", modifier = Modifier, style = MaterialTheme.typography.h4)
-            Spacer(modifier = Modifier.height(6.dp))
-            val isExpandedScreen = rememberIsWindowExpanded()
-            val gridCellSize = remember(isExpandedScreen) {
-                if (isExpandedScreen) {
-                    5
-                } else {
-                    3
-                }
-            }
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(gridCellSize), verticalArrangement = Arrangement.spacedBy(12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                itemsIndexed(promptList.sortedByDescending { it.createTime }) { index, item ->
-                    val textColor = remember(item.avatar) {
-                        if (!item.avatar.isNullOrEmpty()) {
-                            ColorResource.white
-                        } else {
-                            ColorResource.primaryText
-                        }
-                    }
-                    val textThemeColor = remember(item.avatar) {
-                        if (!item.avatar.isNullOrEmpty()) {
-                            ColorResource.white
-                        } else {
-                            ColorResource.theme
-                        }
-                    }
-                    Box(modifier = Modifier.clip(RoundedCornerShape(8.dp)).height(200.dp).border(BorderStroke(1.dp, ColorResource.black5), shape = RoundedCornerShape(8.dp))) {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            if (!item.avatar.isNullOrEmpty()) {
-                                AsyncImageUrlMultiPlatform(modifier = Modifier.fillMaxSize(), item.avatar)
-                                Box(modifier = Modifier.fillMaxSize().background(ColorResource.black.copy(alpha = 0.2f)))
-                            }
-                        }
-                        Column(
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp)
-                        ) {
-                            Row {
-                                Text(
-                                    modifier = Modifier.noRippleClick {}, text = item.name, style = MaterialTheme.typography.h5.copy(
-                                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                                    ), color = textColor, maxLines = 1
-                                )
-                                if (!item.isDefault) {
-                                    Spacer(modifier = Modifier.weight(1f))
-                                    Image(
-                                        modifier = Modifier.size(16.dp).noRippleClick {
-                                            viewModel.remove(item)
-                                        },
-                                        contentDescription = null,
-                                        colorFilter = ColorFilter.tint(ColorResource.error),
-                                        painter = painterResource(resource = Res.drawable.ic_remove),
-                                    )
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(6.dp))
-                            AppHorizontalDivider()
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                text = item.description, modifier = Modifier.weight(1f).fillMaxWidth(), maxLines = 7, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.body2.copy(
-                                    color = textColor
-                                )
+                }, verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        modifier = Modifier.background(ColorResource.theme_30, RoundedCornerShape(4.dp)).padding(8.dp, 3.dp),
+                        text = "Tavern V2 Card\n(PNG/JSON)",
+                        color = ColorResource.white,
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.caption
+                    )
+                    Spacer(modifier.width(12.dp))
+                    Card(modifier = modifier, backgroundColor = Color.White, elevation = 12.dp) {
+                        Box(modifier = Modifier.padding(12.dp).noRippleClick({})) {
+                            Image(
+                                modifier = Modifier.size(32.dp),
+                                contentDescription = null,
+                                painter = painterResource(resource = Res.drawable.logo_st),
                             )
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                                if (item.type != PromptType.NORMAL) {
-                                    Text(
-                                        modifier = Modifier, text = item.type.name, style = MaterialTheme.typography.caption, color = textThemeColor, maxLines = 1
-                                    )
-                                    Spacer(modifier = Modifier.width(6.dp))
-                                }
-                                if (item.isDefault) {
-                                    Text(
-                                        modifier = Modifier, text = "Default", style = MaterialTheme.typography.caption, color = textThemeColor, maxLines = 1
-                                    )
-                                }
-                                Spacer(modifier = Modifier.weight(1f))
-                                Image(
-                                    modifier = Modifier.size(16.dp).noRippleClick {
-                                        screenNavigator.push(Manifest.PromptDetailPopupScreen, arguments = ScreenArgs.putValue("item", item))
-                                    },
-                                    contentDescription = null,
-                                    colorFilter = ColorFilter.tint(textThemeColor),
-                                    painter = painterResource(resource = Res.drawable.ic_more_detail),
-                                )
-                            }
                         }
                     }
                 }
+                Spacer(modifier = Modifier.height(12.dp))
+                AppAddButton() {
+                    screenNavigator.push(Manifest.PromptAddPopupScreen)
+                }
             }
+            AppMessageDialog("Tips", "Are you sure to remove this prompt？", showDialog)
         }
     }
 }

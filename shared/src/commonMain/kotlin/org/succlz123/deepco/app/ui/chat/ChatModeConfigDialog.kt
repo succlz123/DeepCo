@@ -1,7 +1,6 @@
 package org.succlz123.deepco.app.ui.chat
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,7 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.succlz123.deepco.app.base.AppButton
+import org.succlz123.deepco.app.base.AppConfirmButton
 import org.succlz123.deepco.app.base.AppSliderBar
 import org.succlz123.deepco.app.base.BaseDialogCardWithTitleColumnScroll
 import org.succlz123.deepco.app.theme.ColorResource
@@ -28,15 +27,30 @@ import org.succlz123.lib.screen.viewmodel.globalViewModel
 fun ChatModeConfigDialog() {
     val screenNavigator = LocalScreenNavigator.current
     val mainChatViewModel = globalViewModel { MainChatViewModel() }
-    BaseDialogCardWithTitleColumnScroll("Chat Mode Config") {
-        val defaultConfig = mainChatViewModel.defaultChatModeConfig
-        val config = mainChatViewModel.chatModeConfig.collectAsState().value
-        val maxOutTokens = remember { mutableStateOf(config.maxOutTokens) }
-        val temperature = remember { mutableStateOf(config.temperature) }
-        val topP = remember { mutableStateOf(config.topP) }
-        val topK = remember { mutableStateOf(config.topK) }
-        val frequencyPenalty = remember { mutableStateOf(config.frequencyPenalty) }
-        val presencePenalty = remember { mutableStateOf(config.presencePenalty) }
+    val defaultConfig = mainChatViewModel.defaultChatModeConfig
+    val config = mainChatViewModel.chatModeConfig.collectAsState().value
+    val maxOutTokens = remember { mutableStateOf(config.maxOutTokens) }
+    val temperature = remember { mutableStateOf(config.temperature) }
+    val topP = remember { mutableStateOf(config.topP) }
+    val topK = remember { mutableStateOf(config.topK) }
+    val frequencyPenalty = remember { mutableStateOf(config.frequencyPenalty) }
+    val presencePenalty = remember { mutableStateOf(config.presencePenalty) }
+    BaseDialogCardWithTitleColumnScroll("Chat Mode Config", bottomFixedContent = {
+        Box(modifier = Modifier.fillMaxWidth()) {
+            AppConfirmButton(Modifier.align(Alignment.BottomEnd), onClick = {
+                mainChatViewModel.chatModeConfig.value = mainChatViewModel.chatModeConfig.value.copy(
+                    maxOutTokens = maxOutTokens.value,
+                    temperature = temperature.value,
+                    topP = topP.value,
+                    topK = topK.value,
+                    frequencyPenalty = frequencyPenalty.value,
+                    presencePenalty = presencePenalty.value,
+                )
+                mainChatViewModel.saveChatModeConfig()
+                screenNavigator.pop()
+            })
+        }
+    }) {
         Row {
             Text(
                 text = "MaxOutputTokens - Default(${defaultConfig.maxOutTokens})", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h3
@@ -199,24 +213,6 @@ fun ChatModeConfigDialog() {
         Spacer(modifier = Modifier.height(6.dp))
         AppSliderBar(modifier = Modifier.fillMaxWidth(), -2.0f, 2.0f, presencePenalty.value, true) {
             presencePenalty.value = "%.1f".format(it).toFloat()
-        }
-        Spacer(modifier = Modifier.height(12.dp))
-        Box(modifier = Modifier.fillMaxWidth()) {
-            AppButton(
-                modifier = Modifier.align(Alignment.BottomEnd), text = "Save", contentPaddingValues = PaddingValues(
-                    start = 16.dp, top = 10.dp, end = 16.dp, bottom = 10.dp
-                ), onClick = {
-                    mainChatViewModel.chatModeConfig.value = mainChatViewModel.chatModeConfig.value.copy(
-                        maxOutTokens = maxOutTokens.value,
-                        temperature = temperature.value,
-                        topP = topP.value,
-                        topK = topK.value,
-                        frequencyPenalty = frequencyPenalty.value,
-                        presencePenalty = presencePenalty.value,
-                    )
-                    mainChatViewModel.saveChatModeConfig()
-                    screenNavigator.pop()
-                })
         }
     }
 }

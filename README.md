@@ -28,7 +28,7 @@ Coze, Dify, Google Gemini, etc. You can also configure any OpenAI-compatible API
 
 ## Release
 
-[v1.0.2](https://github.com/succlz123/DeepCo/releases)
+[v1.0.3](https://github.com/succlz123/DeepCo/releases)
 
 
 ## Feature

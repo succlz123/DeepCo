@@ -70,7 +70,6 @@ import deep_co.shared.generated.resources.ic_copy
 import deep_co.shared.generated.resources.ic_down
 import deep_co.shared.generated.resources.ic_elapsed
 import deep_co.shared.generated.resources.ic_model
-import deep_co.shared.generated.resources.ic_my
 import deep_co.shared.generated.resources.ic_prompt
 import deep_co.shared.generated.resources.ic_qq
 import deep_co.shared.generated.resources.ic_remove
@@ -89,6 +88,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.succlz123.deepco.app.Manifest
 import org.succlz123.deepco.app.base.AppButton
 import org.succlz123.deepco.app.base.AppHorizontalDivider
+import org.succlz123.deepco.app.base.AppImageIconButton
 import org.succlz123.deepco.app.base.CustomEdit
 import org.succlz123.deepco.app.chat.msg.ChatMessage
 import org.succlz123.deepco.app.chat.prompt.PromptInfo
@@ -103,6 +103,7 @@ import org.succlz123.deepco.app.ui.resize.PanelState
 import org.succlz123.deepco.app.ui.resize.ResizablePanel
 import org.succlz123.deepco.app.ui.resize.ResizablePanelTabView
 import org.succlz123.deepco.app.ui.user.MainUserViewModel
+import org.succlz123.deepco.app.ui.user.UserAvatarView
 import org.succlz123.deepco.app.util.VerticalSplittable
 import org.succlz123.lib.click.noRippleClick
 import org.succlz123.lib.click.onClickAndCopyStr
@@ -169,7 +170,7 @@ fun ChatView() {
                             items(h.entries.toList()) { item ->
                                 val curSelect = mainChatViewModel.selectedHistory.collectAsState().value?.id
                                 Text(
-                                    item.value.list.firstOrNull()?.createdTimeFormatted().orEmpty(),
+                                    item.value.list.firstOrNull()?.createTimeFormatted().orEmpty(),
                                     overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier.padding(vertical = 6.dp, horizontal = 6.dp),
                                     maxLines = 1,
@@ -352,7 +353,7 @@ fun ChatView() {
                                     }
                                 }
                                 Image(
-                                    modifier = Modifier.size(12.dp).noRippleClick {},
+                                    modifier = Modifier.size(16.dp).noRippleClick {},
                                     contentDescription = null,
                                     painter = painterResource(resource = Res.drawable.ic_show_more),
                                 )
@@ -408,7 +409,7 @@ fun ChatView() {
                                     }
                                 }
                                 Image(
-                                    modifier = Modifier.size(12.dp).noRippleClick {},
+                                    modifier = Modifier.size(16.dp).noRippleClick {},
                                     contentDescription = null,
                                     painter = painterResource(resource = Res.drawable.ic_show_more),
                                 )
@@ -449,18 +450,7 @@ fun ChatView() {
                                     verticalArrangement = Arrangement.Center, modifier = Modifier.noRippleClick {
                                         screenNavigator.push(Manifest.ChatUserSelectPopupScreen)
                                     }) {
-                                    Box(modifier = Modifier.size(28.dp).clip(RoundedCornerShape(28.dp)).background(ColorResource.theme), contentAlignment = Alignment.Center) {
-                                        if (chatUser?.avatar.isNullOrEmpty()) {
-                                            Image(
-                                                modifier = Modifier.size(14.dp),
-                                                contentDescription = null,
-                                                colorFilter = ColorFilter.tint(ColorResource.white),
-                                                painter = painterResource(resource = Res.drawable.ic_my),
-                                            )
-                                        } else {
-                                            AsyncImageUrlMultiPlatform(modifier = Modifier.size(28.dp), chatUser.avatar)
-                                        }
-                                    }
+                                    UserAvatarView(modifier = Modifier, 28.dp, chatUser?.avatar)
                                     Spacer(modifier = Modifier.height(3.dp))
                                     Text(
                                         if (!chatUser?.name.isNullOrEmpty()) {
@@ -509,14 +499,11 @@ fun ChatView() {
                                 }
                                 Spacer(modifier = Modifier.width(12.dp))
                                 Box() {
-                                    Image(
-                                        modifier = Modifier.size(24.dp).noRippleClick {
+                                    Box(modifier = Modifier.padding(4.dp)) {
+                                        AppImageIconButton(22.dp, ColorResource.theme, Res.drawable.ic_model) {
                                             screenNavigator.push(Manifest.ChatModeConfigPopupScreen)
-                                        },
-                                        contentDescription = null,
-                                        colorFilter = ColorFilter.tint(ColorResource.theme),
-                                        painter = painterResource(resource = Res.drawable.ic_model),
-                                    )
+                                        }
+                                    }
                                     val chatModeConfig = mainChatViewModel.chatModeConfig.collectAsState().value
                                     if (chatModeConfig != mainChatViewModel.defaultChatModeConfig) {
                                         Box(modifier = Modifier.size(8.dp).background(ColorResource.red, RoundedCornerShape(16.dp)).align(Alignment.TopEnd)) {}
@@ -612,7 +599,7 @@ private fun MessageItem(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = message.createdTimeFormatted(), style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier
+                    text = message.createTimeFormatted(), style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier
                 )
                 if (!message.isFromMe && !message.isLoading()) {
                     Spacer(modifier = Modifier.width(6.dp))
@@ -792,21 +779,15 @@ private fun Avatar(isFromMe: Boolean, promptInfo: PromptInfo?, chatUser: ChatUse
         48
     }
     Column(verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(modifier = Modifier.size(size.dp).clip(RoundedCornerShape(size.dp)).background(ColorResource.theme), contentAlignment = Alignment.Center) {
-            if (isFromMe) {
-                if (chatUser?.avatar.isNullOrEmpty()) {
-                    Image(
-                        modifier = Modifier.size((size / 2).dp),
-                        contentDescription = null,
-                        colorFilter = ColorFilter.tint(ColorResource.white),
-                        painter = painterResource(resource = Res.drawable.ic_my),
-                    )
-                } else {
-                    AsyncImageUrlMultiPlatform(modifier = Modifier.size(size.dp), chatUser.avatar)
-                }
-            } else {
+        if (isFromMe) {
+            UserAvatarView(Modifier, size.dp, chatUser?.avatar)
+        } else {
+            Box(
+                modifier = Modifier.size(size.dp).clip(RoundedCornerShape(size.dp)).background(ColorResource.theme),
+                contentAlignment = Alignment.Center
+            ) {
                 if (promptInfo?.avatar.isNullOrEmpty()) {
-                    Text("M", modifier = Modifier.align(Alignment.Center), color = ColorResource.white, style = MaterialTheme.typography.body1)
+                    Text("L", modifier = Modifier.align(Alignment.Center), color = ColorResource.white, style = MaterialTheme.typography.subtitle1)
                 } else {
                     AsyncImageUrlMultiPlatform(modifier = Modifier.size(size.dp), promptInfo.avatar)
                 }

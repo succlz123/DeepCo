@@ -35,8 +35,9 @@ object MutableStateStringSerializer : KSerializer<MutableState<String>> {
 
 @Serializable
 data class ChatMessage(
-    val dateTime: Long = System.currentTimeMillis(),
-    var id: Long = dateTime,
+    val createTime: Long = System.currentTimeMillis(),
+    val updateTime: Long = System.currentTimeMillis(),
+    var id: Long = createTime,
     @Serializable(with = MutableStateStringSerializer::class)
     val content: MutableState<String> = mutableStateOf(""),
     @Serializable(with = MutableStateStringSerializer::class)
@@ -79,8 +80,8 @@ data class ChatMessage(
         return id == TYPE_LOADING
     }
 
-    fun createdTimeFormatted(): String {
-        return dateTime.hhMMssSSS()
+    fun createTimeFormatted(): String {
+        return createTime.hhMMssSSS()
     }
 
     fun elapsedTimeFormatted(): String {

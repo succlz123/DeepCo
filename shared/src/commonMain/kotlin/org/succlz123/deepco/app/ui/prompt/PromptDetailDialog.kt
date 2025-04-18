@@ -19,15 +19,22 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.succlz123.deepco.app.AppBuildConfig
 import org.succlz123.deepco.app.base.AppButton
+import org.succlz123.deepco.app.base.AppConfirmButton
+import org.succlz123.deepco.app.base.AsteriskText
 import org.succlz123.deepco.app.base.BaseDialogCardWithTitleColumnScroll
 import org.succlz123.deepco.app.base.CustomEdit
 import org.succlz123.deepco.app.chat.prompt.PromptInfo
 import org.succlz123.deepco.app.theme.ColorResource
+import org.succlz123.deepco.app.ui.user.UserAvatarView
+import org.succlz123.lib.click.noRippleClick
+import org.succlz123.lib.file.choseImgFile
 import org.succlz123.lib.screen.LocalScreenNavigator
 import org.succlz123.lib.screen.LocalScreenRecord
 import org.succlz123.lib.screen.value
 import org.succlz123.lib.screen.viewmodel.globalViewModel
+import java.io.File
 
 @Composable
 fun PromptDetailDialog() {
@@ -41,12 +48,35 @@ fun PromptDetailDialog() {
     val vm = globalViewModel {
         MainPromptViewModel()
     }
-    BaseDialogCardWithTitleColumnScroll("Prompt Detail") {
-        val name = remember { mutableStateOf(promptInfo.name) }
-        val description = remember { mutableStateOf(promptInfo.description) }
-        Text(
-            text = "Name", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
-        )
+    val id = remember { mutableStateOf(promptInfo.id) }
+    val avatar = remember { mutableStateOf(promptInfo.avatar.orEmpty()) }
+    val name = remember { mutableStateOf(promptInfo.name) }
+    val description = remember { mutableStateOf(promptInfo.description) }
+    BaseDialogCardWithTitleColumnScroll("Prompt Detail", bottomFixedContent = {
+        Box(modifier = Modifier.fillMaxWidth()) {
+            AppConfirmButton(modifier = Modifier.align(Alignment.CenterEnd)) {
+                if (avatar.value != promptInfo.avatar || name.value != promptInfo.name || description.value != promptInfo.description) {
+                    val savedPath = if (avatar.value == promptInfo.avatar) {
+                        avatar.value
+                    } else {
+                        org.succlz123.lib.setting.copyFile2ConfigDir(avatar.value, AppBuildConfig.APP + File.separator + "avatar", "${id.value}")
+                    }
+                    vm.changePrompt(promptInfo, savedPath, name.value, description.value)
+                }
+                screenNavigator.pop()
+            }
+        }
+    }) {
+        Box(modifier = Modifier.fillMaxWidth().noRippleClick {
+            val choseFile = choseImgFile()
+            if (choseFile != null) {
+                avatar.value = choseFile
+            }
+        }) {
+            UserAvatarView(Modifier.align(Alignment.Center), 82.dp, avatar.value)
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        AsteriskText(text = "Name")
         Spacer(modifier = Modifier.height(12.dp))
         CustomEdit(
             name.value,
@@ -57,9 +87,7 @@ fun PromptDetailDialog() {
             }, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
         )
         Spacer(modifier = Modifier.height(12.dp))
-        Text(
-            text = "Description", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
-        )
+        AsteriskText(text = "Description")
         Spacer(modifier = Modifier.height(12.dp))
         CustomEdit(
             description.value,
@@ -70,17 +98,5 @@ fun PromptDetailDialog() {
                 description.value = it
             }, scrollHeight = 250.dp, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
         )
-        Spacer(modifier = Modifier.height(12.dp))
-        Box(modifier = Modifier.fillMaxWidth()) {
-            AppButton(
-                modifier = Modifier.align(Alignment.BottomEnd), text = "Save", contentPaddingValues = PaddingValues(
-                    start = 16.dp, top = 10.dp, end = 16.dp, bottom = 10.dp
-                ), onClick = {
-                    if (name.value != promptInfo.name || description.value != promptInfo.description) {
-                        vm.changePrompt(promptInfo, name.value, description.value)
-                    }
-                    screenNavigator.pop()
-                })
-        }
     }
 }

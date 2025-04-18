@@ -49,23 +49,15 @@ fun ChatUserSelectDialog() {
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(vm.chatUsers.value) { item ->
-                Column(modifier = Modifier.fillMaxWidth().height(300.dp).noRippleClick {
-                    vm.changeDefault(item)
-                    screenNavigator.pop()
-                }.border(BorderStroke(1.dp, ColorResource.black5), shape = RoundedCornerShape(8.dp)).padding(horizontal = 12.dp, vertical = 12.dp)) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().noRippleClick {
+                        vm.changeDefault(item)
+                        screenNavigator.pop()
+                    }.border(BorderStroke(1.dp, ColorResource.black5), shape = RoundedCornerShape(8.dp))
+                        .padding(horizontal = 12.dp, vertical = 12.dp)
+                ) {
                     Box(modifier = Modifier.fillMaxWidth()) {
-                        Box(modifier = Modifier.size(100.dp).clip(RoundedCornerShape(100.dp)).background(ColorResource.theme), contentAlignment = Alignment.Center) {
-                            if (item.avatar.isNullOrEmpty()) {
-                                Image(
-                                    modifier = Modifier.size(50.dp),
-                                    contentDescription = null,
-                                    colorFilter = ColorFilter.tint(ColorResource.white),
-                                    painter = painterResource(resource = Res.drawable.ic_my),
-                                )
-                            } else {
-                                AsyncImageUrlMultiPlatform(modifier = Modifier.size(100.dp), item.avatar)
-                            }
-                        }
+                        UserAvatarView(Modifier.align(Alignment.Center), 82.dp, item.avatar)
                         if (item.isSelected) {
                             Image(
                                 modifier = Modifier.size(24.dp).align(Alignment.TopEnd),
@@ -76,21 +68,9 @@ fun ChatUserSelectDialog() {
                         }
                     }
                     Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = "Name", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
-                    )
+                    Text(text = item.name, modifier = Modifier, style = MaterialTheme.typography.body1)
                     Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = item.name, modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.body1
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = "Description", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = item.description, modifier = Modifier, maxLines = 5, color = ColorResource.black, style = MaterialTheme.typography.body1
-                    )
+                    Text(text = item.description, modifier = Modifier, maxLines = 3, minLines = 3, style = MaterialTheme.typography.body2)
                 }
             }
         }

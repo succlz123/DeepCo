@@ -3,7 +3,14 @@ package org.succlz123.deepco.app.base
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -28,7 +35,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import javax.swing.Spring.height
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -36,7 +42,7 @@ fun CustomEdit(
     text: String = "",
     onValueChange: (String) -> Unit,
     modifier: Modifier,
-    hint: String = "请输入",
+    hint: String = "Please input text",
     startIcon: ImageVector? = null,
     tintIconColor: Color = Color.Black,
     iconSpacing: Dp = 6.dp,
@@ -54,7 +60,6 @@ fun CustomEdit(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     cursorBrush: Brush = SolidColor(MaterialTheme.colors.primary)
 ) {
-    // 焦点, 用于控制是否显示 右侧叉号
     val hasFocus = remember { mutableStateOf(false) }
     Box(
         modifier = Modifier.then(
@@ -97,23 +102,18 @@ fun CustomEdit(
                         )
                         Spacer(modifier = Modifier.width(iconSpacing))
                     }
-
                     Box(modifier = Modifier.weight(1f)) {
-                        // 当空字符时, 显示hint
                         if (text.isEmpty()) {
                             Text(text = hint, color = Color.LightGray, style = textStyle)
                         }
-                        // 原本输入框的内容
                         innerTextField()
                     }
-
-                    // 存在焦点 且 有输入内容时. 显示叉号
                     if (hasFocus.value && text.isNotEmpty()) {
                         Image(
                             imageVector = Icons.Sharp.Clear,
                             contentDescription = null,
                             colorFilter = ColorFilter.tint(color = tintIconColor),
-                            modifier = Modifier.size(18.dp).clickable {
+                            modifier = Modifier.size(18.dp).clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) {
                                 onValueChange.invoke("")
                             })
                     }

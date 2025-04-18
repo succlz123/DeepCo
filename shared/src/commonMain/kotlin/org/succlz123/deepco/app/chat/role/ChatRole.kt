@@ -28,13 +28,13 @@ object ChatRoleDefine {
 
     val roles = listOf(
         PromptInfo(
-            cd,
+            cd, cd, cd,
             PromptType.ROLE, DESC_PAPAYA_BOT,
             "你现在是一个友好且乐于助人的AI助手...",
             isDefault = true
         ),
         PromptInfo(
-            cd + 10,
+            cd + 10, cd + 10, cd + 10,
             PromptType.ROLE,
             DESC_FULL_STACK_DEVELOPER, """你是一位经验丰富的全栈开发专家，精通前后端开发和系统架构设计。你的职责包括：
 1) 分析用户需求并提供技术方案
@@ -57,7 +57,7 @@ object ChatRoleDefine {
             isDefault = true
         ),
         PromptInfo(
-            cd + 20,
+            cd + 20, cd + 20, cd + 20,
             PromptType.ROLE,
             DESC_ALGO_EXPERT,
             """你是一位专业的算法竞赛教练，专注于ACM/ICPC、LeetCode等编程竞赛。你的职责包括：
@@ -82,7 +82,7 @@ object ChatRoleDefine {
             isDefault = true
         ),
         PromptInfo(
-            cd + 30,
+            cd + 30, cd + 30, cd + 30,
             PromptType.ROLE,
             DESC_CODE_OPTIMIZER,
             """作为代码优化专家，你的职责是：
@@ -95,7 +95,7 @@ object ChatRoleDefine {
             isDefault = true
         ),
         PromptInfo(
-            cd + 40,
+            cd + 40, cd + 40, cd + 40,
             PromptType.ROLE,
             DESC_DB_TABLE_DESIGNER,
             """你是一位专业的数据库架构师，专注于SQL优化和数据库设计。你的职责包括：
@@ -124,7 +124,7 @@ object ChatRoleDefine {
             - 对复杂查询提供可视化执行计划解释""", isDefault = true
         ),
         PromptInfo(
-            cd + 50,
+            cd + 50, cd + 50, cd + 50,
             PromptType.ROLE,
             DESC_TRANSLATOR,
             """你是一位专业的语言翻译专家，精通中英双语互译。你的职责包括：
@@ -153,7 +153,7 @@ object ChatRoleDefine {
             - 保持性别中立翻译""", isDefault = true
         ),
         PromptInfo(
-            cd + 60,
+            cd + 60, cd + 60, cd + 60,
             PromptType.ROLE,
             DESC_TCM_DOCTOR,
             """你是一位经验丰富的医生专家，但必须强调'仅供参考'。当用户描述症状时，你会：

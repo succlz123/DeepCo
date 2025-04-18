@@ -41,13 +41,18 @@ class MainLLMViewModel : BaseBizViewModel() {
         val MODEL_GROK_2_IMAGE = "grok-2-image"
         val MODEL_GROK_2_IMAGE_LATEST = "grok-2-image-latest"
 
+        val NO_REQUIRED_API_BASE_URL = "NO_REQUIRED_API_BASE_URL"
+
         val DEFAULT_LLM = listOf<LLM>(
             LLM(
                 provider = PROVIDER_DEEPSEEK,
                 name = "",
                 modes = listOf(MODEL_V3, MODEL_R1),
                 apiKey = "",
-                baseUrl = "https://api.deepseek.com"
+                baseUrl = "https://api.deepseek.com",
+                id = 0,
+                createTime = 0,
+                updateTime=0
             ),
             LLM(
                 provider = PROVIDER_GEMINI,
@@ -58,7 +63,10 @@ class MainLLMViewModel : BaseBizViewModel() {
                     MODEL_GEMINI_VEO_20_001, MODEL_GEMINI_20_FLASH_LIVE_001
                 ),
                 apiKey = "",
-                baseUrl = ""
+                baseUrl = NO_REQUIRED_API_BASE_URL,
+                id = 0,
+                createTime = 0,
+                updateTime=0
             ),
             LLM(
                 provider = PROVIDER_GROK,
@@ -69,7 +77,10 @@ class MainLLMViewModel : BaseBizViewModel() {
                     MODEL_GROK_2_VISION, MODEL_GROK_2_VISION_LATEST, MODEL_GROK_2_IMAGE, MODEL_GROK_2_IMAGE_LATEST
                 ),
                 apiKey = "",
-                baseUrl = ""
+                baseUrl = "https://api.x.ai/",
+                id = 0,
+                createTime = 0,
+                updateTime=0
             )
         )
     }
@@ -108,10 +119,20 @@ class MainLLMViewModel : BaseBizViewModel() {
         llmLocalStorage.put(LLMLocalConfig(newConfigs, selectedLLM.value?.name))
     }
 
-    fun add(provider: String, name: String, modes: List<String>, apiKey: String, baseUrl: String) {
-        val llm = LLM(provider, name, modes, apiKey, baseUrl)
+    fun set(isChange: Boolean, id: Long, provider: String, name: String, modes: List<String>, apiKey: String, baseUrl: String) {
+        val llm = LLM(provider, name, modes, apiKey, baseUrl, id, id, id)
         llmConfigs.value = llmConfigs.value.toMutableList().apply {
-            add(llm)
+            if (isChange) {
+                replaceAll {
+                    if (it.id == id) {
+                        llm
+                    } else {
+                        it
+                    }
+                }
+            } else {
+                add(llm)
+            }
         }
         if (selectedLLM.value == null) {
             selectedLLM.value = llm

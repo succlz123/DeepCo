@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -44,6 +45,7 @@ fun BaseDialogCard(
 @Composable
 fun BaseDialogCardWithTitleColumnScroll(
     title: String,
+    bottomFixedContent: @Composable (ColumnScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val screenNavigator = LocalScreenNavigator.current
@@ -54,7 +56,6 @@ fun BaseDialogCardWithTitleColumnScroll(
                     modifier = Modifier,
                     text = title,
                     style = MaterialTheme.typography.h3,
-                    fontWeight = FontWeight.Normal,
                     maxLines = 1
                 )
                 Spacer(modifier = Modifier.weight(1f))
@@ -68,8 +69,12 @@ fun BaseDialogCardWithTitleColumnScroll(
             }
             Spacer(modifier = Modifier.height(16.dp))
             AppHorizontalDivider()
-            Column(modifier = Modifier.verticalScroll(state = rememberScrollState()).padding(vertical = 16.dp)) {
+            Column(modifier = Modifier.verticalScroll(state = rememberScrollState()).weight(1f).padding(vertical = 16.dp)) {
                 content()
+            }
+            if (bottomFixedContent != null) {
+                Spacer(modifier = Modifier.height(16.dp))
+                bottomFixedContent()
             }
         }
     }

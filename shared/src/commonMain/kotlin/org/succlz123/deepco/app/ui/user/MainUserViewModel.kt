@@ -54,10 +54,20 @@ class MainUserViewModel : BaseBizViewModel() {
         userLocalStorage.put(chatUsers.value)
     }
 
-    fun add(id: Long, avatar: String, name: String, description: String) {
+    fun set(changeMode: Boolean, id: Long, avatar: String, name: String, description: String) {
         chatUsers.value = chatUsers.value.toMutableList().apply {
-            if (this.find { it.name == name } == null) {
-                add(ChatUser(id, avatar, name, description))
+            if (changeMode) {
+                replaceAll {
+                    if (it.id == id) {
+                        it.copy(avatar = avatar, name = name, description = description, updateTime = System.currentTimeMillis())
+                    } else {
+                        it
+                    }
+                }
+            } else {
+                if (this.find { it.name == name } == null) {
+                    add(ChatUser(id, avatar, name, description))
+                }
             }
         }
         userLocalStorage.put(chatUsers.value)

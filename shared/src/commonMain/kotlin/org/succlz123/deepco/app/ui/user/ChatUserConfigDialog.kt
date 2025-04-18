@@ -1,15 +1,12 @@
-package org.succlz123.deepco.app.ui.prompt
+package org.succlz123.deepco.app.ui.user
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,56 +17,72 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.succlz123.deepco.app.AppBuildConfig
-import org.succlz123.deepco.app.base.AppButton
 import org.succlz123.deepco.app.base.AppConfirmButton
 import org.succlz123.deepco.app.base.AsteriskText
 import org.succlz123.deepco.app.base.BaseDialogCardWithTitleColumnScroll
 import org.succlz123.deepco.app.base.CustomEdit
-import org.succlz123.deepco.app.base.CustomExposedDropdownMenu
-import org.succlz123.deepco.app.base.DropdownMenuDes
-import org.succlz123.deepco.app.chat.prompt.PromptType
+import org.succlz123.deepco.app.chat.user.ChatUser
 import org.succlz123.deepco.app.theme.ColorResource
+import org.succlz123.lib.click.noRippleClick
+import org.succlz123.lib.file.choseImgFile
 import org.succlz123.lib.screen.LocalScreenNavigator
+import org.succlz123.lib.screen.LocalScreenRecord
+import org.succlz123.lib.screen.value
 import org.succlz123.lib.screen.viewmodel.globalViewModel
 import java.io.File
 
 @Composable
-fun PromptAddDialog() {
+fun ChatUserConfigDialog() {
     val screenNavigator = LocalScreenNavigator.current
     val vm = globalViewModel {
-        MainPromptViewModel()
+        MainUserViewModel()
     }
-    val name = remember { mutableStateOf("") }
-    val description = remember { mutableStateOf("") }
-    val selectedType = remember { mutableStateOf<PromptType>(PromptType.NORMAL) }
-    BaseDialogCardWithTitleColumnScroll("Add Prompt", bottomFixedContent = {
+    val chatUser = LocalScreenRecord.current.arguments.value<ChatUser>("item")
+    val avatar = remember { mutableStateOf(chatUser?.avatar.orEmpty()) }
+    val id = remember {
+        mutableStateOf(
+            if (chatUser == null) {
+                System.currentTimeMillis()
+            } else {
+                chatUser.id
+            }
+        )
+    }
+    val name = remember { mutableStateOf(chatUser?.name.orEmpty()) }
+    val description = remember { mutableStateOf(chatUser?.description.orEmpty()) }
+    BaseDialogCardWithTitleColumnScroll("Chat User Config", bottomFixedContent = {
         Box(modifier = Modifier.fillMaxWidth()) {
-            AppConfirmButton(modifier = Modifier.align(Alignment.CenterEnd)) {
+            AppConfirmButton(Modifier.align(Alignment.BottomEnd), onClick = {
                 if (name.value.isNullOrEmpty()) {
                     screenNavigator.toast("Name is empty!")
                 } else if (description.value.isNullOrEmpty()) {
                     screenNavigator.toast("Description is empty!")
                 } else {
-                    val found = vm.prompt.value.find { it.name == name.value }
-                    if (found != null) {
+                    if (chatUser == null && vm.chatUsers.value.find { it.name == name.value } != null) {
                         screenNavigator.toast("Name is duplicate!")
                     } else {
-                        vm.add(selectedType.value, name.value, description.value)
+                        val savedPath = if (avatar.value == chatUser?.avatar) {
+                            avatar.value
+                        } else {
+                            org.succlz123.lib.setting.copyFile2ConfigDir(avatar.value, AppBuildConfig.APP + File.separator + "avatar", "${id.value}")
+                        }
+                        vm.set(chatUser != null, id.value, savedPath, name.value, description.value)
                         screenNavigator.pop()
                     }
                 }
-            }
+            })
         }
     }) {
-        AsteriskText(text = "Type")
-        Spacer(modifier = Modifier.height(12.dp))
-        CustomExposedDropdownMenu(listOf(PromptType.NORMAL, PromptType.ROLE).map {
-            DropdownMenuDes(it.name, it)
-        }, "Select Type") { item ->
-            selectedType.value = item.tag as PromptType
+        Box(modifier = Modifier.fillMaxWidth().noRippleClick {
+            val choseFile = choseImgFile()
+            if (choseFile != null) {
+                avatar.value = choseFile
+            }
+        }) {
+            UserAvatarView(Modifier.align(Alignment.Center), 82.dp, avatar.value)
         }
         Spacer(modifier = Modifier.height(12.dp))
-        AsteriskText(text = "Name")
+        AsteriskText("Name")
         Spacer(modifier = Modifier.height(12.dp))
         CustomEdit(
             name.value,
@@ -81,14 +94,14 @@ fun PromptAddDialog() {
             }, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
         )
         Spacer(modifier = Modifier.height(12.dp))
-        AsteriskText(text = "Description")
+        AsteriskText("Description")
         Spacer(modifier = Modifier.height(12.dp))
         CustomEdit(
             description.value,
             textStyle = TextStyle.Default.copy(fontSize = 14.sp),
             hint = "321",
             singleLine = false,
-            scrollHeight = 250.dp,
+            scrollHeight = 160.dp,
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             onValueChange = {
                 description.value = it

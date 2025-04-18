@@ -11,6 +11,7 @@ data class ChatUser(
 
     val isDefault: Boolean = false,
     val isSelected: Boolean = false,
+
     val createTime: Long = System.currentTimeMillis(),
     val updateTime: Long = System.currentTimeMillis()
 )

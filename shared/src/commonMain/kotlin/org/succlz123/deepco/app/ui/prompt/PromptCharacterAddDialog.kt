@@ -38,7 +38,9 @@ import org.succlz123.deepco.app.base.BaseDialogCardWithTitleColumnScroll
 import org.succlz123.deepco.app.base.CustomEdit
 import org.succlz123.deepco.app.character.TavernCardV2
 import org.succlz123.deepco.app.theme.ColorResource
+import org.succlz123.deepco.app.ui.user.UserAvatarView
 import org.succlz123.lib.click.noRippleClick
+import org.succlz123.lib.file.choseImgFile
 import org.succlz123.lib.image.AsyncImageUrlMultiPlatform
 import org.succlz123.lib.screen.LocalScreenNavigator
 import org.succlz123.lib.screen.LocalScreenRecord
@@ -75,22 +77,13 @@ fun PromptCharacterAddDialog() {
         )
         Spacer(modifier = Modifier.height(12.dp))
         Row {
-            Box(modifier = Modifier.size(100.dp).clip(RoundedCornerShape(100.dp)).background(ColorResource.theme).noRippleClick {
-                val choseFile = org.succlz123.lib.file.choseImgFile()
+            Box(modifier = Modifier.fillMaxWidth().noRippleClick {
+                val choseFile = choseImgFile()
                 if (choseFile != null) {
                     avatar.value = choseFile
                 }
-            }, contentAlignment = Alignment.Center) {
-                if (avatar.value.isNullOrEmpty()) {
-                    Image(
-                        modifier = Modifier.size(50.dp),
-                        contentDescription = null,
-                        colorFilter = ColorFilter.tint(ColorResource.white),
-                        painter = painterResource(resource = Res.drawable.ic_my),
-                    )
-                } else {
-                    AsyncImageUrlMultiPlatform(modifier = Modifier.size(100.dp), avatar.value)
-                }
+            }) {
+                UserAvatarView(Modifier.align(Alignment.Center), 82.dp, avatar.value)
             }
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.height(100.dp)) {

@@ -7,16 +7,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import deep_co.shared.generated.resources.Res
 import deep_co.shared.generated.resources.ic_close
 import org.jetbrains.compose.resources.painterResource
-import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.deepco.app.theme.LocalAppDialogPadding
 import org.succlz123.deepco.app.theme.LocalContentPadding
 import org.succlz123.lib.click.noRippleClick
@@ -35,10 +34,15 @@ import org.succlz123.lib.screen.LocalScreenNavigator
 
 @Composable
 fun BaseDialogCard(
-    content: @Composable () -> Unit
+    content: @Composable ColumnScope.() -> Unit
 ) {
-    Box(modifier = Modifier.fillMaxSize().background(ColorResource.black.copy(0.1f)).padding(LocalAppDialogPadding.current).noRippleClick {}, contentAlignment = Alignment.Center) {
-        Card(modifier = Modifier.fillMaxSize().align(Alignment.Center).shadow(), elevation = 0.dp, backgroundColor = Color.White, content = content)
+    Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(0.1f)).padding(LocalAppDialogPadding.current).noRippleClick {}, contentAlignment = Alignment.Center) {
+        Card(
+            modifier = Modifier.fillMaxSize().align(Alignment.Center).shadow(),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            content = content
+        )
     }
 }
 
@@ -55,7 +59,7 @@ fun BaseDialogCardWithTitleColumnScroll(
                 Text(
                     modifier = Modifier,
                     text = title,
-                    style = MaterialTheme.typography.h3,
+                    style = MaterialTheme.typography.headlineMedium,
                     maxLines = 1
                 )
                 Spacer(modifier = Modifier.weight(1f))
@@ -92,7 +96,7 @@ fun BaseDialogCardWithTitleNoneScroll(
                 Text(
                     modifier = Modifier,
                     text = title,
-                    style = MaterialTheme.typography.h3,
+                    style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Normal,
                     maxLines = 1
                 )

@@ -18,11 +18,11 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -30,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.succlz123.deepco.app.main.MainViewModel.Companion.MAIN_TITLE
-import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.lib.click.noRippleClick
 import org.succlz123.lib.screen.viewmodel.viewModel
 import org.succlz123.lib.screen.window.rememberIsWindowExpanded
@@ -43,29 +42,29 @@ fun MainScreen() {
     val isExpandedScreen = rememberIsWindowExpanded()
     val selectItem = homeVm.selectItem.collectAsState()
     if (isExpandedScreen) {
-        Row(modifier = Modifier.fillMaxSize().background(ColorResource.white), verticalAlignment = Alignment.CenterVertically) {
+        Row(modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
             MainTab(
-                Modifier.fillMaxHeight().background(ColorResource.background),
+                Modifier.fillMaxHeight().background(MaterialTheme.colorScheme.surfaceDim),
                 { homeVm.selectItem.value = it },
                 { selectItem.value })
-            Column {
+            Column(Modifier.background(MaterialTheme.colorScheme.surface).fillMaxHeight().weight(1f)) {
                 Box(
                     modifier = Modifier.fillMaxWidth().padding(0.dp, 18.dp, 0.dp, 8.dp),
                     contentAlignment = Alignment.Center
                 ) {
                 }
-                Box(Modifier.background(ColorResource.white).fillMaxHeight().weight(1f)) {
+                Box(Modifier.fillMaxHeight().weight(1f)) {
                     selectItem.value.content.invoke()
                 }
             }
         }
     } else {
-        Column(modifier = Modifier.fillMaxSize().background(ColorResource.white)) {
+        Column(modifier = Modifier.fillMaxSize()) {
             MainTab(
-                Modifier.fillMaxWidth().background(ColorResource.background),
+                Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceDim),
                 { homeVm.selectItem.value = it },
                 { selectItem.value })
-            Box(Modifier.background(ColorResource.white).fillMaxWidth().weight(1f)) {
+            Box(Modifier.background(MaterialTheme.colorScheme.surface).fillMaxWidth().weight(1f)) {
                 selectItem.value.content.invoke()
             }
         }
@@ -96,12 +95,12 @@ private fun LazyListScope.mainTab(changeSelect: (MainSelectItem) -> Unit, getLef
         Card(
             modifier = Modifier.noRippleClick {
                 changeSelect(item)
-            }, shape = RoundedCornerShape(8.dp), elevation = 0.dp, backgroundColor = if (getLeftSelect() == item) {
-                ColorResource.theme
+            }, shape = MaterialTheme.shapes.medium,   elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            colors = CardDefaults.cardColors(containerColor = if (getLeftSelect() == item) {
+                MaterialTheme.colorScheme.primary
             } else {
                 Color.Transparent
-            }
-        ) {
+            })) {
             Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -112,17 +111,17 @@ private fun LazyListScope.mainTab(changeSelect: (MainSelectItem) -> Unit, getLef
                     modifier = Modifier.size(20.dp),
                     contentDescription = item.name.invoke(),
                     tint = if (getLeftSelect() == item) {
-                        Color.White
+                        MaterialTheme.colorScheme.surface
                     } else {
-                        Color.LightGray
+                        MaterialTheme.colorScheme.primary
                     }
                 )
                 Spacer(modifier = Modifier.height(3.dp))
                 Text(
-                    item.name.invoke(), style = MaterialTheme.typography.body2, color = if (getLeftSelect() == item) {
-                        Color.White
+                    item.name.invoke(), style = MaterialTheme.typography.labelMedium, color = if (getLeftSelect() == item) {
+                        MaterialTheme.colorScheme.surface
                     } else {
-                        Color.Gray
+                        MaterialTheme.colorScheme.primary
                     }
                 )
             }

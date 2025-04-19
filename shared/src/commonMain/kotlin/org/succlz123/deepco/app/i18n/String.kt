@@ -33,12 +33,12 @@ fun strings(): Strings {
 
 var language = mutableStateOf(MainSettingViewModel.getLocaleLanguage())
 
-fun languageToEN() {
-    language.value = LocaleLanguage.EN
-}
-
-fun languageToZH() {
-    language.value = LocaleLanguage.ZH
+fun languageTo(name: String) {
+    language.value = when (name) {
+        LocaleLanguage.ZH.name -> LocaleLanguage.ZH
+        LocaleLanguage.EN.name -> LocaleLanguage.EN
+        else -> LocaleLanguage.ZH
+    }
 }
 
 interface Strings {
@@ -53,8 +53,11 @@ interface Strings {
     val speaking: String
     val llm: String
     val language: String
+    val client: String
     val settingLanguage: String
     val settingLanguageList: List<String>
+    val settingAppTheme: String
+    val settingAppThemeList: List<String>
     val setting: String
     val localConfigFile: String
     val openLocalConfigDir: String
@@ -80,6 +83,9 @@ interface Strings {
     val mcpConfig: String
     val name: String
     val description: String
+    val createdBy: String
+    val creatorNotes: String
+    val greetingMessage: String
     val type: String
     val command: String
     val args: String
@@ -172,10 +178,16 @@ object EnStrings : Strings {
         get() = "LLM"
     override val language: String
         get() = "Language"
+    override val client: String
+        get() = "Client"
     override val settingLanguage: String
-        get() = "Client Language"
+        get() = "Language"
     override val settingLanguageList: List<String>
         get() = listOf("Chinese", "English")
+    override val settingAppTheme: String
+        get() = "App Theme"
+    override val settingAppThemeList: List<String>
+        get() = listOf("Blue", "Green", "Red", "Yellow")
     override val setting: String
         get() = "Setting"
     override val localConfigFile: String
@@ -226,6 +238,12 @@ object EnStrings : Strings {
         get() = "Name"
     override val description: String
         get() = "Description"
+    override val createdBy: String
+        get() = "Created By"
+    override val creatorNotes: String
+        get() = "Creator Notes"
+    override val greetingMessage: String
+        get() = "Greeting Message"
     override val type: String
         get() = "Type"
     override val command: String
@@ -385,10 +403,16 @@ object ZhStrings : Strings {
         get() = "大模型"
     override val language: String
         get() = "语言"
+    override val client: String
+        get() = "客户端"
     override val settingLanguage: String
-        get() = "客户端语言"
+        get() = "语言"
     override val settingLanguageList: List<String>
         get() = listOf("中文", "英文")
+    override val settingAppTheme: String
+        get() = "应用主题"
+    override val settingAppThemeList: List<String>
+        get() = listOf("蓝色", "绿色", "红色", "黄色")
     override val setting: String
         get() = "设置"
     override val localConfigFile: String
@@ -439,6 +463,12 @@ object ZhStrings : Strings {
         get() = "名字"
     override val description: String
         get() = "描述"
+    override val createdBy: String
+        get() = "创作者"
+    override val creatorNotes: String
+        get() = "创作者标注"
+    override val greetingMessage: String
+        get() = "问候语"
     override val type: String
         get() = "类型"
     override val command: String

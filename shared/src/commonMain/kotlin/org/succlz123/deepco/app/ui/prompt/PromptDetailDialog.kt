@@ -2,14 +2,11 @@ package org.succlz123.deepco.app.ui.prompt
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,7 +17,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.succlz123.deepco.app.AppBuildConfig
-import org.succlz123.deepco.app.base.AppButton
 import org.succlz123.deepco.app.base.AppConfirmButton
 import org.succlz123.deepco.app.base.AsteriskText
 import org.succlz123.deepco.app.base.BaseDialogCardWithTitleColumnScroll
@@ -86,7 +82,7 @@ fun PromptDetailDialog() {
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             onValueChange = {
                 name.value = it
-            }, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
+            }, modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(12.dp))
         AsteriskText(text = strings.description)
@@ -98,7 +94,7 @@ fun PromptDetailDialog() {
             maxLines = 10,
             onValueChange = {
                 description.value = it
-            }, scrollHeight = 250.dp, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
+            }, scrollHeight = 250.dp, modifier = Modifier.fillMaxWidth()
         )
     }
 }

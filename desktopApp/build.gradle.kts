@@ -25,7 +25,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Rpm)
             packageName = "DeepCo"
-            packageVersion = "1.0.4"
+            packageVersion = "1.0.5"
 
             macOS {
                 iconFile.set(project.file("icon.icns"))

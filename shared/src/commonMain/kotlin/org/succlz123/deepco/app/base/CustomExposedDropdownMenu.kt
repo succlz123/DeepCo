@@ -1,14 +1,13 @@
 package org.succlz123.deepco.app.base
 
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ExposedDropdownMenuBox
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -17,13 +16,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import org.succlz123.deepco.app.theme.ColorResource
 
 open class DropdownMenuDes(val showName: String, val tag: Any)
 
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomExposedDropdownMenu(
     options: List<out DropdownMenuDes>,
@@ -50,19 +47,18 @@ fun CustomExposedDropdownMenu(
     ) {
         TextField(
             value = selectedOptionText,
+            modifier = Modifier.menuAnchor(),
             onValueChange = { v: String -> selectedOptionText = v },
             label = {
-                Text(labelStr, color = ColorResource.secondaryText, fontSize = 14.sp)
+                Text(labelStr, style = MaterialTheme.typography.bodyMedium)
             },
             singleLine = true,
-            colors = TextFieldDefaults.textFieldColors(
-                cursorColor = ColorResource.theme,
-                textColor = ColorResource.theme,
-                backgroundColor = ColorResource.background,
-                focusedLabelColor = ColorResource.black,
-                disabledLabelColor = ColorResource.divider
+            colors = TextFieldDefaults.colors(
+                cursorColor = MaterialTheme.colorScheme.primary,
+                focusedTextColor = MaterialTheme.colorScheme.primary,
+                focusedLabelColor = MaterialTheme.colorScheme.tertiary,
+                disabledLabelColor = MaterialTheme.colorScheme.surfaceContainer
             ),
-            modifier = Modifier,
             readOnly = true,
         )
         ExposedDropdownMenu(
@@ -71,7 +67,7 @@ fun CustomExposedDropdownMenu(
             modifier = Modifier.heightIn(max = 620.dp)
         ) {
             options.forEach { option ->
-                DropdownMenuItem(content = { Text(option.showName) }, onClick = {
+                DropdownMenuItem(text = { Text(option.showName) }, onClick = {
                     selectedOptionText = option.showName
                     expanded = false
                     onSelect(option)

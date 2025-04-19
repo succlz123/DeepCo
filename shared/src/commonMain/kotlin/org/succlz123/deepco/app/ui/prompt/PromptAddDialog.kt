@@ -1,15 +1,10 @@
 package org.succlz123.deepco.app.ui.prompt
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,8 +14,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.succlz123.deepco.app.AppBuildConfig
-import org.succlz123.deepco.app.base.AppButton
 import org.succlz123.deepco.app.base.AppConfirmButton
 import org.succlz123.deepco.app.base.AsteriskText
 import org.succlz123.deepco.app.base.BaseDialogCardWithTitleColumnScroll
@@ -29,10 +22,8 @@ import org.succlz123.deepco.app.base.CustomExposedDropdownMenu
 import org.succlz123.deepco.app.base.DropdownMenuDes
 import org.succlz123.deepco.app.chat.prompt.PromptType
 import org.succlz123.deepco.app.i18n.strings
-import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.lib.screen.LocalScreenNavigator
 import org.succlz123.lib.screen.viewmodel.globalViewModel
-import java.io.File
 
 @Composable
 fun PromptAddDialog() {
@@ -80,7 +71,7 @@ fun PromptAddDialog() {
             hint = "123",
             onValueChange = {
                 name.value = it
-            }, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
+            }, modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(12.dp))
         AsteriskText(text = strings.description)
@@ -94,7 +85,7 @@ fun PromptAddDialog() {
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             onValueChange = {
                 description.value = it
-            }, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
+            }, modifier = Modifier.fillMaxWidth()
         )
     }
 }

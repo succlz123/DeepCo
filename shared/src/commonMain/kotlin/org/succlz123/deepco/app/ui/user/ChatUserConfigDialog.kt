@@ -1,11 +1,9 @@
 package org.succlz123.deepco.app.ui.user
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -23,7 +21,6 @@ import org.succlz123.deepco.app.base.BaseDialogCardWithTitleColumnScroll
 import org.succlz123.deepco.app.base.CustomEdit
 import org.succlz123.deepco.app.chat.user.ChatUser
 import org.succlz123.deepco.app.i18n.strings
-import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.lib.click.noRippleClick
 import org.succlz123.lib.file.choseImgFile
 import org.succlz123.lib.screen.LocalScreenNavigator
@@ -93,7 +90,7 @@ fun ChatUserConfigDialog() {
             hint = "123",
             onValueChange = {
                 name.value = it
-            }, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
+            }, modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(12.dp))
         AsteriskText(strings().description)
@@ -107,7 +104,7 @@ fun ChatUserConfigDialog() {
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             onValueChange = {
                 description.value = it
-            }, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
+            }, modifier = Modifier.fillMaxWidth()
         )
     }
 }

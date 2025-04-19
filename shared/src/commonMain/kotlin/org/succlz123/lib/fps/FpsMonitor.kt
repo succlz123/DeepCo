@@ -1,7 +1,7 @@
 package org.succlz123.lib.fps
 
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,7 +21,7 @@ fun FpsMonitor(modifier: Modifier) {
         modifier = modifier,
         color = Color.Green,
         fontWeight = FontWeight.Bold,
-        style = MaterialTheme.typography.body1
+        style = MaterialTheme.typography.bodyMedium
     )
     LaunchedEffect(Unit) {
         while (true) {

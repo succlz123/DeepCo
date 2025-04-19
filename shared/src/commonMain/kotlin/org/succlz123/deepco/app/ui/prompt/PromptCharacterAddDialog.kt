@@ -12,10 +12,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,10 +26,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.succlz123.deepco.app.AppBuildConfig
 import org.succlz123.deepco.app.base.AppButton
+import org.succlz123.deepco.app.base.AsteriskText
 import org.succlz123.deepco.app.base.BaseDialogCardWithTitleColumnScroll
 import org.succlz123.deepco.app.base.CustomEdit
 import org.succlz123.deepco.app.character.TavernCardV2
-import org.succlz123.deepco.app.theme.ColorResource
+import org.succlz123.deepco.app.i18n.strings
 import org.succlz123.deepco.app.ui.user.UserAvatarView
 import org.succlz123.lib.click.noRippleClick
 import org.succlz123.lib.file.choseImgFile
@@ -64,10 +64,6 @@ fun PromptCharacterAddDialog() {
         val description = remember(tavernCardV2.value) { mutableStateOf(tavernCardV2.value.data.description.orEmpty()) }
         val creatorNotes = remember(tavernCardV2.value) { mutableStateOf(tavernCardV2.value.data.creator_notes.orEmpty()) }
         val greetingMessage = remember(tavernCardV2.value) { mutableStateOf(tavernCardV2.value.data.first_mes.orEmpty()) }
-        Text(
-            text = "Avatar", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
-        )
-        Spacer(modifier = Modifier.height(12.dp))
         Row {
             Box(modifier = Modifier.fillMaxWidth().noRippleClick {
                 val choseFile = choseImgFile()
@@ -86,10 +82,10 @@ fun PromptCharacterAddDialog() {
                     tags.value.forEach {
                         Spacer(modifier = Modifier.width(6.dp))
                         Box(
-                            modifier = Modifier.background(ColorResource.theme, shape = RoundedCornerShape(4.dp))
+                            modifier = Modifier.background(MaterialTheme.colorScheme.primary, shape = MaterialTheme.shapes.small)
                                 .padding(16.dp, 4.dp)
                         ) {
-                            Text(it, color = ColorResource.white, style = MaterialTheme.typography.h4)
+                            Text(it, color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.labelMedium)
                         }
                         Spacer(modifier = Modifier.width(6.dp))
                     }
@@ -97,15 +93,13 @@ fun PromptCharacterAddDialog() {
                 Spacer(modifier = Modifier.weight(1f))
                 Row {
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Created By", modifier = Modifier, color = ColorResource.primaryText, fontSize = 16.sp)
+                    AsteriskText(strings().createdBy)
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text(creator.value, modifier = Modifier, color = ColorResource.secondaryText, fontSize = 16.sp)
+                    Text(creator.value, modifier = Modifier, style = MaterialTheme.typography.bodyMedium)
                 }
             }
         }
-        Text(
-            text = "Name", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
-        )
+        AsteriskText(strings().name)
         Spacer(modifier = Modifier.height(12.dp))
         CustomEdit(
             name.value,
@@ -113,12 +107,10 @@ fun PromptCharacterAddDialog() {
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             onValueChange = {
                 name.value = it
-            }, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
+            }, modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(12.dp))
-        Text(
-            text = "Description", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
-        )
+        AsteriskText(strings().description)
         Spacer(modifier = Modifier.height(12.dp))
         CustomEdit(
             description.value,
@@ -127,12 +119,10 @@ fun PromptCharacterAddDialog() {
             maxLines = 10,
             onValueChange = {
                 description.value = it
-            }, scrollHeight = 200.dp, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
+            }, scrollHeight = 200.dp, modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(12.dp))
-        Text(
-            text = "Creator Notes", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
-        )
+        AsteriskText(strings().creatorNotes)
         Spacer(modifier = Modifier.height(12.dp))
         CustomEdit(
             creatorNotes.value,
@@ -141,12 +131,10 @@ fun PromptCharacterAddDialog() {
             maxLines = 10,
             onValueChange = {
                 creatorNotes.value = it
-            }, scrollHeight = 200.dp, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
+            }, scrollHeight = 200.dp, modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(12.dp))
-        Text(
-            text = "Greeting Message", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
-        )
+        AsteriskText(strings().greetingMessage)
         Spacer(modifier = Modifier.height(12.dp))
         CustomEdit(
             greetingMessage.value,
@@ -155,7 +143,7 @@ fun PromptCharacterAddDialog() {
             maxLines = 10,
             onValueChange = {
                 greetingMessage.value = it
-            }, scrollHeight = 200.dp, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
+            }, scrollHeight = 200.dp, modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(12.dp))
         Box(modifier = Modifier.fillMaxWidth()) {

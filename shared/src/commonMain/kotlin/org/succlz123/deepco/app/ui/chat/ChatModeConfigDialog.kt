@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -19,7 +19,6 @@ import org.succlz123.deepco.app.base.AppConfirmButton
 import org.succlz123.deepco.app.base.AppSliderBar
 import org.succlz123.deepco.app.base.BaseDialogCardWithTitleColumnScroll
 import org.succlz123.deepco.app.i18n.strings
-import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.lib.click.noRippleClick
 import org.succlz123.lib.screen.LocalScreenNavigator
 import org.succlz123.lib.screen.viewmodel.globalViewModel
@@ -53,168 +52,60 @@ fun ChatModeConfigDialog() {
             })
         }
     }) {
-        Row {
-            Text(
-                text = "${strings.maxOutputTokens} - ${strings.default}(${defaultConfig.maxOutTokens})", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h3
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = strings.reset, modifier = Modifier.noRippleClick {
-                    maxOutTokens.value = defaultConfig.maxOutTokens
-                }, color = ColorResource.theme, style = MaterialTheme.typography.h3
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = "${maxOutTokens.value}", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
-            )
-        }
-        Spacer(modifier = Modifier.height(6.dp))
         // deepseek https://api-docs.deepseek.com/zh-cn/api/create-chat-completion
         // gemini https://ai.google.dev/api/generate-content?hl=zh-cn
-        Text(
-            text = strings.maxOutputTokensDescription,
-            modifier = Modifier,
-            color = ColorResource.subText,
-            style = MaterialTheme.typography.body2
-        )
-        Spacer(modifier = Modifier.height(6.dp))
-        AppSliderBar(modifier = Modifier.fillMaxWidth(), 16f, 8192f, maxOutTokens.value.toFloat(), true) {
+        SliderView(strings.maxOutputTokens, strings.maxOutputTokensDescription, defaultConfig.maxOutTokens.toFloat(), maxOutTokens.value.toFloat(), 16f, 8192f) {
             maxOutTokens.value = it.toInt()
         }
         Spacer(modifier = Modifier.height(12.dp))
-        Row {
-            Text(
-                text = "${strings.temperature} - ${strings.default}(${defaultConfig.temperature})", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h3
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = strings.reset, modifier = Modifier.noRippleClick {
-                    temperature.value = defaultConfig.temperature
-                }, color = ColorResource.theme, style = MaterialTheme.typography.h3
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = "${temperature.value}", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
-            )
-        }
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(
-            text = strings.temperatureDescription,
-            modifier = Modifier,
-            color = ColorResource.subText,
-            style = MaterialTheme.typography.body2
-        )
-        Spacer(modifier = Modifier.height(6.dp))
-        AppSliderBar(modifier = Modifier.fillMaxWidth(), 0.0f, 2.0f, temperature.value, true) {
+        SliderView(strings.temperature, strings.temperatureDescription, defaultConfig.temperature.toFloat(), temperature.value.toFloat(), 0.0f, 2.0f) {
             temperature.value = "%.1f".format(it).toFloat()
         }
         Spacer(modifier = Modifier.height(12.dp))
-        Row {
-            Text(
-                text = "${strings.topP} - ${strings.default}(${defaultConfig.topP})", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h3
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = strings.reset, modifier = Modifier.noRippleClick {
-                    topP.value = defaultConfig.topP
-                }, color = ColorResource.theme, style = MaterialTheme.typography.h3
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = "${topP.value}", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
-            )
-        }
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(
-            text = strings.topPDescription,
-            modifier = Modifier,
-            color = ColorResource.subText,
-            style = MaterialTheme.typography.body2
-        )
-        Spacer(modifier = Modifier.height(6.dp))
-        AppSliderBar(modifier = Modifier.fillMaxWidth(), 0.0f, 1.0f, topP.value, true) {
+        SliderView(strings.topP, strings.topPDescription, defaultConfig.topP.toFloat(), topP.value.toFloat(), 0.0f, 1.0f) {
             topP.value = "%.1f".format(it).toFloat()
         }
         Spacer(modifier = Modifier.height(12.dp))
-        Row {
-            Text(
-                text = "${strings.topK} - ${strings.default}(${defaultConfig.topK})", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h3
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = strings.reset, modifier = Modifier.noRippleClick {
-                    topK.value = defaultConfig.topK
-                }, color = ColorResource.theme, style = MaterialTheme.typography.h3
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = "${topK.value}", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
-            )
-        }
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(
-            text = strings.topKDescription,
-            modifier = Modifier,
-            color = ColorResource.subText,
-            style = MaterialTheme.typography.body2
-        )
-        Spacer(modifier = Modifier.height(6.dp))
-        AppSliderBar(modifier = Modifier.fillMaxWidth(), 0.0f, 100.0f, topK.value, true) {
-            topK.value = it.toInt().toFloat()
+        SliderView(strings.topK, strings.topKDescription, defaultConfig.topK.toFloat(), topK.value.toFloat(), 0.0f, 100.0f) {
+            topK.value = "%.1f".format(it).toFloat()
         }
         Spacer(modifier = Modifier.height(12.dp))
-        Row {
-            Text(
-                text = "${strings.frequencyPenalty} - ${strings.default}(${defaultConfig.frequencyPenalty})", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h3
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = strings.reset, modifier = Modifier.noRippleClick {
-                    frequencyPenalty.value = defaultConfig.frequencyPenalty
-                }, color = ColorResource.theme, style = MaterialTheme.typography.h3
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = "${frequencyPenalty.value}", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
-            )
-        }
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(
-            text = strings.frequencyPenaltyDescription,
-            modifier = Modifier,
-            color = ColorResource.subText,
-            style = MaterialTheme.typography.body2
-        )
-        Spacer(modifier = Modifier.height(6.dp))
-        AppSliderBar(modifier = Modifier.fillMaxWidth(), -2.0f, 2.0f, frequencyPenalty.value, true) {
+        SliderView(strings.frequencyPenalty, strings.frequencyPenaltyDescription, defaultConfig.frequencyPenalty.toFloat(), frequencyPenalty.value.toFloat(), -2.0f, 2.0f) {
             frequencyPenalty.value = "%.1f".format(it).toFloat()
         }
         Spacer(modifier = Modifier.height(12.dp))
-        Row {
-            Text(
-                text = "${strings.presencePenalty} - ${strings.default}(${defaultConfig.presencePenalty})", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h3
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = strings.reset, modifier = Modifier.noRippleClick {
-                    presencePenalty.value = defaultConfig.presencePenalty
-                }, color = ColorResource.theme, style = MaterialTheme.typography.h3
-            )
-            Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = "${presencePenalty.value}", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
-            )
-        }
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(
-            text = strings.frequencyPenaltyDescription,
-            modifier = Modifier,
-            color = ColorResource.subText,
-            style = MaterialTheme.typography.body2
-        )
-        Spacer(modifier = Modifier.height(6.dp))
-        AppSliderBar(modifier = Modifier.fillMaxWidth(), -2.0f, 2.0f, presencePenalty.value, true) {
+        SliderView(strings.presencePenalty, strings.presencePenaltyDescription, defaultConfig.presencePenalty.toFloat(), presencePenalty.value.toFloat(), -2.0f, 2.0f) {
             presencePenalty.value = "%.1f".format(it).toFloat()
         }
+    }
+}
+
+@Composable
+fun SliderView(title: String, description: String, default: Float, value: Float, from: Float, to: Float, cb: (Float) -> Unit) {
+    val strings = strings()
+    Row {
+        Text(
+            text = "$title - ${strings.default}(${default})", modifier = Modifier, style = MaterialTheme.typography.titleMedium
+        )
+        Spacer(modifier = Modifier.width(12.dp))
+        Text(
+            text = strings.reset, modifier = Modifier.noRippleClick {
+                cb.invoke(default)
+            }, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.titleMedium
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            text = "$value", modifier = Modifier, style = MaterialTheme.typography.bodyMedium
+        )
+    }
+    Spacer(modifier = Modifier.height(6.dp))
+    Text(
+        text = description,
+        modifier = Modifier,
+        style = MaterialTheme.typography.bodySmall
+    )
+    Spacer(modifier = Modifier.height(6.dp))
+    AppSliderBar(modifier = Modifier.fillMaxWidth(), from, to, value, true) {
+        cb.invoke(it)
     }
 }

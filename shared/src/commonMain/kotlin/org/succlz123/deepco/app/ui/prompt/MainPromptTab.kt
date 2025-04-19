@@ -18,10 +18,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -54,7 +54,6 @@ import org.succlz123.deepco.app.character.TavernCardV2
 import org.succlz123.deepco.app.chat.prompt.PromptType
 import org.succlz123.deepco.app.i18n.strings
 import org.succlz123.deepco.app.json.appJson
-import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.deepco.app.ui.prompt.MainPromptViewModel.Companion.CHARACTER
 import org.succlz123.lib.click.noRippleClick
 import org.succlz123.lib.click.onClickUrl
@@ -78,17 +77,17 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
                 mutableStateOf(AppDialogConfig.DEFAULT)
             }
             Column() {
-                Text(text = strings.tavernCardWebsite, modifier = Modifier, style = MaterialTheme.typography.h4)
+                Text(text = strings.tavernCardWebsite, modifier = Modifier, style = MaterialTheme.typography.titleLarge)
                 Spacer(modifier = Modifier.height(12.dp))
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(minSize = 200.dp), verticalArrangement = Arrangement.spacedBy(12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     itemsIndexed(CHARACTER) { index, item ->
-                        Text(text = item, modifier = Modifier.onClickUrl(item), color = ColorResource.theme, style = MaterialTheme.typography.body1)
+                        Text(text = item, modifier = Modifier.onClickUrl(item), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodyMedium)
                     }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
-                Text(text = strings.promptList, modifier = Modifier, style = MaterialTheme.typography.h4)
+                Text(text = strings.promptList, modifier = Modifier, style = MaterialTheme.typography.titleLarge)
                 Spacer(modifier = Modifier.height(12.dp))
                 val isExpandedScreen = rememberIsWindowExpanded()
                 val gridCellSize = remember(isExpandedScreen) {
@@ -102,25 +101,26 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
                     columns = GridCells.Fixed(gridCellSize), verticalArrangement = Arrangement.spacedBy(12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     itemsIndexed(promptList.sortedByDescending { it.createTime }) { index, item ->
+                        val colorScheme = MaterialTheme.colorScheme
                         val textColor = remember(item.avatar) {
                             if (!item.avatar.isNullOrEmpty()) {
-                                ColorResource.white
+                                Color.White
                             } else {
-                                ColorResource.primaryText
+                                colorScheme.onSurface
                             }
                         }
                         val textThemeColor = remember(item.avatar) {
                             if (!item.avatar.isNullOrEmpty()) {
-                                ColorResource.white
+                                Color.White
                             } else {
-                                ColorResource.theme
+                                colorScheme.onSurface
                             }
                         }
-                        Box(modifier = Modifier.clip(RoundedCornerShape(8.dp)).height(200.dp).border(BorderStroke(1.dp, ColorResource.black5), shape = RoundedCornerShape(8.dp))) {
+                        Box(modifier = Modifier.clip(MaterialTheme.shapes.medium).height(200.dp).border(BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceContainer), shape = MaterialTheme.shapes.medium)) {
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                 if (!item.avatar.isNullOrEmpty()) {
                                     AsyncImageUrlMultiPlatform(modifier = Modifier.fillMaxSize(), item.avatar)
-                                    Box(modifier = Modifier.fillMaxSize().background(ColorResource.black.copy(alpha = 0.2f)))
+                                    Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.2f)))
                                 }
                             }
                             Column(
@@ -128,9 +128,7 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
                             ) {
                                 Row {
                                     Text(
-                                        modifier = Modifier.noRippleClick {}, text = item.name, style = MaterialTheme.typography.h5.copy(
-                                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                                        ), color = textColor, maxLines = 1
+                                        modifier = Modifier.noRippleClick {}, text = item.name, style = MaterialTheme.typography.titleMedium, color = textColor, maxLines = 1
                                     )
                                     if (!item.isDefault) {
                                         Spacer(modifier = Modifier.weight(1f))
@@ -141,7 +139,7 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
                                                 })
                                             },
                                             contentDescription = null,
-                                            colorFilter = ColorFilter.tint(ColorResource.error),
+                                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.error),
                                             painter = painterResource(resource = Res.drawable.ic_remove),
                                         )
                                     }
@@ -150,7 +148,7 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
                                 AppHorizontalDivider()
                                 Spacer(modifier = Modifier.height(6.dp))
                                 Text(
-                                    text = item.description, modifier = Modifier.weight(1f).fillMaxWidth(), maxLines = 7, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.body2.copy(
+                                    text = item.description, modifier = Modifier.weight(1f).fillMaxWidth(), maxLines = 7, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodyMedium.copy(
                                         color = textColor
                                     )
                                 )
@@ -158,13 +156,13 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
                                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                     if (item.type != PromptType.NORMAL) {
                                         Text(
-                                            modifier = Modifier, text = item.type.name, style = MaterialTheme.typography.caption, color = textThemeColor, maxLines = 1
+                                            modifier = Modifier, text = item.type.name, style = MaterialTheme.typography.labelMedium, color = textThemeColor, maxLines = 1
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
                                     }
                                     if (item.isDefault) {
                                         Text(
-                                            modifier = Modifier, text = strings.default, style = MaterialTheme.typography.caption, color = textThemeColor, maxLines = 1
+                                            modifier = Modifier, text = strings.default, style = MaterialTheme.typography.labelMedium, color = textThemeColor, maxLines = 1
                                         )
                                     }
                                     Spacer(modifier = Modifier.weight(1f))
@@ -232,14 +230,17 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
                     }
                 }, verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        modifier = Modifier.background(ColorResource.theme_30, RoundedCornerShape(4.dp)).padding(8.dp, 3.dp),
+                        modifier = Modifier.background(MaterialTheme.colorScheme.primary, MaterialTheme.shapes.small).padding(8.dp, 3.dp),
                         text = strings.importTavernV2Card,
-                        color = ColorResource.white,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.caption
+                        style = MaterialTheme.typography.labelMedium
                     )
                     Spacer(modifier.width(12.dp))
-                    Card(modifier = modifier, backgroundColor = Color.White, elevation = 12.dp) {
+                    Card(
+                        modifier = modifier, elevation = CardDefaults.cardElevation(defaultElevation = 12.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White)
+                    ) {
                         Box(modifier = Modifier.padding(12.dp)) {
                             Image(
                                 modifier = Modifier.size(32.dp),

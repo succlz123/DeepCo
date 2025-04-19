@@ -6,9 +6,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
@@ -17,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import org.succlz123.deepco.app.theme.ColorResource
 
 interface TabIndexGet {
 
@@ -33,7 +31,7 @@ fun AppTable(modifier: Modifier, titleList: List<TableTitleItem>, content: List<
     LazyColumn(modifier = modifier) {
         item {
             Row(
-                modifier = Modifier.background(ColorResource.background, shape = RoundedCornerShape(4.dp))
+                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer, shape = MaterialTheme.shapes.small)
             ) {
                 titleList.forEachIndexed { index, titleItem ->
                     Text(
@@ -45,7 +43,7 @@ fun AppTable(modifier: Modifier, titleList: List<TableTitleItem>, content: List<
                             }
                         ).onSizeChanged {
                             titleSizeMap[index] = it.width
-                        }.padding(horizontal = 12.dp, vertical = 6.dp), style = MaterialTheme.typography.h5
+                        }.padding(horizontal = 12.dp, vertical = 6.dp), style = MaterialTheme.typography.headlineSmall
                     )
                 }
             }
@@ -60,7 +58,7 @@ fun AppTable(modifier: Modifier, titleList: List<TableTitleItem>, content: List<
                         Text(
                             text = item.getFieldByIndex(index).orEmpty(),
                             modifier = Modifier.width(((titleSizeMap[index] ?: 1) / LocalDensity.current.density).dp),
-                            style = MaterialTheme.typography.body1
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }

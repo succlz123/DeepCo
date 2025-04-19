@@ -28,7 +28,7 @@ Coze, Dify, Google Gemini, etc. You can also configure any OpenAI-compatible API
 
 ## Release
 
-[v1.0.4](https://github.com/succlz123/DeepCo/releases)
+[v1.0.5](https://github.com/succlz123/DeepCo/releases)
 
 
 ## Feature
@@ -47,7 +47,7 @@ Coze, Dify, Google Gemini, etc. You can also configure any OpenAI-compatible API
 - [ ] RAG
 - [x] TTS(Edge API)
 - [ ] Dark/Light Theme
-- [x] i18n(Chinese/English)
+- [x] i18n(Chinese/English) / App Theme
 
 ### Chat With LLMs
 
@@ -59,7 +59,7 @@ Coze, Dify, Google Gemini, etc. You can also configure any OpenAI-compatible API
 
 ### Prompt Management
 
-![4](screenshots/4.png)
+![4](screenshots/4.jpg)
 
 ### Chat With Tavern Character
 
@@ -67,11 +67,16 @@ Coze, Dify, Google Gemini, etc. You can also configure any OpenAI-compatible API
 
 ### User Management
 
-![5](screenshots/5.png)
+![5](screenshots/5.jpg)
 
 ### Config MCP Servers
 
 ![3](screenshots/3.jpg)
+
+### Setting
+
+![7](screenshots/7.jpg)
+
 
 ## Model Context Protocol (MCP) ENV
 

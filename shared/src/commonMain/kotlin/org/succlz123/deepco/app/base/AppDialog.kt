@@ -9,9 +9,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -23,7 +24,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.succlz123.deepco.app.i18n.strings
-import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.deepco.app.theme.LocalAppDialogPadding
 import org.succlz123.deepco.app.theme.LocalContentPadding
 import org.succlz123.lib.click.noRippleClick
@@ -60,51 +60,54 @@ fun AppDialog(
         }
         screenNavigator.popupWindow(
             content = {
-                Box(modifier = Modifier.fillMaxSize().background(ColorResource.black.copy(0.1f)).padding(LocalAppDialogPadding.current).noRippleClick {}, contentAlignment = Alignment.Center) {
+                Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(0.1f)).padding(LocalAppDialogPadding.current).noRippleClick {}, contentAlignment = Alignment.Center) {
                     Box(modifier = Modifier.padding(horizontal = padding)) {
-                        Card(modifier = Modifier.shadow(), elevation = 0.dp, backgroundColor = Color.White, content = {
-                            Column(modifier = Modifier.padding(LocalContentPadding.current)) {
-                                Row {
-                                    Text(
-                                        modifier = Modifier,
-                                        text = title,
-                                        style = MaterialTheme.typography.h1,
-                                        maxLines = 1
-                                    )
+                        Card(
+                            modifier = Modifier.shadow(),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface), content = {
+                                Column(modifier = Modifier.padding(LocalContentPadding.current)) {
+                                    Row {
+                                        Text(
+                                            modifier = Modifier,
+                                            text = title,
+                                            style = MaterialTheme.typography.headlineMedium,
+                                            maxLines = 1
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.height(32.dp))
+                                    content()
+                                    Spacer(modifier = Modifier.height(48.dp))
+                                    Row {
+                                        Spacer(modifier = Modifier.weight(1f))
+                                        Text(
+                                            modifier = Modifier.noRippleClick {
+                                                config.value.onNegativeClick(screenNavigator)
+                                                if (config.value.dismissByClick) {
+                                                    screenNavigator.cancelPopupWindow()
+                                                }
+                                            },
+                                            text = strings().cancel,
+                                            textAlign = TextAlign.Center,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            maxLines = 1
+                                        )
+                                        Spacer(modifier = Modifier.width(48.dp))
+                                        Text(
+                                            modifier = Modifier.noRippleClick {
+                                                config.value.onPositiveClick(screenNavigator)
+                                                if (config.value.dismissByClick) {
+                                                    screenNavigator.cancelPopupWindow()
+                                                }
+                                            },
+                                            text = strings().confirm,
+                                            textAlign = TextAlign.Center,
+                                            style = MaterialTheme.typography.bodyMedium.copy(MaterialTheme.colorScheme.primary),
+                                            maxLines = 1
+                                        )
+                                    }
                                 }
-                                Spacer(modifier = Modifier.height(32.dp))
-                                content()
-                                Spacer(modifier = Modifier.height(48.dp))
-                                Row {
-                                    Spacer(modifier = Modifier.weight(1f))
-                                    Text(
-                                        modifier = Modifier.noRippleClick {
-                                            config.value.onNegativeClick(screenNavigator)
-                                            if (config.value.dismissByClick) {
-                                                screenNavigator.cancelPopupWindow()
-                                            }
-                                        },
-                                        text = strings().cancel,
-                                        textAlign = TextAlign.Center,
-                                        style = MaterialTheme.typography.h3,
-                                        maxLines = 1
-                                    )
-                                    Spacer(modifier = Modifier.width(48.dp))
-                                    Text(
-                                        modifier = Modifier.noRippleClick {
-                                            config.value.onPositiveClick(screenNavigator)
-                                            if (config.value.dismissByClick) {
-                                                screenNavigator.cancelPopupWindow()
-                                            }
-                                        },
-                                        text = strings().confirm,
-                                        textAlign = TextAlign.Center,
-                                        style = MaterialTheme.typography.h3.copy(ColorResource.theme),
-                                        maxLines = 1
-                                    )
-                                }
-                            }
-                        })
+                            })
                     }
                 }
             }
@@ -121,7 +124,7 @@ fun AppMessageDialog(
         Text(
             modifier = Modifier,
             text = message,
-            style = MaterialTheme.typography.body1,
+            style = MaterialTheme.typography.bodyMedium,
         )
     }
 }

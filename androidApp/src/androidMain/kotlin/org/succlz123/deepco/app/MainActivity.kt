@@ -6,7 +6,6 @@ import android.view.MotionEvent
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import org.succlz123.deepco.app.theme.AppTheme
-import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.lib.screen.ScreenContainer
 
 class MainActivity : AppCompatActivity() {
@@ -30,7 +28,6 @@ class MainActivity : AppCompatActivity() {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(ColorResource.background)
                             .padding(top = WindowInsets.statusBars.getTop(LocalDensity.current).dp)
                     ) {
                         MainAndroidActivity()

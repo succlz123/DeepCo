@@ -17,9 +17,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -43,7 +42,6 @@ import org.succlz123.deepco.app.base.AppHorizontalDivider
 import org.succlz123.deepco.app.base.AppMessageDialog
 import org.succlz123.deepco.app.base.MainTitleLayout
 import org.succlz123.deepco.app.i18n.strings
-import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.lib.click.noRippleClick
 import org.succlz123.lib.screen.LocalScreenNavigator
 import org.succlz123.lib.screen.ScreenArgs
@@ -77,7 +75,8 @@ fun MainUserTab(modifier: Modifier = Modifier) {
                 ) {
                     itemsIndexed(chatUserList.sortedByDescending { it.createTime }) { index, item ->
                         Box(
-                            modifier = modifier.clip(RoundedCornerShape(8.dp)).border(BorderStroke(1.dp, ColorResource.black5), shape = RoundedCornerShape(8.dp)).padding(horizontal = 12.dp, vertical = 12.dp)
+                            modifier = modifier.clip(MaterialTheme.shapes.medium).border(BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceContainer), shape = MaterialTheme.shapes.medium)
+                                .padding(horizontal = 12.dp, vertical = 12.dp)
                         ) {
                             Column {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -88,13 +87,13 @@ fun MainUserTab(modifier: Modifier = Modifier) {
                                             modifier = Modifier.noRippleClick {
                                             },
                                             text = item.name,
-                                            style = MaterialTheme.typography.h3.copy(
+                                            style = MaterialTheme.typography.headlineMedium.copy(
                                                 fontWeight = FontWeight.Bold
                                             ),
                                             maxLines = 1
                                         )
                                         Spacer(modifier = Modifier.height(6.dp))
-                                        Text(item.createTime.hhMMssSSS(), modifier = Modifier, color = ColorResource.subText, fontSize = 10.sp)
+                                        Text(item.createTime.hhMMssSSS(), modifier = Modifier, color = MaterialTheme.colorScheme.tertiary, fontSize = 10.sp)
                                     }
                                     if (!item.isDefault) {
                                         Spacer(modifier = Modifier.weight(1f))
@@ -105,7 +104,7 @@ fun MainUserTab(modifier: Modifier = Modifier) {
                                                 })
                                             },
                                             contentDescription = null,
-                                            colorFilter = ColorFilter.tint(ColorResource.error),
+                                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.error),
                                             painter = painterResource(resource = Res.drawable.ic_remove),
                                         )
                                     }
@@ -116,9 +115,7 @@ fun MainUserTab(modifier: Modifier = Modifier) {
                                 Text(
                                     text = item.description, maxLines = 5, minLines = 5, modifier = Modifier,
                                     overflow = TextOverflow.Ellipsis,
-                                    style = MaterialTheme.typography.body2.copy(
-                                        color = ColorResource.secondaryText
-                                    )
+                                    style = MaterialTheme.typography.bodyMedium
                                 )
                                 Spacer(modifier = Modifier.height(12.dp))
                                 Row(
@@ -134,7 +131,7 @@ fun MainUserTab(modifier: Modifier = Modifier) {
                                                 screenNavigator.push(Manifest.ChatUserConfigPopupScreen, arguments = ScreenArgs.putValue("item", item))
                                             },
                                             contentDescription = null,
-                                            colorFilter = ColorFilter.tint(ColorResource.theme),
+                                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
                                             painter = painterResource(resource = Res.drawable.ic_more_detail),
                                         )
                                     }

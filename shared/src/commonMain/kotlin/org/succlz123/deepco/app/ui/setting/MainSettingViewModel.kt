@@ -6,10 +6,14 @@ import org.succlz123.deepco.app.base.BaseBizViewModel
 import org.succlz123.deepco.app.base.JSON_SETTING
 import org.succlz123.deepco.app.base.LocalStorage
 import org.succlz123.deepco.app.i18n.LocaleLanguage
-import org.succlz123.deepco.app.i18n.language
+import org.succlz123.deepco.app.theme.AppThemeConfig
 
 @Serializable
-data class SettingLocal(val llmToolMode: String = "manual", val languageMode: String = LocaleLanguage.ZH.name)
+data class SettingLocal(
+    val llmToolMode: String = "manual",
+    val languageMode: String = LocaleLanguage.ZH.name,
+    val appThemeConfig: String = AppThemeConfig.Blue.name
+)
 
 class MainSettingViewModel : BaseBizViewModel() {
 
@@ -19,6 +23,8 @@ class MainSettingViewModel : BaseBizViewModel() {
         val mcpToolModeKeyList = arrayListOf("automatic", "manual")
 
         val languageList = arrayListOf(LocaleLanguage.ZH.name, LocaleLanguage.EN.name)
+
+        val appThemeConfigList = arrayListOf(AppThemeConfig.Blue.name, AppThemeConfig.Green.name, AppThemeConfig.Red.name, AppThemeConfig.Yellow.name)
 
         fun getSettingLocal(): SettingLocal {
             return settingLocalStorage.get<SettingLocal>() ?: SettingLocal()
@@ -31,12 +37,22 @@ class MainSettingViewModel : BaseBizViewModel() {
                 else -> LocaleLanguage.ZH
             }
         }
+
+        fun getLocaleAppTheme(): AppThemeConfig {
+            return when (getSettingLocal().appThemeConfig) {
+                AppThemeConfig.Blue.name -> AppThemeConfig.Blue
+                AppThemeConfig.Green.name -> AppThemeConfig.Green
+                AppThemeConfig.Red.name -> AppThemeConfig.Red
+                AppThemeConfig.Yellow.name -> AppThemeConfig.Yellow
+                else -> AppThemeConfig.Blue
+            }
+        }
     }
 
     val settingLocal = MutableStateFlow(getSettingLocal())
 
-    fun change(llmToolMode: String? = null, languageMode: String? = null) {
-        if (llmToolMode.isNullOrEmpty() && languageMode.isNullOrEmpty()) {
+    fun change(llmToolMode: String? = null, languageMode: String? = null, appThemeConfig: String? = null) {
+        if (llmToolMode.isNullOrEmpty() && languageMode.isNullOrEmpty() && appThemeConfig.isNullOrEmpty()) {
             return
         }
         val setting = settingLocal.value
@@ -50,6 +66,11 @@ class MainSettingViewModel : BaseBizViewModel() {
                 setting.languageMode
             } else {
                 languageMode
+            },
+            appThemeConfig = if (appThemeConfig.isNullOrEmpty()) {
+                setting.appThemeConfig
+            } else {
+                appThemeConfig
             }
         )
         settingLocal.value = s

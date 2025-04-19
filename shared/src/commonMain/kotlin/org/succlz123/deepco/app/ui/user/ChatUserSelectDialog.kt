@@ -14,9 +14,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,7 +26,6 @@ import deep_co.shared.generated.resources.ic_select
 import org.jetbrains.compose.resources.painterResource
 import org.succlz123.deepco.app.base.BaseDialogCardWithTitleNoneScroll
 import org.succlz123.deepco.app.i18n.strings
-import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.lib.click.noRippleClick
 import org.succlz123.lib.screen.LocalScreenNavigator
 import org.succlz123.lib.screen.viewmodel.globalViewModel
@@ -50,7 +48,7 @@ fun ChatUserSelectDialog() {
                     modifier = Modifier.fillMaxWidth().noRippleClick {
                         vm.changeDefault(item)
                         screenNavigator.pop()
-                    }.border(BorderStroke(1.dp, ColorResource.black5), shape = RoundedCornerShape(8.dp))
+                    }.border(BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceContainer), shape = MaterialTheme.shapes.medium)
                         .padding(horizontal = 12.dp, vertical = 12.dp)
                 ) {
                     Box(modifier = Modifier.fillMaxWidth()) {
@@ -59,15 +57,15 @@ fun ChatUserSelectDialog() {
                             Image(
                                 modifier = Modifier.size(24.dp).align(Alignment.TopEnd),
                                 contentDescription = null,
-                                colorFilter = ColorFilter.tint(ColorResource.green),
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primaryContainer),
                                 painter = painterResource(resource = Res.drawable.ic_select),
                             )
                         }
                     }
                     Spacer(modifier = Modifier.height(6.dp))
-                    Text(text = item.name, modifier = Modifier, style = MaterialTheme.typography.body1)
+                    Text(text = item.name, modifier = Modifier, style = MaterialTheme.typography.bodyMedium)
                     Spacer(modifier = Modifier.height(6.dp))
-                    Text(text = item.description, modifier = Modifier, maxLines = 3, minLines = 3, style = MaterialTheme.typography.body2)
+                    Text(text = item.description, modifier = Modifier, maxLines = 3, minLines = 3, style = MaterialTheme.typography.bodySmall)
                 }
             }
         }

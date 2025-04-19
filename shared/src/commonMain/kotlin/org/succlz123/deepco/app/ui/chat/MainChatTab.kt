@@ -13,6 +13,7 @@ import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -36,10 +37,11 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.DisableSelection
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -86,7 +88,6 @@ import deep_co.shared.generated.resources.logo_grok
 import deep_co.shared.generated.resources.logo_llm
 import org.jetbrains.compose.resources.painterResource
 import org.succlz123.deepco.app.Manifest
-import org.succlz123.deepco.app.base.AppButton
 import org.succlz123.deepco.app.base.AppDialogConfig
 import org.succlz123.deepco.app.base.AppHorizontalDivider
 import org.succlz123.deepco.app.base.AppImageIconButton
@@ -99,6 +100,7 @@ import org.succlz123.deepco.app.chat.user.ChatUser
 import org.succlz123.deepco.app.i18n.strings
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.deepco.app.ui.chat.MainChatViewModel.Companion.DEFAULT_INDEX_STREAM_MODEL
+import org.succlz123.deepco.app.ui.llm.LLM
 import org.succlz123.deepco.app.ui.llm.MainLLMViewModel
 import org.succlz123.deepco.app.ui.mcp.MainMcpViewModel
 import org.succlz123.deepco.app.ui.prompt.MainPromptViewModel
@@ -122,10 +124,8 @@ import org.succlz123.lib.screen.viewmodel.globalViewModel
 
 @Composable
 fun MainChatTab(modifier: Modifier = Modifier) {
-    Box(modifier = modifier.padding(0.dp, 0.dp, 0.dp, 0.dp).fillMaxSize()) {
-        DisableSelection {
-            ChatView()
-        }
+    Box(modifier = modifier.fillMaxSize()) {
+        ChatView()
     }
 }
 
@@ -133,7 +133,6 @@ fun MainChatTab(modifier: Modifier = Modifier) {
 @Composable
 fun ChatView() {
     val panelState = remember { PanelState() }
-
     val animatedSize = if (panelState.splitter.isResizing) {
         if (panelState.isExpanded) panelState.expandedSize else panelState.collapsedSize
     } else {
@@ -146,15 +145,12 @@ fun ChatView() {
     val mcpViewModel = globalViewModel { MainMcpViewModel() }
     val promptViewModel = globalViewModel { MainPromptViewModel() }
     val mainChatViewModel = globalViewModel { MainChatViewModel() }
-    val userViewModel = globalViewModel { MainUserViewModel() }
-    val chatUser = userViewModel.chatUsers.collectAsState().value.find { it.isSelected }
 
     DisposableEffect(Unit) {
         onDispose {
             mainChatViewModel.clearIfNotDisplayed()
         }
     }
-    val screenNavigator = LocalScreenNavigator.current
     val showHistoryRemoveDialog = remember {
         mutableStateOf(AppDialogConfig.DEFAULT)
     }
@@ -168,7 +164,6 @@ fun ChatView() {
                 Column(modifier = Modifier.padding(vertical = 12.dp)) {
                     ResizablePanelTabView(strings().history)
                     Spacer(Modifier.height(12.dp))
-                    AppHorizontalDivider()
                     if (panelState.isExpanded) {
                         Spacer(Modifier.height(6.dp))
                         val h = mainChatViewModel.history.collectAsState().value
@@ -180,8 +175,7 @@ fun ChatView() {
                                     overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier.padding(vertical = 6.dp, horizontal = 6.dp),
                                     maxLines = 1,
-                                    color = ColorResource.secondaryText,
-                                    style = MaterialTheme.typography.overline
+                                    style = MaterialTheme.typography.labelSmall
                                 )
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
@@ -191,10 +185,20 @@ fun ChatView() {
                                             mainChatViewModel.updateHistory()
                                             mainChatViewModel.selectedHistory.value = item.value
                                             mainChatViewModel.preChatMessage.value = item.value
-                                        }.background(if (curSelect == item.key) ColorResource.theme else ColorResource.transparent, shape = RoundedCornerShape(4.dp)).padding(vertical = 4.dp, horizontal = 6.dp),
+                                        }.background(
+                                            if (curSelect == item.key) {
+                                                MaterialTheme.colorScheme.primaryContainer
+                                            } else {
+                                                Color.Transparent
+                                            }, shape = MaterialTheme.shapes.small
+                                        ).padding(vertical = 4.dp, horizontal = 6.dp),
                                         maxLines = 1,
-                                        color = if (curSelect == item.key) ColorResource.white else ColorResource.primaryText,
-                                        style = MaterialTheme.typography.body2
+                                        color = if (curSelect == item.key) {
+                                            MaterialTheme.colorScheme.onPrimaryContainer
+                                        } else {
+                                            MaterialTheme.colorScheme.onSurface
+                                        },
+                                        style = MaterialTheme.typography.labelMedium
                                     )
                                     Spacer(Modifier.width(6.dp))
                                     Image(
@@ -207,7 +211,7 @@ fun ChatView() {
                                             )
                                         },
                                         contentDescription = null,
-                                        colorFilter = ColorFilter.tint(ColorResource.error),
+                                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.error),
                                         painter = painterResource(resource = Res.drawable.ic_remove),
                                     )
                                     Spacer(Modifier.width(6.dp))
@@ -223,14 +227,17 @@ fun ChatView() {
                 if (selectedLLmConfigValue != null) {
                     val selectedLLMModel = selectedLLmConfigValue.getSelectedModeMode()
                     Column(Modifier.fillMaxSize()) {
-                        Row(Modifier.height(48.dp).fillMaxWidth().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+//                        Column(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface)) {
+//                        }
+                        Row(Modifier.height(48.dp).fillMaxWidth().padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                             val providerExpanded = remember {
                                 mutableStateOf(false)
                             }
                             Row(
-                                modifier = Modifier.background(ColorResource.theme.copy(0.1f), shape = RoundedCornerShape(4.dp)).padding(horizontal = 12.dp, vertical = 6.dp).noRippleClick {
-                                    providerExpanded.value = true
-                                }, verticalAlignment = Alignment.CenterVertically
+                                modifier = Modifier.background(MaterialTheme.colorScheme.primary.copy(0.1f), shape = MaterialTheme.shapes.small)
+                                    .padding(horizontal = 12.dp, vertical = 6.dp).noRippleClick {
+                                        providerExpanded.value = true
+                                    }, verticalAlignment = Alignment.CenterVertically
                             ) {
                                 DropdownMenu(
                                     expanded = providerExpanded.value,
@@ -241,8 +248,8 @@ fun ChatView() {
                                             DropdownMenuItem(contentPadding = PaddingValues(12.dp, 4.dp), onClick = {
                                                 providerExpanded.value = !providerExpanded.value
                                                 llmViewModel.saveDefaultLLM(it)
-                                            }, content = {
-                                                Text(text = it.provider + " " + it.name, color = ColorResource.secondaryText, style = MaterialTheme.typography.body2)
+                                            }, text = {
+                                                Text(text = it.provider + " " + it.name, style = MaterialTheme.typography.bodyMedium)
                                             })
                                         }
                                     },
@@ -259,15 +266,15 @@ fun ChatView() {
                                     }
                                 }
                                 Image(
-                                    painter = painterResource(resource = logo.first), contentDescription = "logo", modifier = Modifier.width(logo.second)
+                                    painter = painterResource(resource = logo.first), colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary), contentDescription = "logo", modifier = Modifier.width(logo.second)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text(selectedLLmConfigValue.name, color = ColorResource.theme, style = MaterialTheme.typography.body2)
+                                Text(selectedLLmConfigValue.name, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodyMedium)
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Image(
                                     painter = painterResource(resource = Res.drawable.ic_down),
                                     contentDescription = "down",
-                                    colorFilter = ColorFilter.tint(ColorResource.theme),
+                                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
                                     modifier = Modifier.width(10.dp).noRippleClick {})
                             }
                             Spacer(modifier = Modifier.width(12.dp))
@@ -275,7 +282,7 @@ fun ChatView() {
                                 mutableStateOf(false)
                             }
                             Row(
-                                modifier = Modifier.background(ColorResource.theme.copy(0.1f), shape = RoundedCornerShape(4.dp)).padding(horizontal = 12.dp, vertical = 6.dp).noRippleClick {
+                                modifier = Modifier.background(MaterialTheme.colorScheme.primary.copy(0.1f), shape = MaterialTheme.shapes.small).padding(horizontal = 12.dp, vertical = 6.dp).noRippleClick {
                                     modeExpanded.value = true
                                 }, verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -288,44 +295,32 @@ fun ChatView() {
                                             DropdownMenuItem(contentPadding = PaddingValues(12.dp, 4.dp), onClick = {
                                                 modeExpanded.value = !modeExpanded.value
                                                 llmViewModel.saveDefaultLLMModel(it)
-                                            }, content = {
-                                                Text(text = it, color = ColorResource.secondaryText, style = MaterialTheme.typography.body2)
+                                            }, text = {
+                                                Text(text = it, style = MaterialTheme.typography.bodyMedium)
                                             })
                                         }
                                     },
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text(selectedLLMModel, color = ColorResource.theme, style = MaterialTheme.typography.body2)
+                                Text(selectedLLMModel, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodyMedium)
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Image(
                                     painter = painterResource(resource = Res.drawable.ic_down),
                                     contentDescription = "down",
-                                    colorFilter = ColorFilter.tint(ColorResource.theme),
+                                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
                                     modifier = Modifier.width(10.dp).noRippleClick {})
                             }
                             Spacer(modifier = Modifier.weight(1f))
-                            AppButton(
-                                Modifier, contentPaddingValues = PaddingValues(
-                                    start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp
-                                ), onClick = {
-                                    mainChatViewModel.clearIfNotDisplayed()
-                                }, content = {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Image(
-                                            modifier = Modifier.size(14.dp),
-                                            contentDescription = null,
-                                            painter = painterResource(resource = Res.drawable.ic_chat),
-                                        )
-                                        Spacer(modifier = Modifier.width(6.dp))
-                                        Text(strings().newChat, color = ColorResource.white, style = MaterialTheme.typography.body1)
-                                    }
-                                })
+                            AppImgButton(drawable = Res.drawable.ic_chat, text = strings().newChat, onClick = {
+                                mainChatViewModel.clearIfNotDisplayed()
+                            })
                         }
-                        AppHorizontalDivider()
-                        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                             Image(
                                 modifier = Modifier.size(16.dp),
                                 contentDescription = null,
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
                                 painter = painterResource(resource = Res.drawable.ic_prompt),
                             )
                             Spacer(modifier = Modifier.width(12.dp))
@@ -337,27 +332,27 @@ fun ChatView() {
                                         Box(
                                             modifier = Modifier.background(
                                                 if (selectedPrompt.name == prompt.name) {
-                                                    ColorResource.theme
+                                                    MaterialTheme.colorScheme.primary
                                                 } else {
-                                                    ColorResource.white
-                                                }, shape = RoundedCornerShape(4.dp)
+                                                    MaterialTheme.colorScheme.onPrimary
+                                                }, shape = MaterialTheme.shapes.small
                                             ).border(
                                                 BorderStroke(
                                                     1.dp, if (selectedPrompt.name == prompt.name) {
-                                                        ColorResource.white
+                                                        MaterialTheme.colorScheme.onPrimary
                                                     } else {
-                                                        ColorResource.theme
+                                                        MaterialTheme.colorScheme.primary
                                                     }
-                                                ), shape = RoundedCornerShape(4.dp)
+                                                ), shape = MaterialTheme.shapes.small
                                             ).padding(horizontal = 10.dp, vertical = 4.dp).noRippleClick {
                                                 mainChatViewModel.selectedPrompt.value = prompt
                                             }) {
                                             Text(
                                                 prompt.name, color = if (selectedPrompt.name == prompt.name) {
-                                                    ColorResource.white
+                                                    MaterialTheme.colorScheme.onPrimary
                                                 } else {
-                                                    ColorResource.theme
-                                                }, style = MaterialTheme.typography.body2
+                                                    MaterialTheme.colorScheme.primary
+                                                }, style = MaterialTheme.typography.bodySmall
                                             )
                                         }
                                         Spacer(modifier = Modifier.width(12.dp))
@@ -371,11 +366,12 @@ fun ChatView() {
                             }
                             Spacer(modifier = Modifier.height(12.dp))
                         }
-                        AppHorizontalDivider()
-                        Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                             Image(
                                 modifier = Modifier.size(16.dp),
                                 contentDescription = null,
+                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary),
                                 painter = painterResource(resource = Res.drawable.ic_tool),
                             )
                             Spacer(modifier = Modifier.width(12.dp))
@@ -387,19 +383,19 @@ fun ChatView() {
                                         Box(
                                             modifier = Modifier.background(
                                                 if (mcpList.map { it.name }.intersect(selectedMCPList.map { it.name }).isNotEmpty()) {
-                                                    ColorResource.theme
+                                                    MaterialTheme.colorScheme.primary
                                                 } else {
-                                                    ColorResource.white
-                                                }, shape = RoundedCornerShape(4.dp)
+                                                    MaterialTheme.colorScheme.onPrimary
+                                                }, shape = MaterialTheme.shapes.small
                                             ).border(
                                                 BorderStroke(
                                                     1.dp,
                                                     if (mcpList.map { it.name }.intersect(selectedMCPList.map { it.name }).isNotEmpty()) {
-                                                        ColorResource.white
+                                                        MaterialTheme.colorScheme.onPrimary
                                                     } else {
-                                                        ColorResource.theme
+                                                        MaterialTheme.colorScheme.primary
                                                     }
-                                                ), shape = RoundedCornerShape(4.dp)
+                                                ), shape = MaterialTheme.shapes.small
                                             ).padding(horizontal = 10.dp, vertical = 4.dp).noRippleClick {
                                                 if (mcpList.map { it.name }.intersect(selectedMCPList.map { it.name }).isNotEmpty()) {
                                                     mainChatViewModel.selectedMCPList.value = mainChatViewModel.selectedMCPList.value - mcp
@@ -410,10 +406,10 @@ fun ChatView() {
                                             Text(
                                                 mcp.name.orEmpty(), color =
                                                     if (mcpList.map { it.name }.intersect(selectedMCPList.map { it.name }).isNotEmpty()) {
-                                                        ColorResource.white
+                                                        MaterialTheme.colorScheme.onPrimary
                                                     } else {
-                                                        ColorResource.theme
-                                                    }, style = MaterialTheme.typography.body2
+                                                        MaterialTheme.colorScheme.primary
+                                                    }, style = MaterialTheme.typography.bodySmall
                                             )
                                         }
                                         Spacer(modifier = Modifier.width(12.dp))
@@ -427,106 +423,9 @@ fun ChatView() {
                             }
                             Spacer(modifier = Modifier.height(12.dp))
                         }
+                        Spacer(modifier = Modifier.height(12.dp))
                         AppHorizontalDivider()
-                        val chatList = mainChatViewModel.preChatMessage.collectAsState().value
-                        val promptInfo = mainChatViewModel.selectedPrompt.collectAsState().value
-                        val input = remember {
-                            mutableStateOf("")
-                        }
-                        Column(modifier = Modifier.weight(1f).fillMaxWidth()) {
-                            if (chatList.list.isNotEmpty()) {
-                                ChatMessageList(
-                                    messages = chatList.list, model = "", modifier = Modifier.fillMaxWidth().weight(1f), promptInfo = promptInfo, chatUser = chatUser
-                                )
-                            } else {
-                                Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp).weight(1f)) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text(strings().recommend, modifier = Modifier, style = MaterialTheme.typography.h3)
-                                        Spacer(modifier = Modifier.weight(1f))
-                                        QQGroupView()
-                                    }
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    RecommendView()
-                                }
-                            }
-                            Box(
-                                modifier = Modifier.fillMaxWidth().height(3.dp).shadow()
-                            )
-                            Row(
-                                modifier = Modifier.fillMaxWidth()
-                                    .background(ColorResource.white, RoundedCornerShape(8.dp)).padding(horizontal = 16.dp, vertical = 16.dp), verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center, modifier = Modifier.noRippleClick {
-                                        screenNavigator.push(Manifest.ChatUserSelectPopupScreen)
-                                    }) {
-                                    UserAvatarView(modifier = Modifier, 28.dp, chatUser?.avatar)
-                                    Spacer(modifier = Modifier.height(3.dp))
-                                    Text(
-                                        if (!chatUser?.name.isNullOrEmpty()) {
-                                            chatUser.name
-                                        } else {
-                                            "USER"
-                                        }, modifier = Modifier.width(32.dp), textAlign = TextAlign.Center, maxLines = 2, color = ColorResource.primaryText, fontSize = 8.sp
-                                    )
-                                }
-                                Spacer(modifier = Modifier.width(12.dp))
-                                val strings = strings()
-                                val click = {
-                                    val msg = input.value
-                                    if (msg.isEmpty()) {
-                                        screenNavigator.toast(strings.errorMessageIsEmpty)
-                                    } else if (mainChatViewModel.lastChatResponse.value is ScreenResult.Loading) {
-                                        screenNavigator.toast(strings.errorMessageIsBusy)
-                                    } else {
-                                        mainChatViewModel.chat(msg, selectedLLmConfigValue, mcpViewModel.getServer(), false, chatUser) {
-                                            mcpViewModel.callServer(it)
-                                        }
-                                        input.value = ""
-                                    }
-                                }
-                                AnimatedSelector(strings.chatNetworkModeList, DEFAULT_INDEX_STREAM_MODEL) {
-                                    mainChatViewModel.selectedStreamModel.value = it
-                                }
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Box(
-                                    modifier = Modifier.weight(1f).border(BorderStroke(1.dp, ColorResource.border), shape = RoundedCornerShape(4.dp)),
-                                ) {
-                                    CustomEdit(
-                                        input.value,
-                                        hint = strings().askSomething,
-                                        textStyle = TextStyle.Default.copy(fontSize = 14.sp),
-                                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
-                                        onValueChange = {
-                                            input.value = it
-                                        },
-                                        modifier = Modifier.onKeyEvent {
-                                            if (it.key == Key.Enter) {
-                                                click()
-                                            }
-                                            return@onKeyEvent false
-                                        }.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
-                                    )
-                                }
-                                Spacer(modifier = Modifier.width(12.dp))
-                                Box() {
-                                    Box(modifier = Modifier.padding(4.dp)) {
-                                        AppImageIconButton(22.dp, ColorResource.theme, Res.drawable.ic_model) {
-                                            screenNavigator.push(Manifest.ChatModeConfigPopupScreen)
-                                        }
-                                    }
-                                    val chatModeConfig = mainChatViewModel.chatModeConfig.collectAsState().value
-                                    if (chatModeConfig != mainChatViewModel.defaultChatModeConfig) {
-                                        Box(modifier = Modifier.size(8.dp).background(ColorResource.red, RoundedCornerShape(16.dp)).align(Alignment.TopEnd)) {}
-                                    }
-                                }
-                                Spacer(modifier = Modifier.width(12.dp))
-                                AppImgButton(drawable = Res.drawable.ic_send, text = strings().send, onClick = {
-                                    click()
-                                })
-                            }
-                        }
+                        ChatLayout(mainChatViewModel, selectedLLmConfigValue, mcpViewModel)
                     }
                 } else {
                     LLMEmptyView()
@@ -534,6 +433,110 @@ fun ChatView() {
             }
         }
         AppMessageDialog(strings().tips, strings().tipsRemoveHistory, showHistoryRemoveDialog)
+    }
+}
+
+@Composable
+fun ColumnScope.ChatLayout(mainChatViewModel: MainChatViewModel, selectedLLmConfigValue: LLM, mcpViewModel: MainMcpViewModel) {
+    val userViewModel = globalViewModel { MainUserViewModel() }
+    val chatUser = userViewModel.chatUsers.collectAsState().value.find { it.isSelected }
+    val screenNavigator = LocalScreenNavigator.current
+    val chatList = mainChatViewModel.preChatMessage.collectAsState().value
+    val promptInfo = mainChatViewModel.selectedPrompt.collectAsState().value
+    val input = remember {
+        mutableStateOf("")
+    }
+    Column(modifier = Modifier.weight(1f).fillMaxWidth()) {
+        if (chatList.list.isNotEmpty()) {
+            ChatMessageList(
+                messages = chatList.list, model = "", modifier = Modifier.fillMaxWidth().weight(1f), promptInfo = promptInfo, chatUser = chatUser
+            )
+        } else {
+            Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp).weight(1f)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(strings().recommend, modifier = Modifier, style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.weight(1f))
+                    QQGroupView()
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                RecommendView()
+            }
+        }
+        Box(
+            modifier = Modifier.fillMaxWidth().height(3.dp).shadow()
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth()
+                .background(MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.shapes.medium).padding(horizontal = 16.dp, vertical = 16.dp), verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center, modifier = Modifier.noRippleClick {
+                    screenNavigator.push(Manifest.ChatUserSelectPopupScreen)
+                }) {
+                UserAvatarView(modifier = Modifier, 28.dp, chatUser?.avatar)
+                Spacer(modifier = Modifier.height(3.dp))
+                Text(
+                    if (!chatUser?.name.isNullOrEmpty()) {
+                        chatUser.name
+                    } else {
+                        "USER"
+                    }, modifier = Modifier.width(32.dp), textAlign = TextAlign.Center, maxLines = 2, fontSize = 8.sp
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            val strings = strings()
+            val click = {
+                val msg = input.value
+                if (msg.isEmpty()) {
+                    screenNavigator.toast(strings.errorMessageIsEmpty)
+                } else if (mainChatViewModel.lastChatResponse.value is ScreenResult.Loading) {
+                    screenNavigator.toast(strings.errorMessageIsBusy)
+                } else {
+                    mainChatViewModel.chat(msg, selectedLLmConfigValue, mcpViewModel.getServer(), false, chatUser) {
+                        mcpViewModel.callServer(it)
+                    }
+                    input.value = ""
+                }
+            }
+            AnimatedSelector(strings.chatNetworkModeList, DEFAULT_INDEX_STREAM_MODEL) {
+                mainChatViewModel.selectedStreamModel.value = it
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Box(modifier = Modifier.weight(1f)) {
+                CustomEdit(
+                    input.value,
+                    hint = strings().askSomething,
+                    textStyle = TextStyle.Default.copy(fontSize = 14.sp),
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                    onValueChange = {
+                        input.value = it
+                    },
+                    modifier = Modifier.onKeyEvent {
+                        if (it.key == Key.Enter) {
+                            click()
+                        }
+                        return@onKeyEvent false
+                    }.fillMaxWidth()
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Box() {
+                Box(modifier = Modifier.padding(4.dp)) {
+                    AppImageIconButton(22.dp, MaterialTheme.colorScheme.primary, Res.drawable.ic_model) {
+                        screenNavigator.push(Manifest.ChatModeConfigPopupScreen)
+                    }
+                }
+                val chatModeConfig = mainChatViewModel.chatModeConfig.collectAsState().value
+                if (chatModeConfig != mainChatViewModel.defaultChatModeConfig) {
+                    Box(modifier = Modifier.size(8.dp).background(MaterialTheme.colorScheme.error, MaterialTheme.shapes.large).align(Alignment.TopEnd)) {}
+                }
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            AppImgButton(drawable = Res.drawable.ic_send, text = strings().send, onClick = {
+                click()
+            })
+        }
     }
 }
 
@@ -593,7 +596,7 @@ private fun MessageItem(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = message.createTimeFormatted(), style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier
+                    text = message.createTimeFormatted(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), modifier = Modifier
                 )
                 if (!message.isFromMe && !message.isLoading()) {
                     Spacer(modifier = Modifier.width(6.dp))
@@ -604,7 +607,7 @@ private fun MessageItem(
                     )
                     Spacer(modifier = Modifier.width(3.dp))
                     Text(
-                        text = message.elapsedTimeFormatted(), style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier
+                        text = message.elapsedTimeFormatted(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), modifier = Modifier
                     )
                 }
             }
@@ -623,7 +626,10 @@ private fun MessageItem(
                         )
                         Spacer(modifier = Modifier.width(3.dp))
                         Text(
-                            text = "${strings().chatMessageIconPrompt} ${message.promptTokens}", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier
+                            text = "${strings().chatMessageIconPrompt} ${message.promptTokens}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            modifier = Modifier
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                     }
@@ -636,8 +642,8 @@ private fun MessageItem(
                         Spacer(modifier = Modifier.width(3.dp))
                         Text(
                             text = "${strings().chatMessageIconCompletion} ${message.completionTokens}",
-                            style = MaterialTheme.typography.caption,
-                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                             modifier = Modifier
                         )
                         Spacer(modifier = Modifier.width(6.dp))
@@ -651,8 +657,8 @@ private fun MessageItem(
                         Spacer(modifier = Modifier.width(3.dp))
                         Text(
                             text = "${strings().chatMessageIconTotal} ${message.promptTokens + message.completionTokens}",
-                            style = MaterialTheme.typography.caption,
-                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                             modifier = Modifier
                         )
                         Spacer(modifier = Modifier.width(6.dp))
@@ -665,7 +671,7 @@ private fun MessageItem(
                         )
                         Spacer(modifier = Modifier.width(3.dp))
                         Text(
-                            text = message.model, style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier
+                            text = message.model, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), modifier = Modifier
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                     }
@@ -677,8 +683,8 @@ private fun MessageItem(
                     Spacer(modifier = Modifier.width(3.dp))
                     Text(
                         text = "${strings().chatMessageIconSpeak}",
-                        style = MaterialTheme.typography.caption,
-                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         modifier = Modifier.onClickAndSpeakStr(message.content.value)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -690,8 +696,8 @@ private fun MessageItem(
                     Spacer(modifier = Modifier.width(3.dp))
                     Text(
                         text = "${strings().chatMessageIconCopy}",
-                        style = MaterialTheme.typography.caption,
-                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         modifier = Modifier.onClickAndCopyStr(message.content.value, true)
                     )
                 }
@@ -706,8 +712,8 @@ private fun MessageItem(
                     Spacer(modifier = Modifier.width(3.dp))
                     Text(
                         text = "${strings().chatMessageIconSpeak}",
-                        style = MaterialTheme.typography.caption,
-                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         modifier = Modifier.onClickAndSpeakStr(message.content.value)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
@@ -719,8 +725,8 @@ private fun MessageItem(
                     Spacer(modifier = Modifier.width(3.dp))
                     Text(
                         text = "${strings().chatMessageIconCopy}",
-                        style = MaterialTheme.typography.caption,
-                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         modifier = Modifier.onClickAndCopyStr(message.content.value, true)
                     )
                 }
@@ -739,13 +745,14 @@ private fun ChatBubble(
     message: ChatMessage, modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.clip(RoundedCornerShape(8.dp)).border(BorderStroke(1.dp, ColorResource.black5), shape = RoundedCornerShape(8.dp)).padding(horizontal = 12.dp, vertical = 12.dp)
+        modifier = modifier.clip(MaterialTheme.shapes.medium).border(BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceContainer), shape = MaterialTheme.shapes.medium).padding(horizontal = 12.dp, vertical = 12.dp)
     ) {
+        val primary = MaterialTheme.colorScheme.primary
         if (message.reasoningContent.value.isNotEmpty()) {
             Row(modifier = Modifier.drawWithContent {
                 drawContent()
                 drawLine(
-                    color = ColorResource.subText.copy(0.6f),
+                    color = primary.copy(0.6f),
                     start = Offset(0f, 0f),
                     end = Offset(0f, size.height),
                     strokeWidth = 2.dp.toPx()
@@ -754,8 +761,8 @@ private fun ChatBubble(
                 Spacer(modifier = Modifier.width(6.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = message.reasoningContent.value, style = MaterialTheme.typography.body1.copy(
-                            color = ColorResource.secondaryText
+                        text = message.reasoningContent.value, style = MaterialTheme.typography.bodyMedium.copy(
+                            color = MaterialTheme.colorScheme.tertiary
                         )
                     )
                 }
@@ -765,21 +772,19 @@ private fun ChatBubble(
         val toolCall = message.toolCall.value
         if (toolCall.isNotEmpty()) {
             Text(
-                text = "Tools: $toolCall", style = MaterialTheme.typography.body1.copy(
-                    color = ColorResource.theme
+                text = "Tools: $toolCall", style = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.primary
                 )
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = message.content.value, style = MaterialTheme.typography.body1.copy(
-                    color = ColorResource.primaryText
+                text = message.content.value, style = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.primary
                 )
             )
         } else {
             Text(
-                text = message.content.value, style = MaterialTheme.typography.body1.copy(
-                    color = ColorResource.primaryText
-                )
+                text = message.content.value, style = MaterialTheme.typography.bodyMedium
             )
         }
     }
@@ -795,11 +800,11 @@ private fun Avatar(isFromMe: Boolean, promptInfo: PromptInfo?, chatUser: ChatUse
             UserAvatarView(Modifier, size.dp, chatUser?.avatar)
         } else {
             Box(
-                modifier = Modifier.size(size.dp).clip(RoundedCornerShape(size.dp)).background(ColorResource.theme),
+                modifier = Modifier.size(size.dp).clip(RoundedCornerShape(size.dp)).background(MaterialTheme.colorScheme.primary),
                 contentAlignment = Alignment.Center
             ) {
                 if (promptInfo?.avatar.isNullOrEmpty()) {
-                    Text("L", modifier = Modifier.align(Alignment.Center), color = ColorResource.white, style = MaterialTheme.typography.subtitle1)
+                    Text("L", modifier = Modifier.align(Alignment.Center), color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.titleMedium)
                 } else {
                     AsyncImageUrlMultiPlatform(modifier = Modifier.size(size.dp), promptInfo.avatar)
                 }
@@ -812,7 +817,7 @@ private fun Avatar(isFromMe: Boolean, promptInfo: PromptInfo?, chatUser: ChatUse
                     chatUser.name
                 } else {
                     "USER"
-                }, modifier = Modifier.width((size - 4).dp), textAlign = TextAlign.Center, maxLines = 2, color = ColorResource.primaryText, fontSize = 10.sp
+                }, modifier = Modifier.width((size - 4).dp), textAlign = TextAlign.Center, maxLines = 2, color = MaterialTheme.colorScheme.primary, fontSize = 10.sp
             )
         } else {
             Text(
@@ -820,7 +825,7 @@ private fun Avatar(isFromMe: Boolean, promptInfo: PromptInfo?, chatUser: ChatUse
                     promptInfo.name
                 } else {
                     "DEFAULT"
-                }, modifier = Modifier.width((size - 4).dp), textAlign = TextAlign.Center, maxLines = 2, color = ColorResource.primaryText, fontSize = 10.sp
+                }, modifier = Modifier.width((size - 4).dp), textAlign = TextAlign.Center, maxLines = 2, color = MaterialTheme.colorScheme.primary, fontSize = 10.sp
             )
         }
     }
@@ -834,10 +839,10 @@ fun AnimatedSelector(items: List<String>, default: Int, select: (Int) -> Unit) {
         targetValue = with(LocalDensity.current) { (selectedIndex.value * blockWidth).dp }, label = "selectorAnimation"
     )
     Box(
-        modifier = Modifier.background(ColorResource.background, RoundedCornerShape(4.dp))
+        modifier = Modifier.background(MaterialTheme.colorScheme.surface, MaterialTheme.shapes.small)
     ) {
         Box(
-            modifier = Modifier.offset(x = offsetX.value).size(blockWidth.dp, 26.dp).background(ColorResource.theme, RoundedCornerShape(4.dp)).animateContentSize()
+            modifier = Modifier.offset(x = offsetX.value).size(blockWidth.dp, 26.dp).background(MaterialTheme.colorScheme.primary, MaterialTheme.shapes.small).animateContentSize()
         )
         Row {
             items.forEachIndexed { index, text ->
@@ -847,9 +852,9 @@ fun AnimatedSelector(items: List<String>, default: Int, select: (Int) -> Unit) {
                 }.padding(4.dp), contentAlignment = Alignment.Center) {
                     Text(
                         text, color = if (selectedIndex.value == index) {
-                            Color.White
+                            MaterialTheme.colorScheme.onPrimary
                         } else {
-                            ColorResource.secondaryText
+                            MaterialTheme.colorScheme.primary
                         }, fontSize = 10.sp
                     )
                 }
@@ -862,9 +867,9 @@ fun AnimatedSelector(items: List<String>, default: Int, select: (Int) -> Unit) {
 fun QQGroupView() {
     Row(
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.background(ColorResource.orangeLight, RoundedCornerShape(26.dp))
-            .border(BorderStroke(1.dp, ColorResource.orange), RoundedCornerShape(26.dp))
-            .padding(horizontal = 12.dp, vertical = 6.dp)
+        modifier = Modifier.background(ColorResource.orangeLight, MaterialTheme.shapes.extraLarge)
+            .border(BorderStroke(1.dp, ColorResource.orange), MaterialTheme.shapes.extraLarge)
+            .padding(horizontal = 12.dp, vertical = 4.dp)
     ) {
         Image(
             modifier = Modifier.size(16.dp),
@@ -873,7 +878,7 @@ fun QQGroupView() {
             painter = painterResource(resource = Res.drawable.ic_qq),
         )
         Spacer(modifier = Modifier.width(6.dp))
-        Text(strings().joinQQGroup, modifier = Modifier.onClickAndCopyStr("681703796", true), style = MaterialTheme.typography.caption.copy(color = ColorResource.orange))
+        Text(strings().joinQQGroup, modifier = Modifier.onClickAndCopyStr("681703796", true), style = MaterialTheme.typography.labelSmall.copy(color = ColorResource.orange))
     }
 }
 
@@ -881,30 +886,30 @@ fun QQGroupView() {
 fun RecommendView() {
     Row {
         Box(
-            modifier = Modifier.weight(1f).background(ColorResource.background, shape = RoundedCornerShape(4.dp)).padding(horizontal = 16.dp, vertical = 16.dp)
+            modifier = Modifier.weight(1f).background(MaterialTheme.colorScheme.surfaceContainer, shape = MaterialTheme.shapes.medium).padding(horizontal = 16.dp, vertical = 16.dp)
                 .noRippleClick {
                     openURLByBrowser("https://modelcontextprotocol.io/introduction")
                 }) {
             Column {
-                Text("MCP Docs", style = MaterialTheme.typography.h5)
-                Spacer(modifier = Modifier.height(16.dp))
+                Text("MCP Docs", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     "Model Context Protocol\n" + "The Model Context Protocol (MCP) is an open protocol designed to facilitate seamless integration between Large Language Model (LLM) applications and external data sources and tools. It acts as a standardized connector, similar to a USB-C port, allowing AI models to easily access data and utilize various tools. MCP supports features such as data integration, tool integration, and secure two-way connections, enabling developers to build applications that can effectively communicate with different data sources.",
-                    style = MaterialTheme.typography.body2
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
         Spacer(modifier = Modifier.width(16.dp))
         Box(
-            modifier = Modifier.weight(1f).background(ColorResource.background, shape = RoundedCornerShape(4.dp)).padding(horizontal = 16.dp, vertical = 16.dp)
+            modifier = Modifier.weight(1f).background(MaterialTheme.colorScheme.surfaceContainer, shape = MaterialTheme.shapes.medium).padding(horizontal = 16.dp, vertical = 16.dp)
                 .onClickUrl("https://api-docs.deepseek.com/")
         ) {
             Column {
-                Text("Deepseek API Docs", style = MaterialTheme.typography.h5)
-                Spacer(modifier = Modifier.height(16.dp))
+                Text("Deepseek API Docs", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     "DeepSeek，全称杭州深度求索人工智能基础技术研究有限公司。DeepSeek是一家创新型科技公，成立于2023年7月17日，使用数据蒸馏技术，得到更为精炼、有用的数据。由知名私募巨头幻方量化孕育而生，专注于开发先进的大语言模型（LLM）和相关技术。注册地址：浙江省杭州市拱墅区环城北路169号汇金国际大厦西1幢1201室。法定代表人为裴湉，经营范围包括技术服务、技术开发、软件开发等。",
-                    style = MaterialTheme.typography.body2
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }

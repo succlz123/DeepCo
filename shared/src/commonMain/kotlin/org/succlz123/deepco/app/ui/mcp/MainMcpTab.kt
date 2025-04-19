@@ -1,23 +1,21 @@
 package org.succlz123.deepco.app.ui.mcp
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -30,12 +28,13 @@ import org.jetbrains.compose.resources.painterResource
 import org.succlz123.deepco.app.Manifest
 import org.succlz123.deepco.app.base.AppAddButton
 import org.succlz123.deepco.app.base.AppHorizontalDivider
+import org.succlz123.deepco.app.base.AppTable
 import org.succlz123.deepco.app.base.MainTitleLayout
+import org.succlz123.deepco.app.base.TableTitleItem
 import org.succlz123.deepco.app.i18n.strings
-import org.succlz123.deepco.app.ui.mcp.MainMcpViewModel.Companion.MCP_SERVERS
 import org.succlz123.deepco.app.theme.ColorResource
+import org.succlz123.deepco.app.ui.mcp.MainMcpViewModel.Companion.MCP_SERVERS
 import org.succlz123.lib.click.onClickUrl
-import org.succlz123.lib.click.noRippleClick
 import org.succlz123.lib.screen.LocalScreenNavigator
 import org.succlz123.lib.screen.viewmodel.viewModel
 
@@ -51,8 +50,7 @@ fun MainMcpTab(modifier: Modifier = Modifier) {
             Column() {
                 Text(
                     strings().envInfo,
-                    color = ColorResource.primaryText,
-                    style = MaterialTheme.typography.h4,
+                    style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(horizontal = 6.dp)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
@@ -64,14 +62,12 @@ fun MainMcpTab(modifier: Modifier = Modifier) {
                         Row {
                             Text(
                                 "Node.js",
-                                color = ColorResource.primaryText,
-                                fontSize = 14.sp,
+                                style = MaterialTheme.typography.titleMedium,
                                 modifier = Modifier.padding(horizontal = 6.dp).width(80.dp)
                             )
                             Text(
                                 nodeJsVersion.orEmpty(),
-                                color = ColorResource.primaryText,
-                                fontSize = 12.sp,
+                                style = MaterialTheme.typography.bodyMedium,
                                 modifier = Modifier.padding(horizontal = 6.dp).width(260.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
@@ -79,20 +75,20 @@ fun MainMcpTab(modifier: Modifier = Modifier) {
                                 Image(
                                     modifier = Modifier.size(18.dp),
                                     contentDescription = null,
-                                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(ColorResource.red),
+                                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(MaterialTheme.colorScheme.error),
                                     painter = painterResource(resource = Res.drawable.ic_no),
                                 )
                             } else {
                                 Image(
                                     modifier = Modifier.size(18.dp),
                                     contentDescription = null,
-                                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(ColorResource.green),
+                                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(MaterialTheme.colorScheme.primaryContainer),
                                     painter = painterResource(resource = Res.drawable.ic_yes),
                                 )
                             }
                             Text(
                                 "brew install node",
-                                color = if (nodeJsVersion.isNullOrEmpty()) ColorResource.red else ColorResource.green,
+                                color = if (nodeJsVersion.isNullOrEmpty()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primaryContainer,
                                 fontSize = 12.sp,
                                 textAlign = TextAlign.End,
                                 modifier = Modifier.weight(1f)
@@ -104,14 +100,12 @@ fun MainMcpTab(modifier: Modifier = Modifier) {
                         Row {
                             Text(
                                 "Python",
-                                color = ColorResource.primaryText,
-                                fontSize = 14.sp,
+                                style = MaterialTheme.typography.titleMedium,
                                 modifier = Modifier.padding(horizontal = 6.dp).width(80.dp)
                             )
                             Text(
                                 pythonVersion.orEmpty(),
-                                color = ColorResource.primaryText,
-                                fontSize = 12.sp,
+                                style = MaterialTheme.typography.bodyMedium,
                                 modifier = Modifier.padding(horizontal = 6.dp).width(260.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
@@ -119,21 +113,21 @@ fun MainMcpTab(modifier: Modifier = Modifier) {
                                 Image(
                                     modifier = Modifier.size(18.dp),
                                     contentDescription = null,
-                                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(ColorResource.red),
+                                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(MaterialTheme.colorScheme.error),
                                     painter = painterResource(resource = Res.drawable.ic_no),
                                 )
                             } else {
                                 Image(
                                     modifier = Modifier.size(18.dp),
                                     contentDescription = null,
-                                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(ColorResource.green),
+                                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(MaterialTheme.colorScheme.primaryContainer),
                                     painter = painterResource(resource = Res.drawable.ic_yes),
                                 )
                             }
                             Spacer(modifier = Modifier.width(32.dp))
                             Text(
                                 "brew install python3",
-                                color = if (UVVersion.isNullOrEmpty()) ColorResource.red else ColorResource.green,
+                                color = if (UVVersion.isNullOrEmpty()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primaryContainer,
                                 fontSize = 12.sp,
                                 textAlign = TextAlign.End,
                                 modifier = Modifier.weight(1f)
@@ -145,14 +139,12 @@ fun MainMcpTab(modifier: Modifier = Modifier) {
                         Row {
                             Text(
                                 "UV",
-                                color = ColorResource.primaryText,
-                                fontSize = 14.sp,
+                                style = MaterialTheme.typography.titleMedium,
                                 modifier = Modifier.padding(horizontal = 6.dp).width(80.dp)
                             )
                             Text(
                                 UVVersion.orEmpty(),
-                                color = ColorResource.primaryText,
-                                fontSize = 12.sp,
+                                style = MaterialTheme.typography.bodyMedium,
                                 modifier = Modifier.padding(horizontal = 6.dp).width(260.dp)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
@@ -160,21 +152,21 @@ fun MainMcpTab(modifier: Modifier = Modifier) {
                                 Image(
                                     modifier = Modifier.size(18.dp),
                                     contentDescription = null,
-                                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(ColorResource.red),
+                                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(MaterialTheme.colorScheme.error),
                                     painter = painterResource(resource = Res.drawable.ic_no),
                                 )
                             } else {
                                 Image(
                                     modifier = Modifier.size(18.dp),
                                     contentDescription = null,
-                                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(ColorResource.green),
+                                    colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(MaterialTheme.colorScheme.primaryContainer),
                                     painter = painterResource(resource = Res.drawable.ic_yes),
                                 )
                             }
                             Spacer(modifier = Modifier.width(32.dp))
                             Text(
                                 "brew install uv",
-                                color = if (UVVersion.isNullOrEmpty()) ColorResource.red else ColorResource.green,
+                                color = if (UVVersion.isNullOrEmpty()) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primaryContainer,
                                 fontSize = 12.sp,
                                 textAlign = TextAlign.End,
                                 modifier = Modifier.weight(1f)
@@ -187,8 +179,7 @@ fun MainMcpTab(modifier: Modifier = Modifier) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     strings().mcpServersCollection,
-                    color = ColorResource.primaryText,
-                    style = MaterialTheme.typography.h4,
+                    style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(horizontal = 6.dp)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
@@ -196,7 +187,7 @@ fun MainMcpTab(modifier: Modifier = Modifier) {
                     for (n in MCP_SERVERS) {
                         Text(
                             n,
-                            color = ColorResource.theme,
+                            color = MaterialTheme.colorScheme.primary,
                             fontSize = 14.sp,
                             modifier = Modifier.padding(horizontal = 6.dp).onClickUrl(n)
                         )
@@ -206,74 +197,40 @@ fun MainMcpTab(modifier: Modifier = Modifier) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     strings().localMCPServers,
-                    color = ColorResource.primaryText,
-                    style = MaterialTheme.typography.h4,
+                    style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(horizontal = 6.dp)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 var mcpList = mcpViewModel.mcpList.collectAsState().value
-                LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                    item {
-                        Row(
-                            modifier = Modifier.background(ColorResource.background, shape = RoundedCornerShape(4.dp))
-                        ) {
-                            Text(
-                                text = strings().name, modifier = Modifier.width(100.dp).padding(horizontal = 12.dp, vertical = 6.dp), color = ColorResource.black, style = MaterialTheme.typography.h5
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(
-                                text = strings().command, modifier = Modifier.width(100.dp).padding(horizontal = 12.dp, vertical = 6.dp), color = ColorResource.black, style = MaterialTheme.typography.h5
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(
-                                text = strings().args, modifier = Modifier.weight(1f).padding(horizontal = 12.dp, vertical = 6.dp), color = ColorResource.black, style = MaterialTheme.typography.h5
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(
-                                text = strings().enable, modifier = Modifier.width(100.dp).padding(horizontal = 12.dp, vertical = 6.dp), color = ColorResource.black, style = MaterialTheme.typography.h5
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                        }
+
+                val strings = strings()
+                val titleList = remember(strings) {
+                    buildList {
+                        add(TableTitleItem(strings.name, 120, 0f))
+                        add(TableTitleItem(strings.command, 120, 0f))
+                        add(TableTitleItem(strings.args, 0, 1f))
+                        add(TableTitleItem(strings.enable, 120, 0f))
                     }
-                    itemsIndexed(mcpList, key = { index, item ->
-                        item.toString()
-                    }) { index, item ->
-                        Row(
-                            modifier = Modifier.noRippleClick {
-                            }.padding(vertical = 3.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = item.name.orEmpty(), modifier = Modifier.width(100.dp).padding(horizontal = 12.dp, vertical = 6.dp), color = ColorResource.primaryText, style = MaterialTheme.typography.body1
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(
-                                text = item.command.orEmpty(), modifier = Modifier.width(100.dp).padding(horizontal = 12.dp, vertical = 6.dp), color = ColorResource.primaryText, style = MaterialTheme.typography.body1
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(
-                                text = item.args.orEmpty().joinToString(separator = " "),
-                                modifier = Modifier.weight(1f).padding(horizontal = 12.dp, vertical = 6.dp),
-                                color = ColorResource.primaryText,
-                                style = MaterialTheme.typography.body1
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Row(modifier = Modifier.width(100.dp).padding(horizontal = 12.dp, vertical = 6.dp)) {
-//                            AppButton(
-//                                modifier = Modifier, contentPaddingValues = PaddingValues(
-//                                    horizontal = 12.dp, vertical = 6.dp
-//                                ), {
-//                                }, {
-//                                    Text("Enable", color = ColorResource.white, style = MaterialTheme.typography.body1)
+                }
+                AppTable(Modifier.fillMaxSize(), titleList, mcpList) { index, item ->
+                    if (index != titleList.size - 1) {
+                        return@AppTable false
+                    } else {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+//                            AppImageIconButton(26.dp, MaterialTheme.colorScheme.error, Res.drawable.ic_remove) {
+//                                showDialog.value = showDialog.value.copy(show = true, onPositiveClick = {
+//                                    viewModel.remove((item as LLM).name)
 //                                })
-                            }
-                            Spacer(modifier = Modifier.width(12.dp))
+//                            }
+//                            Spacer(modifier = Modifier.width(16.dp))
+//                            AppImageIconButton(26.dp, MaterialTheme.colorScheme.primary, Res.drawable.ic_modify) {
+//                            }
                         }
-                        AppHorizontalDivider()
+                        return@AppTable true
                     }
                 }
             }
-            AppAddButton(modifier = Modifier.align(Alignment.BottomEnd), onClick = {
+            AppAddButton(modifier = Modifier.padding(16.dp).align(Alignment.BottomEnd), onClick = {
                 screenNavigator.push(Manifest.MCPAddPopupScreen)
             })
         }

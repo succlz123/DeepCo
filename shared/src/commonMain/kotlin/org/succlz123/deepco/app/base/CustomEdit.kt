@@ -2,13 +2,16 @@ package org.succlz123.deepco.app.base
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -16,10 +19,10 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.sharp.Clear
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +45,9 @@ fun CustomEdit(
     text: String = "",
     onValueChange: (String) -> Unit,
     modifier: Modifier,
+    paddingValues: PaddingValues = PaddingValues(
+        start = 16.dp, top = 12.dp, end = 16.dp, bottom = 12.dp
+    ),
     hint: String = "",
     startIcon: ImageVector? = null,
     tintIconColor: Color = Color.Black,
@@ -58,7 +64,7 @@ fun CustomEdit(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    cursorBrush: Brush = SolidColor(MaterialTheme.colors.primary)
+    cursorBrush: Brush = SolidColor(MaterialTheme.colorScheme.primary)
 ) {
     val hasFocus = remember { mutableStateOf(false) }
     Box(
@@ -73,7 +79,7 @@ fun CustomEdit(
         BasicTextField(
             value = text,
             onValueChange = onValueChange,
-            modifier = modifier.onFocusChanged { hasFocus.value = it.isFocused }.then(
+            modifier = modifier.background(MaterialTheme.colorScheme.surfaceContainerLow, shape = MaterialTheme.shapes.medium).padding(paddingValues).onFocusChanged { hasFocus.value = it.isFocused }.then(
                 if (scrollHeight > 0.dp) {
                     Modifier.verticalScroll(rememberScrollState())
                 } else {

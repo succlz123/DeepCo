@@ -58,13 +58,13 @@ fun LLMConfigDialog() {
             AppConfirmButton(Modifier.align(Alignment.BottomEnd), onClick = {
                 if (selectedProvider.value?.provider.isNullOrEmpty()) {
                     screenNavigator.toast(strings.errorProviderIsEmpty)
-                } else if (name.value.isNullOrEmpty()) {
+                } else if (name.value.isEmpty()) {
                     screenNavigator.toast(strings.errorNameIsEmpty)
                 } else if (!changeMode && vm.llmConfigs.value.find { it.name == name.value } != null) {
                     screenNavigator.toast(strings.errorNameIsDuplicate)
-                } else if (baseUrl.value.isNullOrEmpty()) {
+                } else if (baseUrl.value.isEmpty()) {
                     screenNavigator.toast(strings.errorBaseApiUrlIsEmpty)
-                } else if (apiKey.value.isNullOrEmpty()) {
+                } else if (apiKey.value.isEmpty()) {
                     screenNavigator.toast(strings.errorApiKeyIsEmpty)
                 } else {
                     vm.set(changeMode, id.value, selectedProvider.value?.provider.orEmpty(), name.value, selectedProvider.value?.modes.orEmpty(), apiKey.value, baseUrl.value.orEmpty())
@@ -92,7 +92,7 @@ fun LLMConfigDialog() {
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             onValueChange = {
                 name.value = it
-            }, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
+            }, modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(12.dp))
         if (baseUrl.value != NO_REQUIRED_API_BASE_URL) {
@@ -104,7 +104,7 @@ fun LLMConfigDialog() {
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                 onValueChange = {
                     baseUrl.value = it
-                }, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
+                }, modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(12.dp))
         }
@@ -116,7 +116,7 @@ fun LLMConfigDialog() {
             keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
             onValueChange = {
                 apiKey.value = it
-            }, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
+            }, modifier = Modifier.fillMaxWidth()
         )
     }
 }

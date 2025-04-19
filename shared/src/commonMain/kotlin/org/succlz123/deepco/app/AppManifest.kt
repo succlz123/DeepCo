@@ -7,7 +7,7 @@ object AppBuildConfig {
     val APP = "deepco"
     val gitHubUrl = "https://github.com/succlz123/DeepCo"
 
-    var versionName = "1.0.4"
+    var versionName = "1.0.5"
     var versionCode = 2
 }
 

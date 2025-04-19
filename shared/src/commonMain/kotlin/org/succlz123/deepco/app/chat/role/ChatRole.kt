@@ -17,9 +17,6 @@ object ChatRoleDefine {
     const val DESC_LEGAL_AID = "律师顾问"
     const val DESC_INTERVIEWER = "面试大师"
 
-    const val DESC_XIAOHONGSHU = "小红书种草文"
-    const val DESC_DOUYIN_WRITER = "抖音文案"
-
     const val DESC_DREAM_INTERPRETER = "梦境解读"
     const val DESC_PSYCHOLOGIST = "心理咨询"
     const val DESC_FEYNMAN_TUTOR = "费曼学习法教练"

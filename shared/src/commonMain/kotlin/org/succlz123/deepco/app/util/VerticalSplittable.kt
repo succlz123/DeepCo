@@ -7,7 +7,7 @@ import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,7 +31,6 @@ fun VerticalSplittable(
     VerticalSplitter(splitterState, onResize)
 }, modifier, measurePolicy = { measurables, constraints ->
     require(measurables.size == 3)
-
     val firstPlaceable = measurables[0].measure(constraints.copy(minWidth = 0))
     val secondWidth = constraints.maxWidth - firstPlaceable.width
     val secondPlaceable = measurables[1].measure(
@@ -59,7 +58,7 @@ class SplitterState {
 fun VerticalSplitter(
     splitterState: SplitterState,
     onResize: (delta: Dp) -> Unit,
-    color: Color = MaterialTheme.colors.background
+    color: Color = MaterialTheme.colorScheme.surfaceContainerHighest
 ) = Box {
     val density = LocalDensity.current
     Box(

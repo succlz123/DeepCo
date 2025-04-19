@@ -13,8 +13,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -51,7 +51,7 @@ fun MainLLMTab(modifier: Modifier = Modifier) {
                 .border(BorderStroke(1.dp, ColorResource.orange), RoundedCornerShape(26.dp))
                 .padding(horizontal = 12.dp, vertical = 6.dp)
         ) {
-            Text(strings().currentSupportLLM, modifier = Modifier, style = MaterialTheme.typography.caption.copy(color = ColorResource.orange))
+            Text(strings().currentSupportLLM, modifier = Modifier, style = MaterialTheme.typography.labelSmall.copy(color = ColorResource.orange))
         }
     }) {
         Box(modifier = Modifier.padding(16.dp).fillMaxSize()) {
@@ -62,8 +62,8 @@ fun MainLLMTab(modifier: Modifier = Modifier) {
                 val strings = strings()
                 val titleList = remember(strings) {
                     buildList {
-                        add(TableTitleItem(strings.provider, 120, 1f))
-                        add(TableTitleItem(strings.name, 120, 1f))
+                        add(TableTitleItem(strings.provider, 120, 0f))
+                        add(TableTitleItem(strings.name, 120, 0f))
                         add(TableTitleItem(strings.model, 0, 1f))
                         add(TableTitleItem(strings.baseAPIUrl, 0, 1f))
                         add(TableTitleItem(strings.apiKey, 120, 0f))
@@ -76,13 +76,13 @@ fun MainLLMTab(modifier: Modifier = Modifier) {
                         return@AppTable false
                     } else {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            AppImageIconButton(26.dp, ColorResource.error, Res.drawable.ic_remove) {
+                            AppImageIconButton(26.dp, MaterialTheme.colorScheme.error, Res.drawable.ic_remove) {
                                 showDialog.value = showDialog.value.copy(show = true, onPositiveClick = {
                                     viewModel.remove((item as LLM).name)
                                 })
                             }
                             Spacer(modifier = Modifier.width(16.dp))
-                            AppImageIconButton(26.dp, ColorResource.theme, Res.drawable.ic_modify) {
+                            AppImageIconButton(26.dp, MaterialTheme.colorScheme.primary, Res.drawable.ic_modify) {
                                 screenNavigator.push(Manifest.LLMConfigPopupScreen, arguments = ScreenArgs.putValue("llm", item))
                             }
                         }

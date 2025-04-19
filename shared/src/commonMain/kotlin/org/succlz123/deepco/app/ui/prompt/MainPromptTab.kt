@@ -7,7 +7,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,11 +20,8 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -39,9 +35,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import deep_co.shared.generated.resources.Res
-import deep_co.shared.generated.resources.ic_confirm
 import deep_co.shared.generated.resources.ic_more_detail
 import deep_co.shared.generated.resources.ic_remove
 import deep_co.shared.generated.resources.logo_st
@@ -51,15 +45,14 @@ import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.painterResource
 import org.succlz123.deepco.app.Manifest
 import org.succlz123.deepco.app.base.AppAddButton
-import org.succlz123.deepco.app.base.AppButton
 import org.succlz123.deepco.app.base.AppDialogConfig
 import org.succlz123.deepco.app.base.AppHorizontalDivider
-import org.succlz123.deepco.app.base.AppImgButton
 import org.succlz123.deepco.app.base.AppMessageDialog
-import org.succlz123.deepco.app.base.MainRightTitleLayout
+import org.succlz123.deepco.app.base.MainTitleLayout
 import org.succlz123.deepco.app.character.Png
 import org.succlz123.deepco.app.character.TavernCardV2
 import org.succlz123.deepco.app.chat.prompt.PromptType
+import org.succlz123.deepco.app.i18n.strings
 import org.succlz123.deepco.app.json.appJson
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.deepco.app.ui.prompt.MainPromptViewModel.Companion.CHARACTER
@@ -78,13 +71,14 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
     var promptList = viewModel.prompt.collectAsState().value
     val screenNavigator = LocalScreenNavigator.current
     val scope = rememberCoroutineScope()
-    MainRightTitleLayout(modifier, text = "Prompt", topRightContent = {}) {
+    val strings = strings()
+    MainTitleLayout(modifier, text = strings.promptTitle, topRightContent = {}) {
         Box(modifier = Modifier.padding(16.dp).fillMaxSize()) {
             val showDialog = remember {
                 mutableStateOf(AppDialogConfig.DEFAULT)
             }
             Column() {
-                Text(text = "Tavern Card Websites", modifier = Modifier, style = MaterialTheme.typography.h4)
+                Text(text = strings.tavernCardWebsite, modifier = Modifier, style = MaterialTheme.typography.h4)
                 Spacer(modifier = Modifier.height(12.dp))
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(minSize = 200.dp), verticalArrangement = Arrangement.spacedBy(12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -94,7 +88,7 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
                     }
                 }
                 Spacer(modifier = Modifier.height(12.dp))
-                Text(text = "Prompt List", modifier = Modifier, style = MaterialTheme.typography.h4)
+                Text(text = strings.promptList, modifier = Modifier, style = MaterialTheme.typography.h4)
                 Spacer(modifier = Modifier.height(12.dp))
                 val isExpandedScreen = rememberIsWindowExpanded()
                 val gridCellSize = remember(isExpandedScreen) {
@@ -170,7 +164,7 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
                                     }
                                     if (item.isDefault) {
                                         Text(
-                                            modifier = Modifier, text = "Default", style = MaterialTheme.typography.caption, color = textThemeColor, maxLines = 1
+                                            modifier = Modifier, text = strings.default, style = MaterialTheme.typography.caption, color = textThemeColor, maxLines = 1
                                         )
                                     }
                                     Spacer(modifier = Modifier.weight(1f))
@@ -194,7 +188,7 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
                         val choseFile = org.succlz123.lib.file.choseFile(listOf(".png", ".json"))
                         if (choseFile == null) {
                             withContext(Dispatchers.Default) {
-                                screenNavigator.toast("Please chose a file to import!")
+                                screenNavigator.toast(strings.errorImportTavernV2CardNoneFile)
                             }
                         } else if (choseFile.endsWith("png")) {
                             val card = try {
@@ -205,7 +199,7 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
                             withContext(Dispatchers.Default) {
                                 if (card == null) {
                                     withContext(Dispatchers.Default) {
-                                        screenNavigator.toast("Please chose the Tavern Card file!")
+                                        screenNavigator.toast(strings.errorImportTavernV2CardContentInvalidation)
                                     }
                                 } else {
                                     screenNavigator.push(
@@ -221,7 +215,7 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
                             }
                             if (card == null) {
                                 withContext(Dispatchers.Default) {
-                                    screenNavigator.toast("Please chose the Tavern Card file!")
+                                    screenNavigator.toast(strings.errorImportTavernV2CardContentInvalidation)
                                 }
                             } else {
                                 withContext(Dispatchers.Default) {
@@ -232,21 +226,21 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
                             }
                         } else {
                             withContext(Dispatchers.Default) {
-                                screenNavigator.toast("Please chose the png or json file!")
+                                screenNavigator.toast(strings.errorImportTavernV2CardFileInvalidation)
                             }
                         }
                     }
                 }, verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         modifier = Modifier.background(ColorResource.theme_30, RoundedCornerShape(4.dp)).padding(8.dp, 3.dp),
-                        text = "Tavern V2 Card\n(PNG/JSON)",
+                        text = strings.importTavernV2Card,
                         color = ColorResource.white,
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.caption
                     )
                     Spacer(modifier.width(12.dp))
                     Card(modifier = modifier, backgroundColor = Color.White, elevation = 12.dp) {
-                        Box(modifier = Modifier.padding(12.dp).noRippleClick({})) {
+                        Box(modifier = Modifier.padding(12.dp)) {
                             Image(
                                 modifier = Modifier.size(32.dp),
                                 contentDescription = null,
@@ -260,7 +254,7 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
                     screenNavigator.push(Manifest.PromptAddPopupScreen)
                 }
             }
-            AppMessageDialog("Tips", "Are you sure to remove this prompt？", showDialog)
+            AppMessageDialog(strings.tips, strings.tipsRemovePrompt, showDialog)
         }
     }
 }

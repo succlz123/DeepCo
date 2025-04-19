@@ -31,8 +31,9 @@ import org.succlz123.deepco.app.base.AppDialogConfig
 import org.succlz123.deepco.app.base.AppImageIconButton
 import org.succlz123.deepco.app.base.AppMessageDialog
 import org.succlz123.deepco.app.base.AppTable
-import org.succlz123.deepco.app.base.MainRightTitleLayout
+import org.succlz123.deepco.app.base.MainTitleLayout
 import org.succlz123.deepco.app.base.TableTitleItem
+import org.succlz123.deepco.app.i18n.strings
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.lib.screen.LocalScreenNavigator
 import org.succlz123.lib.screen.ScreenArgs
@@ -43,14 +44,14 @@ fun MainLLMTab(modifier: Modifier = Modifier) {
     val viewModel = globalViewModel { MainLLMViewModel() }
     var llmConfigList = viewModel.llmConfigs.collectAsState().value
     val screenNavigator = LocalScreenNavigator.current
-    MainRightTitleLayout(modifier, text = "My LLM", topRightContent = {
+    MainTitleLayout(modifier, text = strings().myLLM, topRightContent = {
         Row(
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center,
             modifier = Modifier.background(ColorResource.orangeLight, RoundedCornerShape(26.dp))
                 .border(BorderStroke(1.dp, ColorResource.orange), RoundedCornerShape(26.dp))
                 .padding(horizontal = 12.dp, vertical = 6.dp)
         ) {
-            Text("Current support DeepSeek / Grok / Gemini", modifier = Modifier, style = MaterialTheme.typography.caption.copy(color = ColorResource.orange))
+            Text(strings().currentSupportLLM, modifier = Modifier, style = MaterialTheme.typography.caption.copy(color = ColorResource.orange))
         }
     }) {
         Box(modifier = Modifier.padding(16.dp).fillMaxSize()) {
@@ -58,15 +59,16 @@ fun MainLLMTab(modifier: Modifier = Modifier) {
                 mutableStateOf(AppDialogConfig.DEFAULT)
             }
             Column {
-                val titleList = remember {
+                val strings = strings()
+                val titleList = remember(strings) {
                     buildList {
-                        add(TableTitleItem("Provider", 120, 1f))
-                        add(TableTitleItem("Name", 120, 1f))
-                        add(TableTitleItem("BaseUrl", 0, 1f))
-                        add(TableTitleItem("Model", 0, 1f))
-                        add(TableTitleItem("API Key", 120, 0f))
-                        add(TableTitleItem("Created Time", 120, 0f))
-                        add(TableTitleItem("Operation", 120, 0f))
+                        add(TableTitleItem(strings.provider, 120, 1f))
+                        add(TableTitleItem(strings.name, 120, 1f))
+                        add(TableTitleItem(strings.model, 0, 1f))
+                        add(TableTitleItem(strings.baseAPIUrl, 0, 1f))
+                        add(TableTitleItem(strings.apiKey, 120, 0f))
+                        add(TableTitleItem(strings.createdTime, 120, 0f))
+                        add(TableTitleItem(strings.operation, 120, 0f))
                     }
                 }
                 AppTable(Modifier.fillMaxSize(), titleList, llmConfigList) { index, item ->
@@ -92,7 +94,7 @@ fun MainLLMTab(modifier: Modifier = Modifier) {
             AppAddButton(modifier = Modifier.padding(16.dp).align(Alignment.BottomEnd)) {
                 screenNavigator.push(Manifest.LLMConfigPopupScreen)
             }
-            AppMessageDialog("Tips", "Are you sure to remove this configuration？", showDialog)
+            AppMessageDialog(strings().tips, strings().tipsRemoveLLM, showDialog)
         }
     }
 }

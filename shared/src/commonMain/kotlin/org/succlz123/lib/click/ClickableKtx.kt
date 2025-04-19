@@ -13,6 +13,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import org.succlz123.deepco.app.i18n.strings
 import org.succlz123.lib.common.openURLByBrowser
 import org.succlz123.lib.screen.LocalScreenNavigator
 
@@ -33,11 +34,12 @@ fun Modifier.noDoubleClick(onClick: () -> Unit): Modifier = composed {
 fun Modifier.noDoubleClickAndCopyStr(str: String, showToast: Boolean = false): Modifier = composed {
     val clipboardManager = LocalClipboardManager.current
     val screenNavigator = LocalScreenNavigator.current
+    val strings = strings()
     pointerInput(Unit) {
         detectTapGestures(onDoubleTap = {
             clipboardManager.setText(AnnotatedString(str))
             if (showToast) {
-                screenNavigator.toast("Copied: $str")
+                screenNavigator.toast(strings.copied)
             }
         })
     }
@@ -46,11 +48,12 @@ fun Modifier.noDoubleClickAndCopyStr(str: String, showToast: Boolean = false): M
 fun Modifier.onClickAndCopyStr(str: String, showToast: Boolean = false): Modifier = composed {
     val clipboardManager = LocalClipboardManager.current
     val screenNavigator = LocalScreenNavigator.current
+    val strings = strings()
     pointerInput(Unit) {
         detectTapGestures(onTap = {
             clipboardManager.setText(AnnotatedString(str))
             if (showToast) {
-                screenNavigator.toast("Copied")
+                screenNavigator.toast(strings.copied)
             }
         })
     }
@@ -58,9 +61,10 @@ fun Modifier.onClickAndCopyStr(str: String, showToast: Boolean = false): Modifie
 
 fun Modifier.onClickAndSpeakStr(str: String): Modifier = composed {
     val screenNavigator = LocalScreenNavigator.current
+    val strings = strings()
     pointerInput(Unit) {
         detectTapGestures(onTap = {
-            screenNavigator.toast("Speaking...")
+            screenNavigator.toast(strings.speaking)
             org.succlz123.deepco.app.tts.speak(str)
         })
     }

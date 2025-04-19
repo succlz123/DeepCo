@@ -1,6 +1,5 @@
 package org.succlz123.deepco.app.ui.prompt
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,15 +21,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import deep_co.shared.generated.resources.Res
-import deep_co.shared.generated.resources.ic_my
-import org.jetbrains.compose.resources.painterResource
 import org.succlz123.deepco.app.AppBuildConfig
 import org.succlz123.deepco.app.base.AppButton
 import org.succlz123.deepco.app.base.BaseDialogCardWithTitleColumnScroll
@@ -41,7 +34,6 @@ import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.deepco.app.ui.user.UserAvatarView
 import org.succlz123.lib.click.noRippleClick
 import org.succlz123.lib.file.choseImgFile
-import org.succlz123.lib.image.AsyncImageUrlMultiPlatform
 import org.succlz123.lib.screen.LocalScreenNavigator
 import org.succlz123.lib.screen.LocalScreenRecord
 import org.succlz123.lib.screen.value

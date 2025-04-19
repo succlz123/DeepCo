@@ -22,6 +22,7 @@ import org.succlz123.deepco.app.base.AsteriskText
 import org.succlz123.deepco.app.base.BaseDialogCardWithTitleColumnScroll
 import org.succlz123.deepco.app.base.CustomEdit
 import org.succlz123.deepco.app.chat.user.ChatUser
+import org.succlz123.deepco.app.i18n.strings
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.lib.click.noRippleClick
 import org.succlz123.lib.file.choseImgFile
@@ -50,16 +51,17 @@ fun ChatUserConfigDialog() {
     }
     val name = remember { mutableStateOf(chatUser?.name.orEmpty()) }
     val description = remember { mutableStateOf(chatUser?.description.orEmpty()) }
-    BaseDialogCardWithTitleColumnScroll("Chat User Config", bottomFixedContent = {
+    val strings = strings()
+    BaseDialogCardWithTitleColumnScroll(strings.chatUserConfig, bottomFixedContent = {
         Box(modifier = Modifier.fillMaxWidth()) {
             AppConfirmButton(Modifier.align(Alignment.BottomEnd), onClick = {
                 if (name.value.isNullOrEmpty()) {
-                    screenNavigator.toast("Name is empty!")
+                    screenNavigator.toast(strings.errorNameIsEmpty)
                 } else if (description.value.isNullOrEmpty()) {
-                    screenNavigator.toast("Description is empty!")
+                    screenNavigator.toast(strings.errorDescriptionIsEmpty)
                 } else {
                     if (chatUser == null && vm.chatUsers.value.find { it.name == name.value } != null) {
-                        screenNavigator.toast("Name is duplicate!")
+                        screenNavigator.toast(strings.errorNameIsDuplicate)
                     } else {
                         val savedPath = if (avatar.value == chatUser?.avatar) {
                             avatar.value
@@ -82,7 +84,7 @@ fun ChatUserConfigDialog() {
             UserAvatarView(Modifier.align(Alignment.Center), 82.dp, avatar.value)
         }
         Spacer(modifier = Modifier.height(12.dp))
-        AsteriskText("Name")
+        AsteriskText(strings().name)
         Spacer(modifier = Modifier.height(12.dp))
         CustomEdit(
             name.value,
@@ -94,7 +96,7 @@ fun ChatUserConfigDialog() {
             }, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
         )
         Spacer(modifier = Modifier.height(12.dp))
-        AsteriskText("Description")
+        AsteriskText(strings().description)
         Spacer(modifier = Modifier.height(12.dp))
         CustomEdit(
             description.value,

@@ -35,9 +35,7 @@ class MainChatViewModel : BaseBizViewModel() {
 
     companion object {
 
-        val STREAM_LIST = listOf("stream", "complete")
-
-        val DEFAULT_STREAM_MODEL = "stream"
+        val DEFAULT_INDEX_STREAM_MODEL = 0
     }
 
     val chatModeLocalStorage = LocalStorage(JSON_CHAT_MODE)
@@ -48,7 +46,7 @@ class MainChatViewModel : BaseBizViewModel() {
 
     val selectedHistory = MutableStateFlow<ChatMessageData?>(null)
 
-    val selectedStreamModel = MutableStateFlow<String>(DEFAULT_STREAM_MODEL)
+    val selectedStreamModel = MutableStateFlow<Int>(DEFAULT_INDEX_STREAM_MODEL)
 
     val selectedPrompt = MutableStateFlow<PromptInfo>(ChatRoleDefine.roles.first())
 
@@ -142,7 +140,7 @@ class MainChatViewModel : BaseBizViewModel() {
         }
         GlobalScope.launch {
             withContext(Dispatchers.IO) {
-                val stream = selectedStreamModel.value == "stream"
+                val stream = selectedStreamModel.value == DEFAULT_INDEX_STREAM_MODEL
                 val startTime = System.currentTimeMillis()
                 val contentSb = StringBuilder()
                 val reasoningContentSb = StringBuilder()

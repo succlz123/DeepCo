@@ -30,7 +30,8 @@ import org.jetbrains.compose.resources.painterResource
 import org.succlz123.deepco.app.Manifest
 import org.succlz123.deepco.app.base.AppAddButton
 import org.succlz123.deepco.app.base.AppHorizontalDivider
-import org.succlz123.deepco.app.base.MainRightTitleLayout
+import org.succlz123.deepco.app.base.MainTitleLayout
+import org.succlz123.deepco.app.i18n.strings
 import org.succlz123.deepco.app.ui.mcp.MainMcpViewModel.Companion.MCP_SERVERS
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.lib.click.onClickUrl
@@ -44,12 +45,12 @@ fun MainMcpTab(modifier: Modifier = Modifier) {
         MainMcpViewModel()
     }
     val screenNavigator = LocalScreenNavigator.current
-    MainRightTitleLayout(modifier, text = "MCP", topRightContent = {
+    MainTitleLayout(modifier, text = strings().tabMCP, topRightContent = {
     }) {
         Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp).weight(1f).fillMaxWidth()) {
             Column() {
                 Text(
-                    "ENV Info",
+                    strings().envInfo,
                     color = ColorResource.primaryText,
                     style = MaterialTheme.typography.h4,
                     modifier = Modifier.padding(horizontal = 6.dp)
@@ -185,7 +186,7 @@ fun MainMcpTab(modifier: Modifier = Modifier) {
                 AppHorizontalDivider()
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    "MCP Servers Collection",
+                    strings().mcpServersCollection,
                     color = ColorResource.primaryText,
                     style = MaterialTheme.typography.h4,
                     modifier = Modifier.padding(horizontal = 6.dp)
@@ -204,7 +205,7 @@ fun MainMcpTab(modifier: Modifier = Modifier) {
                 }
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    "Local MCP Servers",
+                    strings().localMCPServers,
                     color = ColorResource.primaryText,
                     style = MaterialTheme.typography.h4,
                     modifier = Modifier.padding(horizontal = 6.dp)
@@ -217,19 +218,19 @@ fun MainMcpTab(modifier: Modifier = Modifier) {
                             modifier = Modifier.background(ColorResource.background, shape = RoundedCornerShape(4.dp))
                         ) {
                             Text(
-                                text = "Name", modifier = Modifier.width(100.dp).padding(horizontal = 12.dp, vertical = 6.dp), color = ColorResource.black, style = MaterialTheme.typography.h5
+                                text = strings().name, modifier = Modifier.width(100.dp).padding(horizontal = 12.dp, vertical = 6.dp), color = ColorResource.black, style = MaterialTheme.typography.h5
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
-                                text = "Commend", modifier = Modifier.width(100.dp).padding(horizontal = 12.dp, vertical = 6.dp), color = ColorResource.black, style = MaterialTheme.typography.h5
+                                text = strings().command, modifier = Modifier.width(100.dp).padding(horizontal = 12.dp, vertical = 6.dp), color = ColorResource.black, style = MaterialTheme.typography.h5
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
-                                text = "Args", modifier = Modifier.weight(1f).padding(horizontal = 12.dp, vertical = 6.dp), color = ColorResource.black, style = MaterialTheme.typography.h5
+                                text = strings().args, modifier = Modifier.weight(1f).padding(horizontal = 12.dp, vertical = 6.dp), color = ColorResource.black, style = MaterialTheme.typography.h5
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(
-                                text = "Enable", modifier = Modifier.width(100.dp).padding(horizontal = 12.dp, vertical = 6.dp), color = ColorResource.black, style = MaterialTheme.typography.h5
+                                text = strings().enable, modifier = Modifier.width(100.dp).padding(horizontal = 12.dp, vertical = 6.dp), color = ColorResource.black, style = MaterialTheme.typography.h5
                             )
                             Spacer(modifier = Modifier.width(12.dp))
                         }

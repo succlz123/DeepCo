@@ -2,7 +2,6 @@ package org.succlz123.deepco.app.ui.mcp
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,9 +18,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.succlz123.deepco.app.base.AppButton
+import org.succlz123.deepco.app.base.AppConfirmButton
 import org.succlz123.deepco.app.base.BaseDialogCardWithTitleColumnScroll
 import org.succlz123.deepco.app.base.CustomEdit
+import org.succlz123.deepco.app.i18n.strings
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.lib.screen.LocalScreenNavigator
 import org.succlz123.lib.screen.viewmodel.globalViewModel
@@ -32,12 +32,19 @@ fun MCPAddDialog() {
     val vm = globalViewModel {
         MainMcpViewModel()
     }
-    BaseDialogCardWithTitleColumnScroll("Configure MCP") {
-        val name = remember { mutableStateOf("") }
-        val command = remember { mutableStateOf("") }
-        val args = remember { mutableStateOf("") }
+    val name = remember { mutableStateOf("") }
+    val command = remember { mutableStateOf("") }
+    val args = remember { mutableStateOf("") }
+    BaseDialogCardWithTitleColumnScroll(strings().mcpConfig, bottomFixedContent = {
+        Box(modifier = Modifier.fillMaxWidth()) {
+            AppConfirmButton(Modifier.align(Alignment.BottomEnd), onClick = {
+                vm.add(name.value, command.value, args.value.split(" "))
+                screenNavigator.pop()
+            })
+        }
+    }) {
         Text(
-            text = "Name", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
+            text = strings().name, modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
         )
         Spacer(modifier = Modifier.height(12.dp))
         CustomEdit(
@@ -51,7 +58,7 @@ fun MCPAddDialog() {
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = "Command", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
+            text = strings().command, modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
         )
         Spacer(modifier = Modifier.height(12.dp))
         CustomEdit(
@@ -65,7 +72,7 @@ fun MCPAddDialog() {
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
-            text = "Args", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
+            text = strings().args, modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
         )
         Spacer(modifier = Modifier.height(12.dp))
         CustomEdit(
@@ -77,15 +84,5 @@ fun MCPAddDialog() {
                 args.value = it
             }, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
         )
-        Spacer(modifier = Modifier.height(12.dp))
-        Box(modifier = Modifier.fillMaxWidth()) {
-            AppButton(
-                modifier = Modifier.align(Alignment.BottomEnd), text = "Save", contentPaddingValues = PaddingValues(
-                    start = 16.dp, top = 10.dp, end = 16.dp, bottom = 10.dp
-                ), onClick = {
-                    vm.add(name.value, command.value, args.value.split(" "))
-                    screenNavigator.pop()
-                })
-        }
     }
 }

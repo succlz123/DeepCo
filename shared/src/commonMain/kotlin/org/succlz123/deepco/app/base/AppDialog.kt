@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import org.succlz123.deepco.app.i18n.strings
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.deepco.app.theme.LocalAppDialogPadding
 import org.succlz123.deepco.app.theme.LocalContentPadding
@@ -83,7 +84,7 @@ fun AppDialog(
                                                 screenNavigator.cancelPopupWindow()
                                             }
                                         },
-                                        text = "Cancel",
+                                        text = strings().cancel,
                                         textAlign = TextAlign.Center,
                                         style = MaterialTheme.typography.h3,
                                         maxLines = 1
@@ -96,7 +97,7 @@ fun AppDialog(
                                                 screenNavigator.cancelPopupWindow()
                                             }
                                         },
-                                        text = "Confirm",
+                                        text = strings().confirm,
                                         textAlign = TextAlign.Center,
                                         style = MaterialTheme.typography.h3.copy(ColorResource.theme),
                                         maxLines = 1

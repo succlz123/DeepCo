@@ -5,8 +5,9 @@ object AppBuildConfig {
     var showFPS = false
 
     val APP = "deepco"
+    val gitHubUrl = "https://github.com/succlz123/DeepCo"
 
-    var versionName = "1.0.3"
+    var versionName = "1.0.4"
     var versionCode = 2
 }
 

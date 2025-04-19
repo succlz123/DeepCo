@@ -24,6 +24,7 @@ import org.succlz123.deepco.app.base.AppButton
 import org.succlz123.deepco.app.base.BaseDialogCardWithTitleColumnScroll
 import org.succlz123.deepco.app.base.CustomEdit
 import org.succlz123.deepco.app.chat.user.ChatUser
+import org.succlz123.deepco.app.i18n.strings
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.deepco.app.ui.user.MainUserViewModel
 import org.succlz123.deepco.app.ui.user.UserAvatarView
@@ -48,15 +49,13 @@ fun PromptSelectedDialog() {
     val vm = globalViewModel {
         MainUserViewModel()
     }
+    val avatar = remember { mutableStateOf(chatUser.avatar) }
+    val id = remember { mutableStateOf(chatUser.id) }
+    val name = remember { mutableStateOf(chatUser.name) }
+    val description = remember { mutableStateOf(chatUser.description) }
+    val strings = strings()
     BaseDialogCardWithTitleColumnScroll("Chat User Detail") {
-        val avatar = remember { mutableStateOf(chatUser.avatar) }
-        val id = remember { mutableStateOf(chatUser.id) }
-        val name = remember { mutableStateOf(chatUser.name) }
-        val description = remember { mutableStateOf(chatUser.description) }
-        Text(
-            text = "Avatar", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h5
-        )
-        Spacer(modifier = Modifier.height(12.dp))
+
         Box(modifier = Modifier.fillMaxWidth().noRippleClick {
             val choseFile = choseImgFile()
             if (choseFile != null) {

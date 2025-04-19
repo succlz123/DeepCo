@@ -26,6 +26,7 @@ import org.succlz123.deepco.app.base.AsteriskText
 import org.succlz123.deepco.app.base.BaseDialogCardWithTitleColumnScroll
 import org.succlz123.deepco.app.base.CustomEdit
 import org.succlz123.deepco.app.chat.prompt.PromptInfo
+import org.succlz123.deepco.app.i18n.strings
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.deepco.app.ui.user.UserAvatarView
 import org.succlz123.lib.click.noRippleClick
@@ -40,8 +41,9 @@ import java.io.File
 fun PromptDetailDialog() {
     val screenNavigator = LocalScreenNavigator.current
     val promptInfo = LocalScreenRecord.current.arguments.value<PromptInfo>("item")
+    val strings = strings()
     if (promptInfo == null) {
-        screenNavigator.toast("Prompt Info is Null!")
+        screenNavigator.toast(strings.errorPromptInfoIsNull)
         screenNavigator.pop()
         return
     }
@@ -52,7 +54,7 @@ fun PromptDetailDialog() {
     val avatar = remember { mutableStateOf(promptInfo.avatar.orEmpty()) }
     val name = remember { mutableStateOf(promptInfo.name) }
     val description = remember { mutableStateOf(promptInfo.description) }
-    BaseDialogCardWithTitleColumnScroll("Prompt Detail", bottomFixedContent = {
+    BaseDialogCardWithTitleColumnScroll(strings.promptConfiguration, bottomFixedContent = {
         Box(modifier = Modifier.fillMaxWidth()) {
             AppConfirmButton(modifier = Modifier.align(Alignment.CenterEnd)) {
                 if (avatar.value != promptInfo.avatar || name.value != promptInfo.name || description.value != promptInfo.description) {
@@ -76,7 +78,7 @@ fun PromptDetailDialog() {
             UserAvatarView(Modifier.align(Alignment.Center), 82.dp, avatar.value)
         }
         Spacer(modifier = Modifier.height(12.dp))
-        AsteriskText(text = "Name")
+        AsteriskText(text = strings.name)
         Spacer(modifier = Modifier.height(12.dp))
         CustomEdit(
             name.value,
@@ -87,7 +89,7 @@ fun PromptDetailDialog() {
             }, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
         )
         Spacer(modifier = Modifier.height(12.dp))
-        AsteriskText(text = "Description")
+        AsteriskText(text = strings.description)
         Spacer(modifier = Modifier.height(12.dp))
         CustomEdit(
             description.value,

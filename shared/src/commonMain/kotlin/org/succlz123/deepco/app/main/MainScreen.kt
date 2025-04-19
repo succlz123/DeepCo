@@ -110,7 +110,7 @@ private fun LazyListScope.mainTab(changeSelect: (MainSelectItem) -> Unit, getLef
                 Icon(
                     item.icon,
                     modifier = Modifier.size(20.dp),
-                    contentDescription = item.name,
+                    contentDescription = item.name.invoke(),
                     tint = if (getLeftSelect() == item) {
                         Color.White
                     } else {
@@ -119,7 +119,7 @@ private fun LazyListScope.mainTab(changeSelect: (MainSelectItem) -> Unit, getLef
                 )
                 Spacer(modifier = Modifier.height(3.dp))
                 Text(
-                    item.name, style = MaterialTheme.typography.body2, color = if (getLeftSelect() == item) {
+                    item.name.invoke(), style = MaterialTheme.typography.body2, color = if (getLeftSelect() == item) {
                         Color.White
                     } else {
                         Color.Gray

@@ -87,15 +87,18 @@ import deep_co.shared.generated.resources.logo_llm
 import org.jetbrains.compose.resources.painterResource
 import org.succlz123.deepco.app.Manifest
 import org.succlz123.deepco.app.base.AppButton
+import org.succlz123.deepco.app.base.AppDialogConfig
 import org.succlz123.deepco.app.base.AppHorizontalDivider
 import org.succlz123.deepco.app.base.AppImageIconButton
+import org.succlz123.deepco.app.base.AppImgButton
+import org.succlz123.deepco.app.base.AppMessageDialog
 import org.succlz123.deepco.app.base.CustomEdit
 import org.succlz123.deepco.app.chat.msg.ChatMessage
 import org.succlz123.deepco.app.chat.prompt.PromptInfo
 import org.succlz123.deepco.app.chat.user.ChatUser
+import org.succlz123.deepco.app.i18n.strings
 import org.succlz123.deepco.app.theme.ColorResource
-import org.succlz123.deepco.app.ui.chat.MainChatViewModel.Companion.DEFAULT_STREAM_MODEL
-import org.succlz123.deepco.app.ui.chat.MainChatViewModel.Companion.STREAM_LIST
+import org.succlz123.deepco.app.ui.chat.MainChatViewModel.Companion.DEFAULT_INDEX_STREAM_MODEL
 import org.succlz123.deepco.app.ui.llm.MainLLMViewModel
 import org.succlz123.deepco.app.ui.mcp.MainMcpViewModel
 import org.succlz123.deepco.app.ui.prompt.MainPromptViewModel
@@ -152,6 +155,9 @@ fun ChatView() {
         }
     }
     val screenNavigator = LocalScreenNavigator.current
+    val showHistoryRemoveDialog = remember {
+        mutableStateOf(AppDialogConfig.DEFAULT)
+    }
     Box(
         Modifier.windowInsetsPadding(WindowInsets.safeDrawing)
     ) {
@@ -160,7 +166,7 @@ fun ChatView() {
         }) {
             ResizablePanel(Modifier.width(animatedSize).fillMaxHeight(), panelState) {
                 Column(modifier = Modifier.padding(vertical = 12.dp)) {
-                    ResizablePanelTabView("History")
+                    ResizablePanelTabView(strings().history)
                     Spacer(Modifier.height(12.dp))
                     AppHorizontalDivider()
                     if (panelState.isExpanded) {
@@ -193,7 +199,12 @@ fun ChatView() {
                                     Spacer(Modifier.width(6.dp))
                                     Image(
                                         modifier = Modifier.size(14.dp).noRippleClick {
-                                            mainChatViewModel.removeHistory(item.key)
+                                            showHistoryRemoveDialog.value = showHistoryRemoveDialog.value.copy(
+                                                show = true,
+                                                onPositiveClick = {
+                                                    mainChatViewModel.removeHistory(item.key)
+                                                }
+                                            )
                                         },
                                         contentDescription = null,
                                         colorFilter = ColorFilter.tint(ColorResource.error),
@@ -306,7 +317,7 @@ fun ChatView() {
                                             painter = painterResource(resource = Res.drawable.ic_chat),
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
-                                        Text("New Chat", color = ColorResource.white, style = MaterialTheme.typography.body1)
+                                        Text(strings().newChat, color = ColorResource.white, style = MaterialTheme.typography.body1)
                                     }
                                 })
                         }
@@ -430,7 +441,7 @@ fun ChatView() {
                             } else {
                                 Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp).weight(1f)) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text("Recommend", modifier = Modifier, style = MaterialTheme.typography.h3)
+                                        Text(strings().recommend, modifier = Modifier, style = MaterialTheme.typography.h3)
                                         Spacer(modifier = Modifier.weight(1f))
                                         QQGroupView()
                                     }
@@ -461,12 +472,13 @@ fun ChatView() {
                                     )
                                 }
                                 Spacer(modifier = Modifier.width(12.dp))
+                                val strings = strings()
                                 val click = {
                                     val msg = input.value
                                     if (msg.isEmpty()) {
-                                        screenNavigator.toast("Please enter a message")
+                                        screenNavigator.toast(strings.errorMessageIsEmpty)
                                     } else if (mainChatViewModel.lastChatResponse.value is ScreenResult.Loading) {
-                                        screenNavigator.toast("Please wait a moment")
+                                        screenNavigator.toast(strings.errorMessageIsBusy)
                                     } else {
                                         mainChatViewModel.chat(msg, selectedLLmConfigValue, mcpViewModel.getServer(), false, chatUser) {
                                             mcpViewModel.callServer(it)
@@ -474,7 +486,7 @@ fun ChatView() {
                                         input.value = ""
                                     }
                                 }
-                                AnimatedSelector(STREAM_LIST, DEFAULT_STREAM_MODEL) {
+                                AnimatedSelector(strings.chatNetworkModeList, DEFAULT_INDEX_STREAM_MODEL) {
                                     mainChatViewModel.selectedStreamModel.value = it
                                 }
                                 Spacer(modifier = Modifier.width(12.dp))
@@ -483,7 +495,7 @@ fun ChatView() {
                                 ) {
                                     CustomEdit(
                                         input.value,
-                                        hint = "Ask something...",
+                                        hint = strings().askSomething,
                                         textStyle = TextStyle.Default.copy(fontSize = 14.sp),
                                         keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
                                         onValueChange = {
@@ -510,22 +522,9 @@ fun ChatView() {
                                     }
                                 }
                                 Spacer(modifier = Modifier.width(12.dp))
-                                AppButton(
-                                    Modifier, contentPaddingValues = PaddingValues(
-                                        start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp
-                                    ), onClick = {
-                                        click()
-                                    }, content = {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Image(
-                                                modifier = Modifier.size(14.dp),
-                                                contentDescription = null,
-                                                painter = painterResource(resource = Res.drawable.ic_send),
-                                            )
-                                            Spacer(modifier = Modifier.width(6.dp))
-                                            Text("Send", color = ColorResource.white, style = MaterialTheme.typography.body1)
-                                        }
-                                    })
+                                AppImgButton(drawable = Res.drawable.ic_send, text = strings().send, onClick = {
+                                    click()
+                                })
                             }
                         }
                     }
@@ -534,6 +533,7 @@ fun ChatView() {
                 }
             }
         }
+        AppMessageDialog(strings().tips, strings().tipsRemoveHistory, showHistoryRemoveDialog)
     }
 }
 
@@ -543,34 +543,28 @@ fun ChatMessageList(
     messages: List<ChatMessage>, model: String, modifier: Modifier = Modifier, onLoadMore: () -> Unit = {}, promptInfo: PromptInfo?, chatUser: ChatUser?
 ) {
     val listState = rememberLazyListState()
-
-    // 滚动到底部自动加载更多
     val shouldLoadMore = remember {
         derivedStateOf {
             val lastVisibleItem = listState.layoutInfo.visibleItemsInfo.lastOrNull()
             lastVisibleItem?.index == listState.layoutInfo.totalItemsCount - 1
         }
     }
-
     LaunchedEffect(shouldLoadMore.value) {
         if (shouldLoadMore.value) onLoadMore()
     }
-
     LaunchedEffect(messages.lastOrNull()?.reasoningContent?.value) {
         listState.animateScrollBy(999f)
     }
-
     LaunchedEffect(messages.lastOrNull()?.content?.value) {
         listState.animateScrollBy(999f)
     }
-
     LazyColumn(
         state = listState, modifier = modifier
     ) {
         item { Spacer(Modifier.height(12.dp)) }
         items(messages.size, key = {
             messages[it].id
-        }, contentType = { "message" } // 提升性能
+        }, contentType = { "message" }
         ) { index ->
             MessageItem(
                 message = messages[index], model, promptInfo, chatUser, modifier = Modifier.animateItemPlacement()
@@ -629,7 +623,7 @@ private fun MessageItem(
                         )
                         Spacer(modifier = Modifier.width(3.dp))
                         Text(
-                            text = "prompt ${message.promptTokens}", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier
+                            text = "${strings().chatMessageIconPrompt} ${message.promptTokens}", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                     }
@@ -641,7 +635,10 @@ private fun MessageItem(
                         )
                         Spacer(modifier = Modifier.width(3.dp))
                         Text(
-                            text = "completion ${message.completionTokens}", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier
+                            text = "${strings().chatMessageIconCompletion} ${message.completionTokens}",
+                            style = MaterialTheme.typography.caption,
+                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+                            modifier = Modifier
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                     }
@@ -653,7 +650,10 @@ private fun MessageItem(
                         )
                         Spacer(modifier = Modifier.width(3.dp))
                         Text(
-                            text = "total ${message.promptTokens + message.completionTokens}", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier
+                            text = "${strings().chatMessageIconTotal} ${message.promptTokens + message.completionTokens}",
+                            style = MaterialTheme.typography.caption,
+                            color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+                            modifier = Modifier
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                     }
@@ -676,7 +676,10 @@ private fun MessageItem(
                     )
                     Spacer(modifier = Modifier.width(3.dp))
                     Text(
-                        text = "speak", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier.onClickAndSpeakStr(message.content.value)
+                        text = "${strings().chatMessageIconSpeak}",
+                        style = MaterialTheme.typography.caption,
+                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+                        modifier = Modifier.onClickAndSpeakStr(message.content.value)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Image(
@@ -686,7 +689,10 @@ private fun MessageItem(
                     )
                     Spacer(modifier = Modifier.width(3.dp))
                     Text(
-                        text = "copy", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier.onClickAndCopyStr(message.content.value, true)
+                        text = "${strings().chatMessageIconCopy}",
+                        style = MaterialTheme.typography.caption,
+                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+                        modifier = Modifier.onClickAndCopyStr(message.content.value, true)
                     )
                 }
             }
@@ -699,7 +705,10 @@ private fun MessageItem(
                     )
                     Spacer(modifier = Modifier.width(3.dp))
                     Text(
-                        text = "speak", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier.onClickAndSpeakStr(message.content.value)
+                        text = "${strings().chatMessageIconSpeak}",
+                        style = MaterialTheme.typography.caption,
+                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+                        modifier = Modifier.onClickAndSpeakStr(message.content.value)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Image(
@@ -709,7 +718,10 @@ private fun MessageItem(
                     )
                     Spacer(modifier = Modifier.width(3.dp))
                     Text(
-                        text = "copy", style = MaterialTheme.typography.caption, color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f), modifier = Modifier.onClickAndCopyStr(message.content.value, true)
+                        text = "${strings().chatMessageIconCopy}",
+                        style = MaterialTheme.typography.caption,
+                        color = MaterialTheme.colors.onSurface.copy(alpha = 0.6f),
+                        modifier = Modifier.onClickAndCopyStr(message.content.value, true)
                     )
                 }
             }
@@ -815,8 +827,8 @@ private fun Avatar(isFromMe: Boolean, promptInfo: PromptInfo?, chatUser: ChatUse
 }
 
 @Composable
-fun AnimatedSelector(items: List<String>, default: String, select: (String) -> Unit) {
-    val selectedIndex = remember { mutableStateOf(items.indexOf(default)) }
+fun AnimatedSelector(items: List<String>, default: Int, select: (Int) -> Unit) {
+    val selectedIndex = remember { mutableStateOf(default) }
     val blockWidth = 58
     val offsetX = animateDpAsState(
         targetValue = with(LocalDensity.current) { (selectedIndex.value * blockWidth).dp }, label = "selectorAnimation"
@@ -824,16 +836,14 @@ fun AnimatedSelector(items: List<String>, default: String, select: (String) -> U
     Box(
         modifier = Modifier.background(ColorResource.background, RoundedCornerShape(4.dp))
     ) {
-        // 背景滑动块
         Box(
             modifier = Modifier.offset(x = offsetX.value).size(blockWidth.dp, 26.dp).background(ColorResource.theme, RoundedCornerShape(4.dp)).animateContentSize()
         )
-        // 选项布局
         Row {
             items.forEachIndexed { index, text ->
                 Box(modifier = Modifier.size(blockWidth.dp, 24.dp).noRippleClick {
                     selectedIndex.value = index
-                    select.invoke(text)
+                    select.invoke(index)
                 }.padding(4.dp), contentAlignment = Alignment.Center) {
                     Text(
                         text, color = if (selectedIndex.value == index) {
@@ -863,7 +873,7 @@ fun QQGroupView() {
             painter = painterResource(resource = Res.drawable.ic_qq),
         )
         Spacer(modifier = Modifier.width(6.dp))
-        Text("Join QQ Group 681703796", modifier = Modifier.onClickAndCopyStr("681703796", true), style = MaterialTheme.typography.caption.copy(color = ColorResource.orange))
+        Text(strings().joinQQGroup, modifier = Modifier.onClickAndCopyStr("681703796", true), style = MaterialTheme.typography.caption.copy(color = ColorResource.orange))
     }
 }
 

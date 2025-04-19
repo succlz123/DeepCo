@@ -48,6 +48,7 @@ import deep_co.shared.generated.resources.Res
 import deep_co.shared.generated.resources.ic_confirm
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
+import org.succlz123.deepco.app.i18n.strings
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.lib.click.noRippleClick
 import org.succlz123.lib.screen.LocalScreenNavigator
@@ -68,7 +69,7 @@ fun LoadingFailView(modifier: Modifier = Modifier, cancelClick: () -> Unit, okCl
         modifier = modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "数据加载失败!", fontSize = 26.sp, fontWeight = FontWeight.Bold
+            text = strings().loadingFailed, fontSize = 26.sp, fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(48.dp))
         Row {
@@ -80,7 +81,7 @@ fun LoadingFailView(modifier: Modifier = Modifier, cancelClick: () -> Unit, okCl
                 ), onClick = {
                     cancelClick.invoke()
                 }) {
-                Text(text = "退出", fontSize = 12.sp)
+                Text(text = strings().exit, fontSize = 12.sp)
             }
             Spacer(modifier = Modifier.width(32.dp))
             Button(
@@ -92,7 +93,7 @@ fun LoadingFailView(modifier: Modifier = Modifier, cancelClick: () -> Unit, okCl
                     okClick.invoke()
                 }) {
                 Text(
-                    text = "重试", fontSize = 12.sp
+                    text = strings().retry, fontSize = 12.sp
                 )
             }
         }
@@ -102,7 +103,7 @@ fun LoadingFailView(modifier: Modifier = Modifier, cancelClick: () -> Unit, okCl
 @Composable
 fun AppRefreshButton(modifier: Modifier, onClick: () -> Unit) {
     Card(modifier = modifier, backgroundColor = Color.White, elevation = 12.dp) {
-        Box(modifier = Modifier.padding(12.dp).noRippleClick(onClick)) {
+        Box(modifier = Modifier.noRippleClick(onClick).padding(12.dp)) {
             Icon(
                 Icons.Sharp.Refresh, modifier = Modifier.size(32.dp).padding(2.dp), contentDescription = "Refresh", tint = ColorResource.theme
             )
@@ -113,7 +114,7 @@ fun AppRefreshButton(modifier: Modifier, onClick: () -> Unit) {
 @Composable
 fun AppAddButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
     Card(modifier = modifier, backgroundColor = Color.White, elevation = 12.dp) {
-        Box(modifier = Modifier.padding(12.dp).noRippleClick(onClick)) {
+        Box(modifier = Modifier.noRippleClick(onClick).padding(12.dp)) {
             Icon(
                 Icons.Default.Add, modifier = Modifier.size(32.dp).padding(2.dp), contentDescription = "Refresh", tint = ColorResource.theme
             )
@@ -124,7 +125,7 @@ fun AppAddButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
 @Composable
 fun AppGo2TopButton(modifier: Modifier, onClick: () -> Unit) {
     Card(modifier = modifier, backgroundColor = Color.White, elevation = 12.dp) {
-        Box(modifier = Modifier.padding(12.dp).noRippleClick(onClick)) {
+        Box(modifier = Modifier.noRippleClick(onClick).padding(12.dp)) {
             Icon(
                 Icons.Sharp.KeyboardArrowUp, modifier = Modifier.size(32.dp).padding(2.dp), contentDescription = "Go to top", tint = ColorResource.theme
             )
@@ -155,7 +156,6 @@ fun AppVerticalDivider(modifier: Modifier = Modifier.fillMaxHeight()) {
     Spacer(modifier = modifier.width(1.dp).background(ColorResource.divider))
 }
 
-
 @Composable
 fun AppButton(
     modifier: Modifier = Modifier, text: String,
@@ -174,9 +174,10 @@ fun AppButton(
     modifier: Modifier = Modifier, contentPaddingValues: PaddingValues, onClick: () -> Unit, content: @Composable () -> Unit
 ) {
     Box(
-        modifier = modifier.background(ColorResource.theme, shape = RoundedCornerShape(4.dp)).padding(contentPaddingValues).noRippleClick {
+        modifier = modifier.background(ColorResource.theme, shape = RoundedCornerShape(4.dp)).noRippleClick {
             onClick.invoke()
-        }) {
+        }.padding(contentPaddingValues)
+    ) {
         content.invoke()
     }
 }
@@ -196,6 +197,25 @@ fun AppImageIconButton(
             painter = painterResource(resource = resource),
         )
     }
+}
+
+@Composable
+fun AppImgButton(modifier: Modifier = Modifier, size: Dp = 14.dp, tint: Color = ColorResource.white, drawable: DrawableResource, text: String, onClick: () -> Unit) {
+    AppButton(
+        modifier, contentPaddingValues = PaddingValues(
+            start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp
+        ), onClick = onClick, content = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    modifier = Modifier.size(size),
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(tint),
+                    painter = painterResource(resource = drawable),
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(text, color = ColorResource.white, style = MaterialTheme.typography.body1)
+            }
+        })
 }
 
 @Composable
@@ -221,7 +241,7 @@ fun AppConfirmButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
             colorFilter = ColorFilter.tint(ColorResource.white),
             painter = painterResource(resource = Res.drawable.ic_confirm),
         )
-    }, "Confirm", onClick)
+    }, strings().confirm, onClick)
 }
 
 @Composable

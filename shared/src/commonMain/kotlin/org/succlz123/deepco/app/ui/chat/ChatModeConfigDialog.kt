@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import org.succlz123.deepco.app.base.AppConfirmButton
 import org.succlz123.deepco.app.base.AppSliderBar
 import org.succlz123.deepco.app.base.BaseDialogCardWithTitleColumnScroll
+import org.succlz123.deepco.app.i18n.strings
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.lib.click.noRippleClick
 import org.succlz123.lib.screen.LocalScreenNavigator
@@ -35,7 +36,8 @@ fun ChatModeConfigDialog() {
     val topK = remember { mutableStateOf(config.topK) }
     val frequencyPenalty = remember { mutableStateOf(config.frequencyPenalty) }
     val presencePenalty = remember { mutableStateOf(config.presencePenalty) }
-    BaseDialogCardWithTitleColumnScroll("Chat Mode Config", bottomFixedContent = {
+    val strings = strings()
+    BaseDialogCardWithTitleColumnScroll(strings.chatConfiguration, bottomFixedContent = {
         Box(modifier = Modifier.fillMaxWidth()) {
             AppConfirmButton(Modifier.align(Alignment.BottomEnd), onClick = {
                 mainChatViewModel.chatModeConfig.value = mainChatViewModel.chatModeConfig.value.copy(
@@ -53,11 +55,11 @@ fun ChatModeConfigDialog() {
     }) {
         Row {
             Text(
-                text = "MaxOutputTokens - Default(${defaultConfig.maxOutTokens})", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h3
+                text = "${strings.maxOutputTokens} - ${strings.default}(${defaultConfig.maxOutTokens})", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h3
             )
             Spacer(modifier = Modifier.width(12.dp))
             Text(
-                text = "Reset", modifier = Modifier.noRippleClick {
+                text = strings.reset, modifier = Modifier.noRippleClick {
                     maxOutTokens.value = defaultConfig.maxOutTokens
                 }, color = ColorResource.theme, style = MaterialTheme.typography.h3
             )
@@ -70,7 +72,7 @@ fun ChatModeConfigDialog() {
         // deepseek https://api-docs.deepseek.com/zh-cn/api/create-chat-completion
         // gemini https://ai.google.dev/api/generate-content?hl=zh-cn
         Text(
-            text = "介于 1 到 8192 间的整数，限制一次请求中模型生成 completion 的最大 token 数。输入 token 和输出 token 的总长度受模型的上下文长度的限制。",
+            text = strings.maxOutputTokensDescription,
             modifier = Modifier,
             color = ColorResource.subText,
             style = MaterialTheme.typography.body2
@@ -82,11 +84,11 @@ fun ChatModeConfigDialog() {
         Spacer(modifier = Modifier.height(12.dp))
         Row {
             Text(
-                text = "Temperature- Default(${defaultConfig.temperature})", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h3
+                text = "${strings.temperature} - ${strings.default}(${defaultConfig.temperature})", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h3
             )
             Spacer(modifier = Modifier.width(12.dp))
             Text(
-                text = "Reset", modifier = Modifier.noRippleClick {
+                text = strings.reset, modifier = Modifier.noRippleClick {
                     temperature.value = defaultConfig.temperature
                 }, color = ColorResource.theme, style = MaterialTheme.typography.h3
             )
@@ -97,7 +99,7 @@ fun ChatModeConfigDialog() {
         }
         Spacer(modifier = Modifier.height(6.dp))
         Text(
-            text = "采样温度，介于 0 和 2 之间。更高的值，如 0.8，会使输出更随机，而更低的值，如 0.2，会使其更加集中和确定。 我们通常建议可以更改这个值或者更改 top_p，但不建议同时对两者进行修改。",
+            text = strings.temperatureDescription,
             modifier = Modifier,
             color = ColorResource.subText,
             style = MaterialTheme.typography.body2
@@ -109,11 +111,11 @@ fun ChatModeConfigDialog() {
         Spacer(modifier = Modifier.height(12.dp))
         Row {
             Text(
-                text = "TopP- Default(${defaultConfig.topP})", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h3
+                text = "${strings.topP} - ${strings.default}(${defaultConfig.topP})", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h3
             )
             Spacer(modifier = Modifier.width(12.dp))
             Text(
-                text = "Reset", modifier = Modifier.noRippleClick {
+                text = strings.reset, modifier = Modifier.noRippleClick {
                     topP.value = defaultConfig.topP
                 }, color = ColorResource.theme, style = MaterialTheme.typography.h3
             )
@@ -124,7 +126,7 @@ fun ChatModeConfigDialog() {
         }
         Spacer(modifier = Modifier.height(6.dp))
         Text(
-            text = "作为调节采样温度的替代方案，模型会考虑前 top_p 概率的 token 的结果。所以 0.1 就意味着只有包括在最高 10% 概率中的 token 会被考虑。 我们通常建议修改这个值或者更改 temperature，但不建议同时对两者进行修改。",
+            text = strings.topPDescription,
             modifier = Modifier,
             color = ColorResource.subText,
             style = MaterialTheme.typography.body2
@@ -136,11 +138,11 @@ fun ChatModeConfigDialog() {
         Spacer(modifier = Modifier.height(12.dp))
         Row {
             Text(
-                text = "TopK- Default(${defaultConfig.topK})", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h3
+                text = "${strings.topK} - ${strings.default}(${defaultConfig.topK})", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h3
             )
             Spacer(modifier = Modifier.width(12.dp))
             Text(
-                text = "Reset", modifier = Modifier.noRippleClick {
+                text = strings.reset, modifier = Modifier.noRippleClick {
                     topK.value = defaultConfig.topK
                 }, color = ColorResource.theme, style = MaterialTheme.typography.h3
             )
@@ -151,7 +153,7 @@ fun ChatModeConfigDialog() {
         }
         Spacer(modifier = Modifier.height(6.dp))
         Text(
-            text = "更改模型选择输出词元的方式。如果 topK 设为 1，则表示所选 token 是模型词汇表的所有 token 中概率最高的 token；如果 topK 设为 3，则表示系统将从 3 个概率最高的 token 中选择下一个 token（通过温度确定）。系统会根据 topP 进一步过滤词元，并使用温度采样选择最终的词元。",
+            text = strings.topKDescription,
             modifier = Modifier,
             color = ColorResource.subText,
             style = MaterialTheme.typography.body2
@@ -163,11 +165,11 @@ fun ChatModeConfigDialog() {
         Spacer(modifier = Modifier.height(12.dp))
         Row {
             Text(
-                text = "FrequencyPenalty- Default(${defaultConfig.frequencyPenalty})", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h3
+                text = "${strings.frequencyPenalty} - ${strings.default}(${defaultConfig.frequencyPenalty})", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h3
             )
             Spacer(modifier = Modifier.width(12.dp))
             Text(
-                text = "Reset", modifier = Modifier.noRippleClick {
+                text = strings.reset, modifier = Modifier.noRippleClick {
                     frequencyPenalty.value = defaultConfig.frequencyPenalty
                 }, color = ColorResource.theme, style = MaterialTheme.typography.h3
             )
@@ -178,7 +180,7 @@ fun ChatModeConfigDialog() {
         }
         Spacer(modifier = Modifier.height(6.dp))
         Text(
-            text = "介于 -2.0 和 2.0 之间的数字。如果该值为正，那么新 token 会根据其在已有文本中的出现频率受到相应的惩罚，降低模型重复相同内容的可能性。正惩罚会阻止使用在回答中已使用的令牌，从而增加词汇量。负惩罚会鼓励使用在回答中已使用的令牌，从而减少词汇量。",
+            text = strings.frequencyPenaltyDescription,
             modifier = Modifier,
             color = ColorResource.subText,
             style = MaterialTheme.typography.body2
@@ -190,11 +192,11 @@ fun ChatModeConfigDialog() {
         Spacer(modifier = Modifier.height(12.dp))
         Row {
             Text(
-                text = "PresencePenalty- Default(${defaultConfig.presencePenalty})", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h3
+                text = "${strings.presencePenalty} - ${strings.default}(${defaultConfig.presencePenalty})", modifier = Modifier, color = ColorResource.black, style = MaterialTheme.typography.h3
             )
             Spacer(modifier = Modifier.width(12.dp))
             Text(
-                text = "Reset", modifier = Modifier.noRippleClick {
+                text = strings.reset, modifier = Modifier.noRippleClick {
                     presencePenalty.value = defaultConfig.presencePenalty
                 }, color = ColorResource.theme, style = MaterialTheme.typography.h3
             )
@@ -205,7 +207,7 @@ fun ChatModeConfigDialog() {
         }
         Spacer(modifier = Modifier.height(6.dp))
         Text(
-            text = "介于 -2.0 和 2.0 之间的数字。如果该值为正，那么新 token 会根据其是否已在已有文本中出现受到相应的惩罚，从而增加模型谈论新主题的可能性。正惩罚会阻止使用已使用的令牌，惩罚强度与令牌的使用次数成正比：令牌使用次数越多，模型就越难再次使用该令牌来增加回答的词汇量。注意：负惩罚会鼓励模型根据令牌的使用次数重复使用令牌。较小的负值会减少回答的词汇量。负值越大，模型就会开始重复一个常用令牌，直到达到 maxOutputTokens 限制。",
+            text = strings.frequencyPenaltyDescription,
             modifier = Modifier,
             color = ColorResource.subText,
             style = MaterialTheme.typography.body2

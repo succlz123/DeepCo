@@ -42,7 +42,7 @@ fun CustomEdit(
     text: String = "",
     onValueChange: (String) -> Unit,
     modifier: Modifier,
-    hint: String = "Please input text",
+    hint: String = "",
     startIcon: ImageVector? = null,
     tintIconColor: Color = Color.Black,
     iconSpacing: Dp = 6.dp,

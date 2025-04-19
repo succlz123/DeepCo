@@ -28,7 +28,7 @@ Coze, Dify, Google Gemini, etc. You can also configure any OpenAI-compatible API
 
 ## Release
 
-[v1.0.3](https://github.com/succlz123/DeepCo/releases)
+[v1.0.4](https://github.com/succlz123/DeepCo/releases)
 
 
 ## Feature
@@ -47,7 +47,7 @@ Coze, Dify, Google Gemini, etc. You can also configure any OpenAI-compatible API
 - [ ] RAG
 - [x] TTS(Edge API)
 - [ ] Dark/Light Theme
-- [ ] i18n(Chinese/English)
+- [x] i18n(Chinese/English)
 
 ### Chat With LLMs
 

@@ -2,7 +2,6 @@ package org.succlz123.deepco.app.ui.user
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,17 +20,15 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.dp
 import deep_co.shared.generated.resources.Res
-import deep_co.shared.generated.resources.ic_my
 import deep_co.shared.generated.resources.ic_select
 import org.jetbrains.compose.resources.painterResource
 import org.succlz123.deepco.app.base.BaseDialogCardWithTitleNoneScroll
+import org.succlz123.deepco.app.i18n.strings
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.lib.click.noRippleClick
-import org.succlz123.lib.image.AsyncImageUrlMultiPlatform
 import org.succlz123.lib.screen.LocalScreenNavigator
 import org.succlz123.lib.screen.viewmodel.globalViewModel
 
@@ -41,7 +38,7 @@ fun ChatUserSelectDialog() {
     val vm = globalViewModel {
         MainUserViewModel()
     }
-    BaseDialogCardWithTitleNoneScroll("Select A Chat User") {
+    BaseDialogCardWithTitleNoneScroll(strings().selectAChatUser) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(4),
             modifier = Modifier.fillMaxWidth(),

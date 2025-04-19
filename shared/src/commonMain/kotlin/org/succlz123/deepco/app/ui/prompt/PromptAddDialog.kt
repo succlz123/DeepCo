@@ -28,6 +28,7 @@ import org.succlz123.deepco.app.base.CustomEdit
 import org.succlz123.deepco.app.base.CustomExposedDropdownMenu
 import org.succlz123.deepco.app.base.DropdownMenuDes
 import org.succlz123.deepco.app.chat.prompt.PromptType
+import org.succlz123.deepco.app.i18n.strings
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.lib.screen.LocalScreenNavigator
 import org.succlz123.lib.screen.viewmodel.globalViewModel
@@ -42,17 +43,18 @@ fun PromptAddDialog() {
     val name = remember { mutableStateOf("") }
     val description = remember { mutableStateOf("") }
     val selectedType = remember { mutableStateOf<PromptType>(PromptType.NORMAL) }
-    BaseDialogCardWithTitleColumnScroll("Add Prompt", bottomFixedContent = {
+    val strings = strings()
+    BaseDialogCardWithTitleColumnScroll(strings.promptConfiguration, bottomFixedContent = {
         Box(modifier = Modifier.fillMaxWidth()) {
             AppConfirmButton(modifier = Modifier.align(Alignment.CenterEnd)) {
-                if (name.value.isNullOrEmpty()) {
-                    screenNavigator.toast("Name is empty!")
-                } else if (description.value.isNullOrEmpty()) {
-                    screenNavigator.toast("Description is empty!")
+                if (name.value.isEmpty()) {
+                    screenNavigator.toast(strings.errorNameIsEmpty)
+                } else if (description.value.isEmpty()) {
+                    screenNavigator.toast(strings.errorDescriptionIsEmpty)
                 } else {
                     val found = vm.prompt.value.find { it.name == name.value }
                     if (found != null) {
-                        screenNavigator.toast("Name is duplicate!")
+                        screenNavigator.toast(strings.errorNameIsDuplicate)
                     } else {
                         vm.add(selectedType.value, name.value, description.value)
                         screenNavigator.pop()
@@ -61,15 +63,15 @@ fun PromptAddDialog() {
             }
         }
     }) {
-        AsteriskText(text = "Type")
+        AsteriskText(text = strings.type)
         Spacer(modifier = Modifier.height(12.dp))
         CustomExposedDropdownMenu(listOf(PromptType.NORMAL, PromptType.ROLE).map {
             DropdownMenuDes(it.name, it)
-        }, "Select Type") { item ->
+        }, strings.selectType) { item ->
             selectedType.value = item.tag as PromptType
         }
         Spacer(modifier = Modifier.height(12.dp))
-        AsteriskText(text = "Name")
+        AsteriskText(text = strings.name)
         Spacer(modifier = Modifier.height(12.dp))
         CustomEdit(
             name.value,
@@ -81,7 +83,7 @@ fun PromptAddDialog() {
             }, modifier = Modifier.background(ColorResource.background).fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)
         )
         Spacer(modifier = Modifier.height(12.dp))
-        AsteriskText(text = "Description")
+        AsteriskText(text = strings.description)
         Spacer(modifier = Modifier.height(12.dp))
         CustomEdit(
             description.value,

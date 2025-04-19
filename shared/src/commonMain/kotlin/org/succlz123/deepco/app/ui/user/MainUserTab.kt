@@ -41,7 +41,8 @@ import org.succlz123.deepco.app.base.AppAddButton
 import org.succlz123.deepco.app.base.AppDialogConfig
 import org.succlz123.deepco.app.base.AppHorizontalDivider
 import org.succlz123.deepco.app.base.AppMessageDialog
-import org.succlz123.deepco.app.base.MainRightTitleLayout
+import org.succlz123.deepco.app.base.MainTitleLayout
+import org.succlz123.deepco.app.i18n.strings
 import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.lib.click.noRippleClick
 import org.succlz123.lib.screen.LocalScreenNavigator
@@ -55,7 +56,7 @@ fun MainUserTab(modifier: Modifier = Modifier) {
     val viewModel = globalViewModel { MainUserViewModel() }
     var chatUserList = viewModel.chatUsers.collectAsState().value
     val screenNavigator = LocalScreenNavigator.current
-    MainRightTitleLayout(modifier, text = "Chat User", topRightContent = {}) {
+    MainTitleLayout(modifier, text = strings().chatUser, topRightContent = {}) {
         Box(modifier = Modifier.padding(16.dp).fillMaxSize()) {
             val showDialog = remember {
                 mutableStateOf(AppDialogConfig.DEFAULT)
@@ -147,7 +148,7 @@ fun MainUserTab(modifier: Modifier = Modifier) {
             AppAddButton(modifier = Modifier.padding(16.dp).align(Alignment.BottomEnd)) {
                 screenNavigator.push(Manifest.ChatUserConfigPopupScreen)
             }
-            AppMessageDialog("Tips", "Are you sure to remove this user？", showDialog)
+            AppMessageDialog(strings().tips, strings().tipsRemoveUser, showDialog)
         }
     }
 }

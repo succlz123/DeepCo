@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun MainRightTitleLayout(
+fun MainTitleLayout(
     modifier: Modifier = Modifier,
     text: String,
     subText: String = "",

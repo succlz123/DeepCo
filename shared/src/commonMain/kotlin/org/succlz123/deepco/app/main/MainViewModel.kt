@@ -10,6 +10,7 @@ import androidx.compose.material.icons.sharp.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.succlz123.deepco.app.i18n.strings
 import org.succlz123.deepco.app.ui.chat.MainChatTab
 import org.succlz123.deepco.app.ui.llm.MainLLMTab
 import org.succlz123.deepco.app.ui.mcp.MainMcpTab
@@ -19,31 +20,33 @@ import org.succlz123.deepco.app.ui.user.MainUserTab
 import org.succlz123.lib.common.isDesktop
 import org.succlz123.lib.vm.BaseViewModel
 
-data class MainSelectItem(val name: String, val icon: ImageVector, val content: @Composable () -> Unit)
+data class MainSelectItem(val name: @Composable () -> String, val icon: ImageVector, val content: @Composable () -> Unit)
 
 class MainViewModel : BaseViewModel() {
 
     companion object {
 
         val MAIN_TITLE = buildList {
-            add(MainSelectItem("Chat", Icons.Sharp.Home, @Composable {
+            add(MainSelectItem(@Composable {
+                strings().tabChat
+            }, Icons.Sharp.Home, @Composable {
                 MainChatTab()
             }))
-            add(MainSelectItem("LLM", Icons.Sharp.Star, @Composable {
+            add(MainSelectItem(@Composable { strings().tabLLM }, Icons.Sharp.Star, @Composable {
                 MainLLMTab()
             }))
-            add(MainSelectItem("Prompt", Icons.Sharp.Add, @Composable {
+            add(MainSelectItem(@Composable { strings().tabPrompt }, Icons.Sharp.Add, @Composable {
                 MainPromptTab()
             }))
-            add(MainSelectItem("User", Icons.Sharp.Person, @Composable {
+            add(MainSelectItem(@Composable { strings().tabUser }, Icons.Sharp.Person, @Composable {
                 MainUserTab()
             }))
             if (isDesktop()) {
-                add(MainSelectItem("MCP", Icons.Sharp.Build, @Composable {
+                add(MainSelectItem(@Composable { strings().tabMCP }, Icons.Sharp.Build, @Composable {
                     MainMcpTab()
                 }))
             }
-            add(MainSelectItem("SET", Icons.Sharp.Settings, @Composable {
+            add(MainSelectItem(@Composable { strings().tabSetting }, Icons.Sharp.Settings, @Composable {
                 MainSettingTab()
             }))
         }

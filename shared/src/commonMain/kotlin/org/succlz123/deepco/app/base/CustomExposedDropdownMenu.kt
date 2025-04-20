@@ -57,7 +57,7 @@ fun CustomExposedDropdownMenu(
                 cursorColor = MaterialTheme.colorScheme.primary,
                 focusedTextColor = MaterialTheme.colorScheme.primary,
                 focusedLabelColor = MaterialTheme.colorScheme.tertiary,
-                disabledLabelColor = MaterialTheme.colorScheme.surfaceContainer
+                disabledLabelColor = MaterialTheme.colorScheme.outlineVariant
             ),
             readOnly = true,
         )

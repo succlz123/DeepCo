@@ -6,40 +6,41 @@ import org.succlz123.deepco.app.base.BaseBizViewModel
 import org.succlz123.deepco.app.base.JSON_SETTING
 import org.succlz123.deepco.app.base.LocalStorage
 import org.succlz123.deepco.app.i18n.LocaleLanguage
+import org.succlz123.deepco.app.i18n.changeLanguage
+import org.succlz123.deepco.app.mcp.biz.ToolConfig
+import org.succlz123.deepco.app.theme.AppDarkThemeConfig
 import org.succlz123.deepco.app.theme.AppThemeConfig
+import org.succlz123.deepco.app.theme.changeAppDarkTheme
+import org.succlz123.deepco.app.theme.changeAppTheme
 
 @Serializable
 data class SettingLocal(
-    val llmToolMode: String = "manual",
+    val llmToolMode: String = ToolConfig.Manual.name,
     val languageMode: String = LocaleLanguage.ZH.name,
-    val appThemeConfig: String = AppThemeConfig.Blue.name
-)
+    val appThemeConfig: String = AppThemeConfig.Blue.name,
+    val appDarkThemeConfig: String = AppDarkThemeConfig.Sys.name
+) {
+}
 
 class MainSettingViewModel : BaseBizViewModel() {
 
     companion object {
         val settingLocalStorage = LocalStorage(JSON_SETTING)
 
-        val mcpToolModeKeyList = arrayListOf("automatic", "manual")
-
-        val languageList = arrayListOf(LocaleLanguage.ZH.name, LocaleLanguage.EN.name)
-
-        val appThemeConfigList = arrayListOf(AppThemeConfig.Blue.name, AppThemeConfig.Green.name, AppThemeConfig.Red.name, AppThemeConfig.Yellow.name)
-
         fun getSettingLocal(): SettingLocal {
             return settingLocalStorage.get<SettingLocal>() ?: SettingLocal()
         }
 
-        fun getLocaleLanguage(): LocaleLanguage {
-            return when (getSettingLocal().languageMode) {
+        fun language(name: String = getSettingLocal().languageMode): LocaleLanguage {
+            return when (name) {
                 LocaleLanguage.ZH.name -> LocaleLanguage.ZH
                 LocaleLanguage.EN.name -> LocaleLanguage.EN
                 else -> LocaleLanguage.ZH
             }
         }
 
-        fun getLocaleAppTheme(): AppThemeConfig {
-            return when (getSettingLocal().appThemeConfig) {
+        fun appTheme(name: String = getSettingLocal().appThemeConfig): AppThemeConfig {
+            return when (name) {
                 AppThemeConfig.Blue.name -> AppThemeConfig.Blue
                 AppThemeConfig.Green.name -> AppThemeConfig.Green
                 AppThemeConfig.Red.name -> AppThemeConfig.Red
@@ -47,12 +48,26 @@ class MainSettingViewModel : BaseBizViewModel() {
                 else -> AppThemeConfig.Blue
             }
         }
+
+        fun appDarkTheme(name: String = getSettingLocal().appDarkThemeConfig): AppDarkThemeConfig {
+            return when (name) {
+                AppDarkThemeConfig.Sys.name -> AppDarkThemeConfig.Sys
+                AppDarkThemeConfig.Dark.name -> AppDarkThemeConfig.Dark
+                AppDarkThemeConfig.Light.name -> AppDarkThemeConfig.Light
+                else -> AppDarkThemeConfig.Sys
+            }
+        }
     }
 
     val settingLocal = MutableStateFlow(getSettingLocal())
 
-    fun change(llmToolMode: String? = null, languageMode: String? = null, appThemeConfig: String? = null) {
-        if (llmToolMode.isNullOrEmpty() && languageMode.isNullOrEmpty() && appThemeConfig.isNullOrEmpty()) {
+    fun change(
+        llmToolMode: String? = null,
+        languageMode: String? = null,
+        appTheme: String? = null,
+        appThemeDark: String? = null
+    ) {
+        if (llmToolMode.isNullOrEmpty() && languageMode.isNullOrEmpty() && appTheme.isNullOrEmpty() && appThemeDark.isNullOrEmpty()) {
             return
         }
         val setting = settingLocal.value
@@ -65,12 +80,20 @@ class MainSettingViewModel : BaseBizViewModel() {
             languageMode = if (languageMode.isNullOrEmpty()) {
                 setting.languageMode
             } else {
+                changeLanguage(languageMode)
                 languageMode
             },
-            appThemeConfig = if (appThemeConfig.isNullOrEmpty()) {
+            appThemeConfig = if (appTheme.isNullOrEmpty()) {
                 setting.appThemeConfig
             } else {
-                appThemeConfig
+                changeAppTheme(appTheme)
+                appTheme
+            },
+            appDarkThemeConfig = if (appThemeDark.isNullOrEmpty()) {
+                setting.appDarkThemeConfig
+            } else {
+                changeAppDarkTheme(appThemeDark)
+                appThemeDark
             }
         )
         settingLocal.value = s

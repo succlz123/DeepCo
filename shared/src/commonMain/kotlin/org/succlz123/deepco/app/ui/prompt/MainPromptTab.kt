@@ -116,7 +116,10 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
                                 colorScheme.onSurface
                             }
                         }
-                        Box(modifier = Modifier.clip(MaterialTheme.shapes.medium).height(200.dp).border(BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceContainer), shape = MaterialTheme.shapes.medium)) {
+                        Box(
+                            modifier = Modifier.clip(MaterialTheme.shapes.large).height(200.dp)
+                                .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant), shape = MaterialTheme.shapes.large)
+                        ) {
                             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                 if (!item.avatar.isNullOrEmpty()) {
                                     AsyncImageUrlMultiPlatform(modifier = Modifier.fillMaxSize(), item.avatar)
@@ -230,7 +233,7 @@ fun MainPromptTab(modifier: Modifier = Modifier) {
                     }
                 }, verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        modifier = Modifier.background(MaterialTheme.colorScheme.primary, MaterialTheme.shapes.small).padding(8.dp, 3.dp),
+                        modifier = Modifier.background(MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium).padding(8.dp, 3.dp),
                         text = strings.importTavernV2Card,
                         color = MaterialTheme.colorScheme.onPrimary,
                         textAlign = TextAlign.Center,

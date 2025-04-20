@@ -22,8 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import deep_co.shared.generated.resources.Res
 import org.succlz123.deepco.app.json.appJson
-import org.succlz123.deepco.app.ui.setting.MainSettingViewModel.Companion.getLocaleAppTheme
-import org.succlz123.deepco.app.ui.setting.MainSettingViewModel.Companion.getSettingLocal
+import org.succlz123.deepco.app.ui.setting.MainSettingViewModel
 import org.succlz123.lib.common.isDesktop
 import org.succlz123.lib.screen.LocalScreenWindowSizeOwner
 import org.succlz123.lib.screen.window.ScreenWindowSizeClass
@@ -47,7 +46,19 @@ val compactDimens = AppDimens(listContentPadding = 12.dp)
 val expandedDimens = AppDimens(listContentPadding = 16.dp)
 
 enum class AppThemeConfig {
-    Green, Blue, Red, Yellow
+    Blue, Green, Red, Yellow;
+
+    companion object {
+        fun names(): List<String> = entries.map { it.name }
+    }
+}
+
+enum class AppDarkThemeConfig {
+    Sys, Dark, Light;
+
+    companion object {
+        fun names(): List<String> = entries.map { it.name }
+    }
 }
 
 private fun String.toColor(): Color {
@@ -63,20 +74,20 @@ private fun String.toColor(): Color {
     }
 }
 
-val appThemeConfig = mutableStateOf<AppThemeConfig>(getLocaleAppTheme())
+val appThemeConfig = mutableStateOf<AppThemeConfig>(MainSettingViewModel.appTheme())
 
-fun appTheme2(name: String) {
-    appThemeConfig.value = when (name) {
-        AppThemeConfig.Blue.name -> AppThemeConfig.Blue
-        AppThemeConfig.Green.name -> AppThemeConfig.Green
-        AppThemeConfig.Red.name -> AppThemeConfig.Red
-        AppThemeConfig.Yellow.name -> AppThemeConfig.Yellow
-        else -> AppThemeConfig.Blue
-    }
+fun changeAppTheme(name: String) {
+    appThemeConfig.value = MainSettingViewModel.appTheme(name)
+}
+
+val appDarkThemeConfig = mutableStateOf<AppDarkThemeConfig>(MainSettingViewModel.appDarkTheme())
+
+fun changeAppDarkTheme(name: String) {
+    appDarkThemeConfig.value = MainSettingViewModel.appDarkTheme(name)
 }
 
 @Composable
-fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() () -> Unit) {
+fun AppTheme(content: @Composable() () -> Unit) {
     var schemes = remember {
         mutableStateOf(Schemes())
     }.value
@@ -88,13 +99,13 @@ fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() 
         mutableStateOf(
             Typography(
                 displayLarge = TextStyle(
-                    fontFamily = FontFamily.Default, fontWeight = FontWeight.Bold, fontSize = 24.sp, color = colors.value.onSurface
+                    fontFamily = FontFamily.Default, fontWeight = FontWeight.Bold, fontSize = 26.sp, color = colors.value.onSurface
                 ),
                 displayMedium = TextStyle(
-                    fontFamily = FontFamily.Default, fontWeight = FontWeight.Bold, fontSize = 22.sp, color = colors.value.onSurface
+                    fontFamily = FontFamily.Default, fontWeight = FontWeight.Bold, fontSize = 24.sp, color = colors.value.onSurface
                 ),
                 displaySmall = TextStyle(
-                    fontFamily = FontFamily.Default, fontWeight = FontWeight.Bold, fontSize = 20.sp, color = colors.value.onSurface
+                    fontFamily = FontFamily.Default, fontWeight = FontWeight.Bold, fontSize = 22.sp, color = colors.value.onSurface
                 ),
                 headlineLarge = TextStyle(
                     fontFamily = FontFamily.Default, fontWeight = FontWeight.Bold, fontSize = 20.sp, color = colors.value.onSurface
@@ -106,13 +117,13 @@ fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() 
                     fontFamily = FontFamily.Default, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = colors.value.secondary
                 ),
                 titleLarge = TextStyle(
-                    fontFamily = FontFamily.Default, fontWeight = FontWeight.Normal, fontSize = 16.sp, color = colors.value.onSurface
+                    fontFamily = FontFamily.Default, fontWeight = FontWeight.Normal, fontSize = 18.sp, color = colors.value.onSurface
                 ),
                 titleMedium = TextStyle(
-                    fontFamily = FontFamily.Default, fontWeight = FontWeight.Normal, fontSize = 14.sp, color = colors.value.primary
+                    fontFamily = FontFamily.Default, fontWeight = FontWeight.Normal, fontSize = 16.sp, color = colors.value.primary
                 ),
                 titleSmall = TextStyle(
-                    fontFamily = FontFamily.Default, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = colors.value.secondary
+                    fontFamily = FontFamily.Default, fontWeight = FontWeight.Normal, fontSize = 14.sp, color = colors.value.secondary
                 ),
                 bodyLarge = TextStyle(
                     fontFamily = FontFamily.Default, fontWeight = FontWeight.Normal, fontSize = 16.sp, color = colors.value.onSurface
@@ -124,18 +135,19 @@ fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() 
                     fontFamily = FontFamily.Default, fontWeight = FontWeight.W500, fontSize = 12.sp, color = colors.value.secondary
                 ),
                 labelLarge = TextStyle(
-                    fontFamily = FontFamily.Default, fontWeight = FontWeight.Normal, fontSize = 14.sp, color = colors.value.onSurface
+                    fontFamily = FontFamily.Default, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = colors.value.onSurface
                 ),
                 labelMedium = TextStyle(
-                    fontFamily = FontFamily.Serif, fontWeight = FontWeight.Normal, fontSize = 12.sp, color = colors.value.primary, letterSpacing = 1.5.sp
+                    fontFamily = FontFamily.Serif, fontWeight = FontWeight.Normal, fontSize = 10.sp, color = colors.value.primary, letterSpacing = 1.5.sp
                 ),
                 labelSmall = TextStyle(
-                    fontFamily = FontFamily.Serif, fontWeight = FontWeight.Normal, fontSize = 10.sp, color = colors.value.secondary, letterSpacing = 1.5.sp
+                    fontFamily = FontFamily.Serif, fontWeight = FontWeight.Normal, fontSize = 8.sp, color = colors.value.secondary, letterSpacing = 1.5.sp
                 )
             )
         )
     }
-    LaunchedEffect(appThemeConfig.value) {
+    val dark = isSystemInDarkTheme()
+    LaunchedEffect(appThemeConfig.value, appDarkThemeConfig.value) {
         schemes = try {
             appJson.decodeFromString<ThemeJson>(
                 Res.readBytes(
@@ -150,7 +162,13 @@ fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() 
         } catch (e: Exception) {
             Schemes()
         }
-        val innerScheme = if (darkTheme) {
+        val innerScheme = if (appDarkThemeConfig.value == AppDarkThemeConfig.Sys) {
+            if (dark) {
+                schemes.dark
+            } else {
+                schemes.light
+            }
+        } else if (appDarkThemeConfig.value == AppDarkThemeConfig.Dark) {
             schemes.dark
         } else {
             schemes.light
@@ -195,11 +213,11 @@ fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() 
         )
     }
     val shapes = Shapes(
-        extraSmall = RoundedCornerShape(2.dp),
-        small = RoundedCornerShape(4.dp),
-        medium = RoundedCornerShape(8.dp),
-        large = RoundedCornerShape(12.dp),
-        extraLarge = RoundedCornerShape(16.dp)
+        extraSmall = RoundedCornerShape(4.dp),
+        small = RoundedCornerShape(8.dp),
+        medium = RoundedCornerShape(12.dp),
+        large = RoundedCornerShape(16.dp),
+        extraLarge = RoundedCornerShape(20.dp)
     )
     val windowSizeOwner = LocalScreenWindowSizeOwner.current
     val windowSizeClass = remember {

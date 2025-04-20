@@ -102,12 +102,12 @@ fun AppBackButton(modifier: Modifier = Modifier, tint: Color = Color.Black, onCl
 
 @Composable
 fun AppHorizontalDivider(modifier: Modifier = Modifier.fillMaxWidth()) {
-    Spacer(modifier = modifier.height(1.dp).background(MaterialTheme.colorScheme.surfaceContainerHighest))
+    Spacer(modifier = modifier.height(1.dp).background(MaterialTheme.colorScheme.surfaceContainer))
 }
 
 @Composable
 fun AppVerticalDivider(modifier: Modifier = Modifier.fillMaxHeight()) {
-    Spacer(modifier = modifier.width(1.dp).background(MaterialTheme.colorScheme.surfaceContainerHighest))
+    Spacer(modifier = modifier.width(1.dp).background(MaterialTheme.colorScheme.surfaceContainer))
 }
 
 @Composable
@@ -128,7 +128,7 @@ fun AppButton(
     modifier: Modifier = Modifier, contentPaddingValues: PaddingValues, onClick: () -> Unit, content: @Composable () -> Unit
 ) {
     Box(
-        modifier = modifier.background(MaterialTheme.colorScheme.primary, shape = MaterialTheme.shapes.small).noRippleClick {
+        modifier = modifier.background(MaterialTheme.colorScheme.primary, shape = MaterialTheme.shapes.medium).noRippleClick {
             onClick.invoke()
         }.padding(contentPaddingValues)
     ) {
@@ -233,7 +233,7 @@ fun AppSliderBar(modifier: Modifier, min: Float, max: Float, progress: Float, sh
                 )
             }, colors = SliderDefaults.colors(
                 thumbColor = MaterialTheme.colorScheme.primary,
-                inactiveTrackColor = MaterialTheme.colorScheme.surfaceContainer,
+                inactiveTrackColor = MaterialTheme.colorScheme.outlineVariant,
                 activeTrackColor = MaterialTheme.colorScheme.primary,
             )
         )

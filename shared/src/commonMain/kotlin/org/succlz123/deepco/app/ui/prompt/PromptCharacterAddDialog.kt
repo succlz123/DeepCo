@@ -82,7 +82,7 @@ fun PromptCharacterAddDialog() {
                     tags.value.forEach {
                         Spacer(modifier = Modifier.width(6.dp))
                         Box(
-                            modifier = Modifier.background(MaterialTheme.colorScheme.primary, shape = MaterialTheme.shapes.small)
+                            modifier = Modifier.background(MaterialTheme.colorScheme.primary, shape = MaterialTheme.shapes.medium)
                                 .padding(16.dp, 4.dp)
                         ) {
                             Text(it, color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.labelMedium)

@@ -6,8 +6,11 @@ import androidx.compose.runtime.remember
 import org.succlz123.deepco.app.ui.setting.MainSettingViewModel
 
 enum class LocaleLanguage {
-    EN,
-    ZH
+    ZH, EN;
+
+    companion object {
+        fun names(): List<String> = entries.map { it.name }
+    }
 }
 
 //private fun getLanguageFromSysDefault(): LocaleLanguage {
@@ -31,14 +34,10 @@ fun strings(): Strings {
     }
 }
 
-var language = mutableStateOf(MainSettingViewModel.getLocaleLanguage())
+var language = mutableStateOf(MainSettingViewModel.language())
 
-fun languageTo(name: String) {
-    language.value = when (name) {
-        LocaleLanguage.ZH.name -> LocaleLanguage.ZH
-        LocaleLanguage.EN.name -> LocaleLanguage.EN
-        else -> LocaleLanguage.ZH
-    }
+fun changeLanguage(name: String) {
+    language.value = MainSettingViewModel.language(name)
 }
 
 interface Strings {
@@ -58,6 +57,8 @@ interface Strings {
     val settingLanguageList: List<String>
     val settingAppTheme: String
     val settingAppThemeList: List<String>
+    val settingAppDarkTheme: String
+    val settingAppDarkThemeList: List<String>
     val setting: String
     val localConfigFile: String
     val openLocalConfigDir: String
@@ -70,7 +71,7 @@ interface Strings {
     val cpuSize: String
     val os: String
     val mcpToolExecutionMode: String
-    val mcpToolsMode: List<String>
+    val mcpToolsExecutionModeList: List<String>
     val tabSetting: String
     val tabMCP: String
     val tabUser: String
@@ -188,6 +189,10 @@ object EnStrings : Strings {
         get() = "App Theme"
     override val settingAppThemeList: List<String>
         get() = listOf("Blue", "Green", "Red", "Yellow")
+    override val settingAppDarkTheme: String
+        get() = "App Dark Theme"
+    override val settingAppDarkThemeList: List<String>
+        get() = listOf("Sys", "Dark", "Light")
     override val setting: String
         get() = "Setting"
     override val localConfigFile: String
@@ -212,7 +217,7 @@ object EnStrings : Strings {
         get() = "OS"
     override val mcpToolExecutionMode: String
         get() = "MCP tool execution mode: "
-    override val mcpToolsMode: List<String>
+    override val mcpToolsExecutionModeList: List<String>
         get() = listOf("Automatic", "Manual")
     override val tabSetting: String
         get() = "SET"
@@ -413,6 +418,10 @@ object ZhStrings : Strings {
         get() = "应用主题"
     override val settingAppThemeList: List<String>
         get() = listOf("蓝色", "绿色", "红色", "黄色")
+    override val settingAppDarkTheme: String
+        get() = "应用深色模式"
+    override val settingAppDarkThemeList: List<String>
+        get() = listOf("跟随系统", "深色", "亮色")
     override val setting: String
         get() = "设置"
     override val localConfigFile: String
@@ -437,7 +446,7 @@ object ZhStrings : Strings {
         get() = "系统"
     override val mcpToolExecutionMode: String
         get() = "MCP 工具调用确认模式: "
-    override val mcpToolsMode: List<String>
+    override val mcpToolsExecutionModeList: List<String>
         get() = listOf("自动", "手动")
     override val tabSetting: String
         get() = "设置"

@@ -58,7 +58,7 @@ class SplitterState {
 fun VerticalSplitter(
     splitterState: SplitterState,
     onResize: (delta: Dp) -> Unit,
-    color: Color = MaterialTheme.colorScheme.surfaceContainerHighest
+    color: Color = MaterialTheme.colorScheme.surfaceContainer
 ) = Box {
     val density = LocalDensity.current
     Box(

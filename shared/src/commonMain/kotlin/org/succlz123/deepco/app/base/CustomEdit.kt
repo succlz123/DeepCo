@@ -79,7 +79,7 @@ fun CustomEdit(
         BasicTextField(
             value = text,
             onValueChange = onValueChange,
-            modifier = modifier.background(MaterialTheme.colorScheme.surfaceContainerLow, shape = MaterialTheme.shapes.medium).padding(paddingValues).onFocusChanged { hasFocus.value = it.isFocused }.then(
+            modifier = modifier.background(MaterialTheme.colorScheme.surfaceContainerLow, shape = MaterialTheme.shapes.large).padding(paddingValues).onFocusChanged { hasFocus.value = it.isFocused }.then(
                 if (scrollHeight > 0.dp) {
                     Modifier.verticalScroll(rememberScrollState())
                 } else {

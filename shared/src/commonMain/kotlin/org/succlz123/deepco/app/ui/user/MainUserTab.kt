@@ -75,7 +75,8 @@ fun MainUserTab(modifier: Modifier = Modifier) {
                 ) {
                     itemsIndexed(chatUserList.sortedByDescending { it.createTime }) { index, item ->
                         Box(
-                            modifier = modifier.clip(MaterialTheme.shapes.medium).border(BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceContainer), shape = MaterialTheme.shapes.medium)
+                            modifier = modifier.clip(MaterialTheme.shapes.large)
+                                .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant), shape = MaterialTheme.shapes.large)
                                 .padding(horizontal = 12.dp, vertical = 12.dp)
                         ) {
                             Column {

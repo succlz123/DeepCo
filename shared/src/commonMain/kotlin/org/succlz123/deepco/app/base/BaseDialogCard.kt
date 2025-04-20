@@ -36,7 +36,7 @@ import org.succlz123.lib.screen.LocalScreenNavigator
 fun BaseDialogCard(
     content: @Composable ColumnScope.() -> Unit
 ) {
-    Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(0.1f)).padding(LocalAppDialogPadding.current).noRippleClick {}, contentAlignment = Alignment.Center) {
+    Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(0.2f)).padding(LocalAppDialogPadding.current).noRippleClick {}, contentAlignment = Alignment.Center) {
         Card(
             modifier = Modifier.fillMaxSize().align(Alignment.Center).shadow(),
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),

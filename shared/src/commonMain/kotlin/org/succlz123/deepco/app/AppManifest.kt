@@ -7,8 +7,8 @@ object AppBuildConfig {
     val APP = "deepco"
     val gitHubUrl = "https://github.com/succlz123/DeepCo"
 
-    var versionName = "1.0.5"
-    var versionCode = 2
+    var versionName = "1.0.6"
+    var versionCode = 6
 }
 
 object Manifest {

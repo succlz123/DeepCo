@@ -34,7 +34,6 @@ import org.succlz123.deepco.app.base.AppTable
 import org.succlz123.deepco.app.base.MainTitleLayout
 import org.succlz123.deepco.app.base.TableTitleItem
 import org.succlz123.deepco.app.i18n.strings
-import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.lib.screen.LocalScreenNavigator
 import org.succlz123.lib.screen.ScreenArgs
 import org.succlz123.lib.screen.viewmodel.globalViewModel
@@ -47,11 +46,11 @@ fun MainLLMTab(modifier: Modifier = Modifier) {
     MainTitleLayout(modifier, text = strings().myLLM, topRightContent = {
         Row(
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.background(ColorResource.orangeLight, RoundedCornerShape(26.dp))
-                .border(BorderStroke(1.dp, ColorResource.orange), RoundedCornerShape(26.dp))
+            modifier = Modifier.background(MaterialTheme.colorScheme.tertiary.copy(0.2f), RoundedCornerShape(26.dp))
+                .border(BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary), RoundedCornerShape(26.dp))
                 .padding(horizontal = 12.dp, vertical = 6.dp)
         ) {
-            Text(strings().currentSupportLLM, modifier = Modifier, style = MaterialTheme.typography.labelSmall.copy(color = ColorResource.orange))
+            Text(strings().currentSupportLLM, modifier = Modifier, style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.tertiary))
         }
     }) {
         Box(modifier = Modifier.padding(16.dp).fillMaxSize()) {

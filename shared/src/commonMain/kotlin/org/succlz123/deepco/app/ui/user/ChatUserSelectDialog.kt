@@ -48,7 +48,7 @@ fun ChatUserSelectDialog() {
                     modifier = Modifier.fillMaxWidth().noRippleClick {
                         vm.changeDefault(item)
                         screenNavigator.pop()
-                    }.border(BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceContainer), shape = MaterialTheme.shapes.medium)
+                    }.border(BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant), shape = MaterialTheme.shapes.large)
                         .padding(horizontal = 12.dp, vertical = 12.dp)
                 ) {
                     Box(modifier = Modifier.fillMaxWidth()) {

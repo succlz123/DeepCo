@@ -31,7 +31,7 @@ fun AppTable(modifier: Modifier, titleList: List<TableTitleItem>, content: List<
     LazyColumn(modifier = modifier) {
         item {
             Row(
-                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer, shape = MaterialTheme.shapes.small)
+                modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainer, shape = MaterialTheme.shapes.medium)
             ) {
                 titleList.forEachIndexed { index, titleItem ->
                     Text(
@@ -51,7 +51,7 @@ fun AppTable(modifier: Modifier, titleList: List<TableTitleItem>, content: List<
         itemsIndexed(content, key = { index, item ->
             item.toString()
         }) { index, item ->
-            Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                 titleList.forEachIndexed { index, titleItem ->
                     if (indexInterceptor != null && indexInterceptor.invoke(index, item)) {
                     } else {

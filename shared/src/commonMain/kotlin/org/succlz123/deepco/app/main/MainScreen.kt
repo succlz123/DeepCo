@@ -95,7 +95,7 @@ private fun LazyListScope.mainTab(changeSelect: (MainSelectItem) -> Unit, getLef
         Card(
             modifier = Modifier.noRippleClick {
                 changeSelect(item)
-            }, shape = MaterialTheme.shapes.medium,   elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            }, shape = MaterialTheme.shapes.extraLarge,   elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
             colors = CardDefaults.cardColors(containerColor = if (getLeftSelect() == item) {
                 MaterialTheme.colorScheme.primary
             } else {

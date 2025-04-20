@@ -24,9 +24,11 @@ import org.succlz123.deepco.app.AppBuildConfig
 import org.succlz123.deepco.app.base.AppHorizontalDivider
 import org.succlz123.deepco.app.base.AppImgButton
 import org.succlz123.deepco.app.base.MainTitleLayout
-import org.succlz123.deepco.app.i18n.languageTo
+import org.succlz123.deepco.app.i18n.LocaleLanguage
 import org.succlz123.deepco.app.i18n.strings
-import org.succlz123.deepco.app.theme.appTheme2
+import org.succlz123.deepco.app.mcp.biz.ToolConfig
+import org.succlz123.deepco.app.theme.AppDarkThemeConfig
+import org.succlz123.deepco.app.theme.AppThemeConfig
 import org.succlz123.lib.click.noRippleClick
 import org.succlz123.lib.click.onClickUrl
 import org.succlz123.lib.common.getPlatformName
@@ -45,107 +47,31 @@ fun MainSettingTab(modifier: Modifier = Modifier) {
             modifier = Modifier.padding(16.dp).fillMaxSize()
         ) {
             Text(text = strings().llm, style = MaterialTheme.typography.headlineMedium)
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                val mcpToolsMode = strings().mcpToolsMode
-                val kv = remember(settings, mcpToolsMode) {
-                    mcpToolsMode.mapIndexed { index: Int, item: String ->
-                        Pair(item, MainSettingViewModel.mcpToolModeKeyList[index])
-                    }
-                }
-                val curSelect = remember(settings) {
-                    mutableStateOf(MainSettingViewModel.mcpToolModeKeyList.indexOf(settings.llmToolMode))
-                }
-                Text(text = strings().mcpToolExecutionMode, style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.width(12.dp))
-                kv.forEachIndexed { index, s ->
-                    Text(
-                        modifier = Modifier.padding(16.dp, 6.dp).noRippleClick {
-                            viewModel.change(llmToolMode = s.second)
-                        }, text = s.first, style = MaterialTheme.typography.bodyMedium,
-                        color = if ((index == curSelect.value)) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.surfaceDim
-                        }
-                    )
-                }
+            SettingSelection(settings.llmToolMode, strings().mcpToolExecutionMode, strings().mcpToolsExecutionModeList, ToolConfig.names()) {
+                viewModel.change(llmToolMode = it)
             }
-            Spacer(modifier = Modifier.height(12.dp))
-            AppHorizontalDivider()
-            Spacer(modifier = Modifier.height(12.dp))
+            SettingDivider()
             Text(text = strings().client, style = MaterialTheme.typography.headlineMedium)
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                val settingLanguageList = strings().settingLanguageList
-                val kv = remember(settings, settingLanguageList) {
-                    settingLanguageList.mapIndexed { index: Int, item: String ->
-                        Pair(item, MainSettingViewModel.languageList[index])
-                    }
-                }
-                val curSelect = remember(settings) {
-                    mutableStateOf(MainSettingViewModel.languageList.indexOf(settings.languageMode))
-                }
-                Text(text = strings().settingLanguage, style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.width(12.dp))
-                kv.forEachIndexed { index, s ->
-                    Text(
-                        modifier = Modifier.padding(16.dp, 6.dp).noRippleClick {
-                            viewModel.change(languageMode = s.second)
-                            languageTo(s.second)
-                        }, text = s.first, style = MaterialTheme.typography.bodyMedium,
-                        color = if ((index == curSelect.value)) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.surfaceDim
-                        }
-                    )
-                }
+            SettingSelection(settings.languageMode, strings().settingLanguage, strings().settingLanguageList, LocaleLanguage.names()) {
+                viewModel.change(languageMode = it)
             }
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                val settingAppThemeList = strings().settingAppThemeList
-                val kv = remember(settings, settingAppThemeList) {
-                    settingAppThemeList.mapIndexed { index: Int, item: String ->
-                        Pair(item, MainSettingViewModel.appThemeConfigList[index])
-                    }
-                }
-                val curSelect = remember(settings) {
-                    mutableStateOf(MainSettingViewModel.appThemeConfigList.indexOf(settings.appThemeConfig))
-                }
-                Text(text = strings().settingAppTheme, style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.width(12.dp))
-                kv.forEachIndexed { index, s ->
-                    Text(
-                        modifier = Modifier.padding(16.dp, 6.dp).noRippleClick {
-                            viewModel.change(appThemeConfig = s.second)
-                            appTheme2(s.second)
-                        }, text = s.first, style = MaterialTheme.typography.bodyMedium,
-                        color = if ((index == curSelect.value)) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.surfaceDim
-                        }
-                    )
-                }
+            SettingSelection(settings.appThemeConfig, strings().settingAppTheme, strings().settingAppThemeList, AppThemeConfig.names()) {
+                viewModel.change(appTheme = it)
             }
-            Spacer(modifier = Modifier.height(12.dp))
-            AppHorizontalDivider()
-            Spacer(modifier = Modifier.height(12.dp))
+            SettingSelection(settings.appDarkThemeConfig, strings().settingAppDarkTheme, strings().settingAppDarkThemeList, AppDarkThemeConfig.names()) {
+                viewModel.change(appThemeDark = it)
+            }
+            SettingDivider()
             Text(text = strings().localConfigFile, style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(12.dp))
             AppImgButton(drawable = Res.drawable.ic_local_dir, text = strings().openLocalConfigDir, onClick = {
                 org.succlz123.lib.setting.openConfigDir(AppBuildConfig.APP)
             })
-            Spacer(modifier = Modifier.height(12.dp))
-            AppHorizontalDivider()
-            Spacer(modifier = Modifier.height(12.dp))
+            SettingDivider()
             Text(text = strings().declaration, style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(12.dp))
             Text(text = strings().declarationContent, style = MaterialTheme.typography.bodyMedium)
-            Spacer(modifier = Modifier.height(12.dp))
-            AppHorizontalDivider()
-            Spacer(modifier = Modifier.height(12.dp))
+            SettingDivider()
             Text(text = strings().github, style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(12.dp))
             val url = remember {
@@ -156,9 +82,7 @@ fun MainSettingTab(modifier: Modifier = Modifier) {
                 color = MaterialTheme.colorScheme.primary,
                 style = MaterialTheme.typography.bodyMedium
             )
-            Spacer(modifier = Modifier.height(12.dp))
-            AppHorizontalDivider()
-            Spacer(modifier = Modifier.height(12.dp))
+            SettingDivider()
             Text(text = strings().deviceInfo, style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(12.dp))
             Text(
@@ -166,12 +90,46 @@ fun MainSettingTab(modifier: Modifier = Modifier) {
 ${strings().os}: ${props.getProperty("os.name")} - ${props.getProperty("os.arch")} - ${props.getProperty("os.version")}""",
                 style = MaterialTheme.typography.bodyMedium
             )
-            Spacer(modifier = Modifier.height(12.dp))
-            AppHorizontalDivider()
-            Spacer(modifier = Modifier.height(12.dp))
+            SettingDivider()
             Text(text = strings().version, style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(12.dp))
             Text(text = "v${AppBuildConfig.versionName}", style = MaterialTheme.typography.bodyMedium)
+        }
+    }
+}
+
+@Composable
+fun SettingDivider() {
+    Spacer(modifier = Modifier.height(12.dp))
+    AppHorizontalDivider()
+    Spacer(modifier = Modifier.height(12.dp))
+}
+
+@Composable
+fun SettingSelection(mode: String, title: String, selectStringList: List<String>, enumList: List<String>, change: (String) -> Unit) {
+    Spacer(modifier = Modifier.height(12.dp))
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        val kv = remember(mode, selectStringList) {
+            selectStringList.mapIndexed { index: Int, item: String ->
+                Pair(item, enumList[index])
+            }
+        }
+        val curSelect = remember(mode) {
+            mutableStateOf(enumList.indexOf(mode))
+        }
+        Text(text = title, style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.width(12.dp))
+        kv.forEachIndexed { index, s ->
+            Text(
+                modifier = Modifier.padding(16.dp, 6.dp).noRippleClick {
+                    change(s.second)
+                }, text = s.first, style = MaterialTheme.typography.bodyMedium,
+                color = if ((index == curSelect.value)) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.surfaceContainerHighest
+                }
+            )
         }
     }
 }

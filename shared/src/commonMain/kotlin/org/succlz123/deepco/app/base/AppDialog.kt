@@ -89,7 +89,7 @@ fun AppDialog(
                                             },
                                             text = strings().cancel,
                                             textAlign = TextAlign.Center,
-                                            style = MaterialTheme.typography.bodyMedium,
+                                            style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.error),
                                             maxLines = 1
                                         )
                                         Spacer(modifier = Modifier.width(48.dp))

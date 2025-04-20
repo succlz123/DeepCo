@@ -35,9 +35,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.selection.DisableSelection
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -98,7 +97,6 @@ import org.succlz123.deepco.app.chat.msg.ChatMessage
 import org.succlz123.deepco.app.chat.prompt.PromptInfo
 import org.succlz123.deepco.app.chat.user.ChatUser
 import org.succlz123.deepco.app.i18n.strings
-import org.succlz123.deepco.app.theme.ColorResource
 import org.succlz123.deepco.app.ui.chat.MainChatViewModel.Companion.DEFAULT_INDEX_STREAM_MODEL
 import org.succlz123.deepco.app.ui.llm.LLM
 import org.succlz123.deepco.app.ui.llm.MainLLMViewModel
@@ -190,7 +188,7 @@ fun ChatView() {
                                                 MaterialTheme.colorScheme.primaryContainer
                                             } else {
                                                 Color.Transparent
-                                            }, shape = MaterialTheme.shapes.small
+                                            }, shape = MaterialTheme.shapes.medium
                                         ).padding(vertical = 4.dp, horizontal = 6.dp),
                                         maxLines = 1,
                                         color = if (curSelect == item.key) {
@@ -234,7 +232,7 @@ fun ChatView() {
                                 mutableStateOf(false)
                             }
                             Row(
-                                modifier = Modifier.background(MaterialTheme.colorScheme.primary.copy(0.1f), shape = MaterialTheme.shapes.small)
+                                modifier = Modifier.background(MaterialTheme.colorScheme.primary.copy(0.1f), shape = MaterialTheme.shapes.medium)
                                     .padding(horizontal = 12.dp, vertical = 6.dp).noRippleClick {
                                         providerExpanded.value = true
                                     }, verticalAlignment = Alignment.CenterVertically
@@ -282,7 +280,7 @@ fun ChatView() {
                                 mutableStateOf(false)
                             }
                             Row(
-                                modifier = Modifier.background(MaterialTheme.colorScheme.primary.copy(0.1f), shape = MaterialTheme.shapes.small).padding(horizontal = 12.dp, vertical = 6.dp).noRippleClick {
+                                modifier = Modifier.background(MaterialTheme.colorScheme.primary.copy(0.1f), shape = MaterialTheme.shapes.medium).padding(horizontal = 12.dp, vertical = 6.dp).noRippleClick {
                                     modeExpanded.value = true
                                 }, verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -335,7 +333,7 @@ fun ChatView() {
                                                     MaterialTheme.colorScheme.primary
                                                 } else {
                                                     MaterialTheme.colorScheme.onPrimary
-                                                }, shape = MaterialTheme.shapes.small
+                                                }, shape = MaterialTheme.shapes.medium
                                             ).border(
                                                 BorderStroke(
                                                     1.dp, if (selectedPrompt.name == prompt.name) {
@@ -343,7 +341,7 @@ fun ChatView() {
                                                     } else {
                                                         MaterialTheme.colorScheme.primary
                                                     }
-                                                ), shape = MaterialTheme.shapes.small
+                                                ), shape = MaterialTheme.shapes.medium
                                             ).padding(horizontal = 10.dp, vertical = 4.dp).noRippleClick {
                                                 mainChatViewModel.selectedPrompt.value = prompt
                                             }) {
@@ -386,7 +384,7 @@ fun ChatView() {
                                                     MaterialTheme.colorScheme.primary
                                                 } else {
                                                     MaterialTheme.colorScheme.onPrimary
-                                                }, shape = MaterialTheme.shapes.small
+                                                }, shape = MaterialTheme.shapes.medium
                                             ).border(
                                                 BorderStroke(
                                                     1.dp,
@@ -395,7 +393,7 @@ fun ChatView() {
                                                     } else {
                                                         MaterialTheme.colorScheme.primary
                                                     }
-                                                ), shape = MaterialTheme.shapes.small
+                                                ), shape = MaterialTheme.shapes.medium
                                             ).padding(horizontal = 10.dp, vertical = 4.dp).noRippleClick {
                                                 if (mcpList.map { it.name }.intersect(selectedMCPList.map { it.name }).isNotEmpty()) {
                                                     mainChatViewModel.selectedMCPList.value = mainChatViewModel.selectedMCPList.value - mcp
@@ -467,7 +465,11 @@ fun ColumnScope.ChatLayout(mainChatViewModel: MainChatViewModel, selectedLLmConf
         )
         Row(
             modifier = Modifier.fillMaxWidth()
-                .background(MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.shapes.medium).padding(horizontal = 16.dp, vertical = 16.dp), verticalAlignment = Alignment.CenterVertically
+                .background(
+                    MaterialTheme.colorScheme.secondaryContainer,
+                    MaterialTheme.shapes.large.copy(bottomStart = ZeroCornerSize, bottomEnd = ZeroCornerSize)
+                )
+                .padding(horizontal = 16.dp, vertical = 16.dp), verticalAlignment = Alignment.CenterVertically
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -745,14 +747,14 @@ private fun ChatBubble(
     message: ChatMessage, modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.clip(MaterialTheme.shapes.medium).border(BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceContainer), shape = MaterialTheme.shapes.medium).padding(horizontal = 12.dp, vertical = 12.dp)
+        modifier = modifier.clip(MaterialTheme.shapes.medium).border(BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant), shape = MaterialTheme.shapes.large).padding(horizontal = 12.dp, vertical = 12.dp)
     ) {
-        val primary = MaterialTheme.colorScheme.primary
+        val tertiary = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.7f)
         if (message.reasoningContent.value.isNotEmpty()) {
             Row(modifier = Modifier.drawWithContent {
                 drawContent()
                 drawLine(
-                    color = primary.copy(0.6f),
+                    color = tertiary,
                     start = Offset(0f, 0f),
                     end = Offset(0f, size.height),
                     strokeWidth = 2.dp.toPx()
@@ -760,11 +762,7 @@ private fun ChatBubble(
             }) {
                 Spacer(modifier = Modifier.width(6.dp))
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = message.reasoningContent.value, style = MaterialTheme.typography.bodyMedium.copy(
-                            color = MaterialTheme.colorScheme.tertiary
-                        )
-                    )
+                    Text(text = message.reasoningContent.value, style = MaterialTheme.typography.bodyMedium.copy(color = tertiary))
                 }
             }
             Spacer(modifier = Modifier.height(6.dp))
@@ -839,10 +837,11 @@ fun AnimatedSelector(items: List<String>, default: Int, select: (Int) -> Unit) {
         targetValue = with(LocalDensity.current) { (selectedIndex.value * blockWidth).dp }, label = "selectorAnimation"
     )
     Box(
-        modifier = Modifier.background(MaterialTheme.colorScheme.surface, MaterialTheme.shapes.small)
+        modifier = Modifier.background(MaterialTheme.colorScheme.surfaceContainerLow, MaterialTheme.shapes.large)
     ) {
         Box(
-            modifier = Modifier.offset(x = offsetX.value).size(blockWidth.dp, 26.dp).background(MaterialTheme.colorScheme.primary, MaterialTheme.shapes.small).animateContentSize()
+            modifier = Modifier.offset(x = offsetX.value).size(blockWidth.dp, 26.dp)
+                .background(MaterialTheme.colorScheme.primary, MaterialTheme.shapes.large).animateContentSize()
         )
         Row {
             items.forEachIndexed { index, text ->
@@ -851,11 +850,14 @@ fun AnimatedSelector(items: List<String>, default: Int, select: (Int) -> Unit) {
                     select.invoke(index)
                 }.padding(4.dp), contentAlignment = Alignment.Center) {
                     Text(
-                        text, color = if (selectedIndex.value == index) {
-                            MaterialTheme.colorScheme.onPrimary
-                        } else {
-                            MaterialTheme.colorScheme.primary
-                        }, fontSize = 10.sp
+                        text,
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            color = if (selectedIndex.value == index) {
+                                MaterialTheme.colorScheme.onPrimary
+                            } else {
+                                MaterialTheme.colorScheme.primary
+                            }
+                        ),
                     )
                 }
             }
@@ -867,18 +869,18 @@ fun AnimatedSelector(items: List<String>, default: Int, select: (Int) -> Unit) {
 fun QQGroupView() {
     Row(
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center,
-        modifier = Modifier.background(ColorResource.orangeLight, MaterialTheme.shapes.extraLarge)
-            .border(BorderStroke(1.dp, ColorResource.orange), MaterialTheme.shapes.extraLarge)
+        modifier = Modifier.background(MaterialTheme.colorScheme.tertiary.copy(0.2f), MaterialTheme.shapes.extraLarge)
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.tertiary), MaterialTheme.shapes.extraLarge)
             .padding(horizontal = 12.dp, vertical = 4.dp)
     ) {
         Image(
             modifier = Modifier.size(16.dp),
             contentDescription = null,
-            colorFilter = ColorFilter.tint(ColorResource.orange),
+            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.tertiary),
             painter = painterResource(resource = Res.drawable.ic_qq),
         )
         Spacer(modifier = Modifier.width(6.dp))
-        Text(strings().joinQQGroup, modifier = Modifier.onClickAndCopyStr("681703796", true), style = MaterialTheme.typography.labelSmall.copy(color = ColorResource.orange))
+        Text(strings().joinQQGroup, modifier = Modifier.onClickAndCopyStr("681703796", true), style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.tertiary))
     }
 }
 
@@ -886,7 +888,7 @@ fun QQGroupView() {
 fun RecommendView() {
     Row {
         Box(
-            modifier = Modifier.weight(1f).background(MaterialTheme.colorScheme.surfaceContainer, shape = MaterialTheme.shapes.medium).padding(horizontal = 16.dp, vertical = 16.dp)
+            modifier = Modifier.weight(1f).background(MaterialTheme.colorScheme.surfaceContainer, shape = MaterialTheme.shapes.large).padding(horizontal = 16.dp, vertical = 16.dp)
                 .noRippleClick {
                     openURLByBrowser("https://modelcontextprotocol.io/introduction")
                 }) {
@@ -901,7 +903,7 @@ fun RecommendView() {
         }
         Spacer(modifier = Modifier.width(16.dp))
         Box(
-            modifier = Modifier.weight(1f).background(MaterialTheme.colorScheme.surfaceContainer, shape = MaterialTheme.shapes.medium).padding(horizontal = 16.dp, vertical = 16.dp)
+            modifier = Modifier.weight(1f).background(MaterialTheme.colorScheme.surfaceContainer, shape = MaterialTheme.shapes.large).padding(horizontal = 16.dp, vertical = 16.dp)
                 .onClickUrl("https://api-docs.deepseek.com/")
         ) {
             Column {
